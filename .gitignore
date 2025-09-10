@@ -11,4 +11,4 @@ usage-data-config.json
 .DS_Store
 .idea
 
-/app/generated/prisma
+/prisma/data/

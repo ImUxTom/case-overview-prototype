@@ -4,7 +4,8 @@
     "serve": "govuk-prototype-kit serve",
     "start": "govuk-prototype-kit start",
     "generate-data": "npx prisma db push --force-reset && npx prisma db seed",
-    "prisma-studio": "npx prisma studio"
+    "prisma-studio": "npx prisma studio",
+    "heroku-postbuild": "npm run generate-data"
   },
   "dependencies": {
     "@govuk-prototype-kit/common-templates": "2.0.1",
@@ -16,10 +17,10 @@
     "govuk-frontend": "5.11.1",
     "govuk-prototype-kit": "13.18.0",
     "jquery": "3.7.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@faker-js/faker": "^9.9.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
     "prisma": "^6.14.0"
   },
   "prisma": {
