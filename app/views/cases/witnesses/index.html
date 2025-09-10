@@ -28,13 +28,13 @@
                  <h3 class="govuk-heading-m">Court details</h3>
 
                 {% if witness.appearingInCourt == true %}
-                  <p>Appearing in court.</p>
-                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-not-appearing-in-court">Mark as not appearing in court</a></p>
+                  <p>Witness called.</p>
+                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-not-appearing-in-court">Dewarn witness</a></p>
                 {% elseif witness.appearingInCourt == false %}
-                  <p>Not appearing in court.</p>
-                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-appearing-in-court">Mark as appearing in court</a></p>
+                  <p>Witness dewarned.</p>
+                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-appearing-in-court">Call witness</a></p>
                 {% else %}
-                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-appearing-in-court">Mark as appearing in court</a></p>
+                  <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-appearing-in-court">Call witness</a></p>
                 {% endif %}
 
                 {{ govukSummaryList({
@@ -65,13 +65,13 @@
                     <h3 class="govuk-heading-m">Statement {{loop.index}}</h3>
 
                     {% if statement.serveSection9 == true %}
-                      <p>Section 9 issued.</p>
+                      <p>Served as Section 9.</p>
                       <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/withdraw-section9">Withdraw section 9</a></p>
                     {% elseif statement.serveSection9 == false %}
                       <p>Section 9 withdrawn.</p>
-                      <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/issue-section9">Issue section 9</a></p>
+                      <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/issue-section9">Serve as Section 9</a></p>
                     {% else %}
-                      <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/issue-section9">Issue section 9</a></p>
+                      <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/issue-section9">Serve as Section 9</a></p>
                     {% endif %}
 
                     {% if statement.useInCourt == true %}                    
@@ -86,6 +86,14 @@
                     {{ govukSummaryList({
                       classes: 'app-summary-list--compac app-summary-list--small-tex govuk-!-margin-bottom-5',
                       rows: [
+                        {
+                          key: {
+                            html: 'Statement number'
+                          },
+                          value: {
+                            html: loop.index
+                          }
+                        },
                         {
                           key: {
                             html: 'Statement'
@@ -103,12 +111,21 @@
                         },
                         {
                           key: {
-                            html: 'Use in court'
+                            html: 'Using as evidence'
                           },
                           value: {
                             html: useInCourtValue
                           }
-                        }           
+                        },
+                        {
+                          key: {
+                            html: 'CPS disclosure assessment'
+                          },
+                          value: {
+                            html: 'Evidence'
+                          }
+                        }
+                                     
                       ]
                     })}}
 

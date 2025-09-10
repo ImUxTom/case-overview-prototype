@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Confirm that you want to mark the witness as appearing in court" %}
+{% set pageName = "Confirm that you want to call the witness" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -17,7 +17,7 @@
       <h1 class="govuk-heading-l">{{pageName}}</h1>
       <form method="post">
         {{ govukButton({
-          text: "Mark as appearing in court"
+          text: "Call witness"
         }) }}
       </form>
       <p><a href="/cases/{{_case.id}}/witnesses">Cancel</a></p>
