@@ -3,7 +3,6 @@
     "dev": "govuk-prototype-kit dev",
     "serve": "govuk-prototype-kit serve",
     "start": "govuk-prototype-kit start",
-    "postinstall": "npm run generate-data",
     "generate-data": "npx prisma db push --force-reset && npx prisma db seed",
     "prisma-studio": "npx prisma studio"
   },
