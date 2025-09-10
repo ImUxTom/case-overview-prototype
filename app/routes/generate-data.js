@@ -3,13 +3,13 @@ const faker = require('@faker-js/faker').faker
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-// Example data imports; replace paths with your actual data files
-const firstNames = require('../data/first-names')
-const lastNames = require('../data/last-names')
-const priorities = require('../data/priorities')
-const complexities = require('../data/complexities')
-const types = require('../data/types')
-const specialisms = require('../data/specialisms')
+// Example data arrays (replace with your own if needed)
+const priorities = ['High', 'Medium', 'Low']
+const complexities = ['Simple', 'Moderate', 'Complex']
+const types = ['magistrates', 'crown', 'other']
+const firstNames = ['John', 'Jane', 'Alice', 'Bob', 'Tony', 'Steve']
+const lastNames = ['Smith', 'Doe', 'Johnson', 'Brown', 'Stark']
+const specialisms = ['Fraud', 'Cybercrime', 'Drugs', 'Terrorism']
 
 function futureDateAt10am() {
   const d = faker.date.future()
@@ -27,37 +27,18 @@ function generateCaseReference() {
 
 module.exports = (router) => {
   router.get('/generate-data', async (req, res) => {
+    delete req.session.data
     const redirectUrl = req.query.returnUrl || '/'
 
     try {
       // -------------------- CLEAR TABLES --------------------
-      // Delete dependent child tables first
       await prisma.witnessStatement.deleteMany({})
       await prisma.witness.deleteMany({})
       await prisma.task.deleteMany({})
       await prisma.location.deleteMany({})
       await prisma.hearing.deleteMany({})
       await prisma.dGA.deleteMany({})
-
-      // Delete all Case relations individually
-      const allCases = await prisma.case.findMany({
-        include: { lawyers: true, defendants: true, victims: true }
-      })
-      for (const c of allCases) {
-        await prisma.case.update({
-          where: { id: c.id },
-          data: {
-            lawyers: { set: [] },
-            defendants: { set: [] },
-            victims: { set: [] }
-          }
-        })
-      }
-
-      // Now safe to delete cases
       await prisma.case.deleteMany({})
-
-      // Delete the rest
       await prisma.defendant.deleteMany({})
       await prisma.victim.deleteMany({})
       await prisma.lawyer.deleteMany({})
@@ -82,46 +63,36 @@ module.exports = (router) => {
 
       // -------------------- USERS --------------------
       const users = []
-      for (const u of [
+      const userData = [
         { email: 'admin@example.com', password: 'password123', role: 'ADMIN' },
         { email: 'user@example.com', password: 'password123', role: 'USER' },
-      ]) {
+      ]
+      for (const u of userData) {
         const hashed = await bcrypt.hash(u.password, 10)
-        const user = await prisma.user.upsert({
-          where: { email: u.email },
-          update: { password: hashed, role: u.role },
-          create: { ...u, password: hashed },
-        })
+        const user = await prisma.user.create({ data: { ...u, password: hashed } })
         users.push(user)
       }
 
       // -------------------- SPECIALISMS --------------------
+      const specialismRecords = []
       for (const name of specialisms) {
-        await prisma.specialism.upsert({
-          where: { name },
-          update: {},
-          create: { name },
-        })
+        const s = await prisma.specialism.create({ data: { name } })
+        specialismRecords.push(s)
       }
 
       // -------------------- LAWYERS --------------------
       const lawyers = []
+      // Always create Tony Stark
       const tony = await prisma.lawyer.create({
-        data: {
-          firstName: 'Tony',
-          lastName: 'Stark',
-          unitId: faker.helpers.arrayElement(units).id,
-        },
+        data: { firstName: 'Tony', lastName: 'Stark', unitId: faker.helpers.arrayElement(units).id },
       })
       lawyers.push(tony)
 
       for (let i = 0; i < 150; i++) {
-        const specialistAreas = faker.helpers.arrayElements(specialisms, faker.number.int({ min: 0, max: 2 }))
-        const remainingForPreferred = specialisms.filter((s) => !specialistAreas.includes(s))
+        const specialistAreas = faker.helpers.arrayElements(specialismRecords, faker.number.int({ min: 0, max: 2 }))
+        const remainingForPreferred = specialismRecords.filter((s) => !specialistAreas.includes(s))
         const preferredAreas = faker.helpers.arrayElements(remainingForPreferred, faker.number.int({ min: 0, max: 2 }))
-        const remainingForRestricted = specialisms.filter(
-          (s) => !specialistAreas.includes(s) && !preferredAreas.includes(s)
-        )
+        const remainingForRestricted = specialismRecords.filter((s) => !specialistAreas.includes(s) && !preferredAreas.includes(s))
         const restrictedAreas = faker.helpers.arrayElements(remainingForRestricted, faker.number.int({ min: 0, max: 2 }))
 
         const lawyer = await prisma.lawyer.create({
@@ -129,9 +100,9 @@ module.exports = (router) => {
             firstName: faker.helpers.arrayElement(firstNames),
             lastName: faker.helpers.arrayElement(lastNames),
             unitId: faker.helpers.arrayElement(units).id,
-            specialistAreas: { connect: specialistAreas.map((name) => ({ name })) },
-            preferredAreas: { connect: preferredAreas.map((name) => ({ name })) },
-            restrictedAreas: { connect: restrictedAreas.map((name) => ({ name })) },
+            specialistAreas: { connect: specialistAreas.map((s) => ({ id: s.id })) },
+            preferredAreas: { connect: preferredAreas.map((s) => ({ id: s.id })) },
+            restrictedAreas: { connect: restrictedAreas.map((s) => ({ id: s.id })) },
           },
         })
         lawyers.push(lawyer)
@@ -161,25 +132,27 @@ module.exports = (router) => {
         victims.push(v)
       }
 
-      // -------------------- CASES + WITNESSES + STATEMENTS --------------------
+      // -------------------- CASES + WITNESSES + DGA --------------------
       for (let i = 0; i < 50; i++) {
         const assignedDefendants = faker.helpers.arrayElements(defendants, faker.number.int({ min: 1, max: 3 }))
         const assignedVictims = faker.helpers.arrayElements(victims, faker.number.int({ min: 1, max: 3 }))
         const assignedLawyers = faker.helpers.arrayElements(lawyers, faker.number.int({ min: 0, max: 3 }))
-        const caseUnitId = assignedLawyers.length ? faker.helpers.arrayElement(assignedLawyers).unitId : faker.helpers.arrayElement(units).id
+        const caseUnitId = assignedLawyers.length
+          ? faker.helpers.arrayElement(assignedLawyers).unitId
+          : faker.helpers.arrayElement(units).id
         const caseType = faker.helpers.arrayElement(types)
 
         const createdCase = await prisma.case.create({
           data: {
             reference: generateCaseReference(),
             type: caseType,
-            userId: faker.helpers.arrayElement(users).id,
             priority: faker.helpers.arrayElement(priorities),
             complexity: faker.helpers.arrayElement(complexities),
+            userId: faker.helpers.arrayElement(users).id,
             unitId: caseUnitId,
-            defendants: { connect: assignedDefendants.map((d) => ({ id: d.id })) },
-            victims: { connect: assignedVictims.map((v) => ({ id: v.id })) },
-            lawyers: { connect: assignedLawyers.map((l) => ({ id: l.id })) },
+            defendants: assignedDefendants.length ? { connect: assignedDefendants.map((d) => ({ id: d.id })) } : undefined,
+            victims: assignedVictims.length ? { connect: assignedVictims.map((v) => ({ id: v.id })) } : undefined,
+            lawyers: assignedLawyers.length ? { connect: assignedLawyers.map((l) => ({ id: l.id })) } : undefined,
             hearing: { create: { date: futureDateAt10am() } },
             location: {
               create: {
@@ -190,9 +163,30 @@ module.exports = (router) => {
                 postcode: faker.location.zipCode('WD# #SF'),
               },
             },
+            tasks: {
+              createMany: {
+                data: [
+                  { name: 'Retrieve core details', dueDate: futureDateAt10am() },
+                  { name: 'Check communications', dueDate: futureDateAt10am() },
+                ],
+              },
+            },
+            dga: faker.datatype.boolean()
+              ? {
+                  create: {
+                    outcome: faker.helpers.arrayElement([
+                      'NOT_DISPUTED',
+                      'DISPUTED_SUCCESSFULLY',
+                      'DISPUTED_UNSUCCESSFULLY',
+                    ]),
+                    reason: faker.lorem.sentence(),
+                  },
+                }
+              : undefined,
           },
         })
 
+        // -------------------- WITNESSES + STATEMENTS --------------------
         const numWitnesses = faker.number.int({ min: 1, max: 7 })
         for (let w = 0; w < numWitnesses; w++) {
           const createdWitness = await prisma.witness.create({
@@ -221,6 +215,8 @@ module.exports = (router) => {
     } catch (e) {
       console.error('Error seeding DB:', e)
       res.status(500).json({ error: 'Failed to seed database' })
+    } finally {
+      await prisma.$disconnect()
     }
   })
 }
