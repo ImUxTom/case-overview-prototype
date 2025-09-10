@@ -1,8 +1,8 @@
 const govukPrototypeKit = require('govuk-prototype-kit')
 const router = govukPrototypeKit.requests.setupRouter()
-const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const exec = require('child_process').exec;
 
 const flash = require('connect-flash')
 router.use(flash())
@@ -17,46 +17,44 @@ router.all('*', (req, res, next) => {
   next()
 })
 
-router.get('/clear-data', async function (req, res) {
-  delete req.session.data
-  const redirectUrl = req.query.returnUrl || '/'
+router.get('/clear-data', function (req, res) {
+  delete req.session.data;
+  const redirectUrl = req.query.returnUrl || '/';
+
+  // Determine the absolute path to the database folder
+  const dataFolder = path.join(__dirname, '../data');
 
   try {
-    // Ensure database folder exists
-    const dbFile = process.env.DATABASE_URL?.replace("file:", "")
-    if (dbFile) {
-      const dbDir = path.dirname(dbFile)
-      if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true })
-        console.log(`✅ Created database directory: ${dbDir}`)
-      }
+    // Ensure the folder exists
+    if (!fs.existsSync(dataFolder)) {
+      fs.mkdirSync(dataFolder, { recursive: true });
+      console.log(`Created folder: ${dataFolder}`);
     }
-
-    // Run prisma db push --force-reset
-    await runCommand("npx", ["prisma", "db", "push", "--force-reset"])
-
-    // Run prisma seed
-    await runCommand("npx", ["prisma", "db", "seed"])
-
-    console.log("✅ Database cleared and seeded")
-    res.redirect(redirectUrl)
   } catch (err) {
-    console.error("Error clearing/seeding DB:", err)
-    res.status(500).json({ error: "Failed to reset & seed database" })
+    console.error('Error creating data folder:', err);
+    return res.status(500).json({ error: 'Failed to prepare database folder' });
   }
-})
 
-function runCommand(cmd, args) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { stdio: "inherit", shell: true })
+  // Run Prisma push and seed
+  exec("npx prisma db push --force-reset", (resetError, resetStdout, resetStderr) => {
+    if (resetError) {
+      console.error('Error resetting DB:', resetError);
+      console.error(resetStderr);
+      return res.status(500).json({ error: 'Failed to reset database' });
+    }
+    console.log('DB reset output:', resetStdout);
 
-    child.on("error", (err) => reject(err))
-    child.on("exit", (code) => {
-      if (code === 0) resolve()
-      else reject(new Error(`${cmd} ${args.join(" ")} exited with code ${code}`))
-    })
-  })
-}
+    exec("npx prisma db seed", (seedError, seedStdout, seedStderr) => {
+      if (seedError) {
+        console.error('Error seeding DB:', seedError);
+        console.error(seedStderr);
+        return res.status(500).json({ error: 'Failed to seed database' });
+      }
+      console.log('DB seeded successfully:', seedStdout);
+      res.redirect(redirectUrl);
+    });
+  });
+});
 
 require('./routes/account')(router)
 require('./routes/overview')(router)
