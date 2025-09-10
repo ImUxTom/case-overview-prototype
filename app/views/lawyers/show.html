@@ -1,0 +1,167 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'lawyers' %}
+{% set pageName = lawyer.firstName + ' ' + lawyer.lastName %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Lawyers",
+        href: "/lawyers"
+      },
+      {
+        text: pageName
+      }
+    ]
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      <span class="govuk-caption-l">{{_case.reference}}</span>
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+      </h1>
+
+      {% set specialistAreas %}
+        {{appValue({ attribute: lawyer.specialistAreas, emptyLabel: 'No specialist areas' })}}
+      {% endset %}
+
+      {% set preferredAreas %}
+        {{appValue({ attribute: lawyer.preferredAreas, emptyLabel: 'No preferred areas' })}}
+      {% endset %}
+
+      {% set restrictedAreas %}
+        {{appValue({ attribute: lawyer.restrictedAreas, emptyLabel: 'No restricted areas' })}}
+      {% endset %}
+      
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { 
+              text: "First name" 
+            },
+            value: { 
+              html: lawyer.firstName 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/lawyers/:lawyerId/edit-first-name" | replace(':lawyerId', lawyer.id),
+                  text: "Change",
+                  visuallyHiddenText: "First name"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Last name" 
+            },
+            value: { 
+              html: lawyer.lastName 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/lawyers/:lawyerId/edit-last-name" | replace(':lawyerId', lawyer.id),
+                  text: "Change",
+                  visuallyHiddenText: "Last name"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Unit" 
+            },
+            value: { 
+              html: lawyer.unit.name 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/lawyers/:lawyerId/edit-unit" | replace(':lawyerId', lawyer.id),
+                  text: "Change",
+                  visuallyHiddenText: "Unit"
+                }
+              ]
+            }
+          }        
+        ]
+      }) }}
+
+      <h2 class="govuk-heading-m">Specialist areas</h2>
+
+      {% if lawyer.specialistAreas.length == 0 and lawyer.preferredAreas.length == 0 and lawyer.restrictedAreas.length == 0 %}
+        {{ govukButton({
+          text: "Add specialist areas",
+          href: '/lawyers/:lawyerId/specialist-areas/new' | replace(':lawyerId', lawyer.id)
+        }) }}
+      {% else %}
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { 
+                text: "Specialist areas" 
+              },
+              value: { 
+                html: specialistAreas
+              },
+              actions: {
+                items: [
+                  {
+                    href: "/lawyers/:lawyerId/edit-preferences/specialist-areas" | replace(':lawyerId', lawyer.id),
+                    text: "Change",
+                    visuallyHiddenText: "Specialist areas"
+                  }
+                ]
+              }
+            },
+            {
+              key: { 
+                text: "Preferred areas" 
+              },
+              value: { 
+                html: preferredAreas
+              },
+              actions: {
+                items: [
+                  {
+                    href: "/lawyers/:lawyerId/edit-preferences/preferred-areas" | replace(':lawyerId', lawyer.id),
+                    text: "Change",
+                    visuallyHiddenText: "Preferred areas"
+                  }
+                ]
+              }
+            },
+            {
+              key: { 
+                text: "Restriced areas" 
+              },
+              value: { 
+                html: restrictedAreas
+              },
+              actions: {
+                items: [
+                  {
+                    href: "/lawyers/:lawyerId/edit-preferences/restricted-areas" | replace(':lawyerId', lawyer.id),
+                    text: "Change",
+                    visuallyHiddenText: "Restricted areas"
+                  }
+                ]
+              }
+            }
+          ]
+        }) }}
+      {% endif %}
+
+
+
+    </div>
+  </div>
+{% endblock %}

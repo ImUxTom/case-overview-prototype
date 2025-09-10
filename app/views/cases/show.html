@@ -1,0 +1,220 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set secondaryNavId = 'overview' %}
+{% set pageName = 'Overview' %}
+
+{% block beforeContent %}
+  {% include "_includes/case-identity-bar.njk" %}
+{% endblock %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+  {% include "_includes/case-navigation.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      {# <span class="govuk-caption-l">{{_case.reference}}</span>
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+
+        {{ govukTag({
+          text: _case.priority,
+          classes: _case.priority | priorityTagClass
+        }) }}
+      </h1> #}
+
+      <h1 class="govuk-heading-l">Overview</h1>
+      
+      {% set lawyerValue %}
+        {% if _case.lawyers.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for lawyer in _case.lawyers %}
+              <li>{{lawyer.firstName}} {{lawyer.lastName}}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          Unassigned
+        {% endif %}
+      {% endset %}
+
+      {% set defendantValue %}
+        
+        {% if _case.defendants.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for defendant in _case.defendants %}
+              <li>
+                {{defendant.firstName}} {{defendant.lastName}}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          No defendants
+        {% endif %}
+      {% endset %}
+
+      {% set locationValue %}
+        {{appAddress({ address: _case.location })}}
+      {% endset %}
+
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { 
+              text: "Reference" 
+            },
+            value: { 
+              html: _case.reference 
+            }
+          },
+          {
+            key: { 
+              text: "Unit" 
+            },
+            value: { 
+              html: _case.unit.name 
+            }
+          },
+          {
+            key: { 
+              text: "Priority" 
+            },
+            value: { 
+              html: _case.priority 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-priority" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Priority"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Complexity" 
+            },
+            value: { 
+              html: _case.complexity + '<div class="govuk-!-margin-top-1"><a href="/cases/:caseId/complexity-calculation">How we calculated complexity</a></div>' | replace(':caseId', _case.id)
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-complexity" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Complexity"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Type" 
+            },
+            value: { 
+              html: _case.type 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-type" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Type"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Location" 
+            },
+            value: { 
+              html: locationValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-location" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Location"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Defendants" 
+            },
+            value: { 
+              html: defendantValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-defendants" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Defendants"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Lawyers" 
+            },
+            value: { 
+              html: lawyerValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-lawyers" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Lawyer"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Paralegal officers" 
+            },
+            value: { 
+              html: 'Unassigned'
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-lawyers" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Lawyer"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Hearing" 
+            },
+            value: { 
+              html: _case.hearing.date | isoDateString | govukDateTime
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-hearing" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Hearing"
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
+
+    </div>
+  </div>
+{% endblock %}

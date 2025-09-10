@@ -1,0 +1,42 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'overview' %}
+{% set pageName = "Overview" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+      </h1>
+
+      <div class="app-overview-cards">
+        <a href="/cases/shortcut/unassigned" class="app-overview-card app-overview-card--green">
+          <span class="app-overview-card__count">{{unassignedCaseCount}}</span>
+          <span class="app-overview-card__status">
+            {% if unassignedCaseCount == 1 %}
+              case
+            {% else %}
+              cases
+            {% endif %}
+            are unassigned
+          </span>
+        </a>
+
+        <a href="/cases/shortcut/dga" class="app-overview-card app-overview-card--yellow">
+          <span class="app-overview-card__count">{{needsDGAReviewCount}}</span>
+          <span class="app-overview-card__status">
+            {% if needsDGAReviewCount == 1 %}
+              case needs
+            {% else %}
+              cases need
+            {% endif %}
+            DGA review
+          </span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

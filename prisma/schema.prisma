@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  role     String
+  cases    Case[]
+}
+
+model Victim {
+  id        Int     @id @default(autoincrement())
+  firstName String
+  lastName  String
+  cases     Case[]  @relation("CaseVictims")
+}
+
+model Witness {
+  id               Int                @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  appearingInCourt Boolean?
+  caseId           Int
+  case             Case               @relation(fields: [caseId], references: [id])
+  statements       WitnessStatement[]
+}
+
+model WitnessStatement {
+  id                Int      @id @default(autoincrement())
+  witnessId         Int
+  witness           Witness  @relation(fields: [witnessId], references: [id])
+  serveSection9     Boolean?  // if Case.type = "magistrates"
+  useInCourt        Boolean?  // used if Case.type != "magistrates"
+}
+
+
+model Case {
+  id          Int        @id @default(autoincrement())
+  reference   String     @unique
+  priority    String?
+  complexity  String?
+  type        String?
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  unitId      Int
+  unit        Unit        @relation(fields: [unitId], references: [id])
+  defendants  Defendant[] @relation("CaseDefendants")
+  victims     Victim[]  @relation("CaseVictims")
+  lawyers     Lawyer[] @relation("CaseLawyers")
+  witnesses   Witness[]
+  hearing     Hearing?
+  location    Location?
+  tasks       Task[]
+  dga         DGA?
+}
+
+model DGA {
+  id       Int          @id @default(autoincrement())
+  caseId   Int          @unique
+  case     Case?         @relation(fields: [caseId], references: [id])
+  outcome  DGAOutcome?
+  reason   String?
+}
+
+enum DGAOutcome {
+  NOT_DISPUTED
+  DISPUTED_SUCCESSFULLY
+  DISPUTED_UNSUCCESSFULLY
+}
+
+model Lawyer {
+  id                  Int    @id @default(autoincrement())
+  firstName           String
+  lastName            String
+  cases               Case[]  @relation("CaseLawyers")
+  unit                Unit   @relation(fields: [unitId], references: [id])
+  unitId              Int
+  specialistAreas   Specialism[] @relation("LawyerSpecialistAreas")
+  preferredAreas    Specialism[] @relation("LawyerPreferredAreas")
+  restrictedAreas   Specialism[] @relation("LawyerRestrictedAreas")
+}
+
+model Specialism {
+  id                  Int      @id @default(autoincrement())
+  name                String   @unique
+  lawyersSpecialist    Lawyer[] @relation("LawyerSpecialistAreas")
+  lawyersPreferred     Lawyer[] @relation("LawyerPreferredAreas")
+  lawyersRestricted    Lawyer[] @relation("LawyerRestrictedAreas")
+}
+
+model Unit {
+  id      Int      @id @default(autoincrement())
+  name    String
+  lawyers Lawyer[]
+  cases   Case[]
+}
+
+model Defendant {
+  id        Int    @id @default(autoincrement())
+  firstName String
+  lastName  String
+  cases     Case[]  @relation("CaseDefendants")
+}
+
+model Hearing {
+  id      Int      @id @default(autoincrement())
+  date    DateTime
+  case    Case?    @relation(fields: [caseId], references: [id])
+  caseId  Int?     @unique
+}
+
+model Location {
+  id       Int     @id @default(autoincrement())
+  name     String
+  line1    String
+  line2    String
+  town     String
+  postcode String
+  case     Case?   @relation(fields: [caseId], references: [id])
+  caseId   Int?    @unique
+}
+
+model Task {
+  id       Int      @id @default(autoincrement())
+  name     String
+  dueDate  DateTime
+  case     Case     @relation(fields: [caseId], references: [id])
+  caseId   Int
+}

@@ -1,0 +1,158 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Cases (:total)" | replace(':total', totalCases) %}
+
+{% block content %}
+  <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+  <div class="app-filter-layout">
+    <div class="app-filter-layout__filter">
+      {% include "_includes/filter-panel.njk" %}
+    </div>
+    <div class="app-filter-layout__content">
+
+      <div class="app-action-bar">
+        <div class="app-action-bar__filter"></div>
+      </div>
+
+      {% include "_includes/case-search-form.njk" %}
+      {% include "_includes/case-sort-controls.njk" %}
+
+      {% if cases.length %}
+         <div class="app-list">
+          {% for _case in cases %}
+           <div class="app-list__item">
+
+              {% set defendantsValue %}
+                {{_case.defendants[0].firstName}} {{_case.defendants[0].lastName}}
+                {% if _case.defendants.length > 1 %}
+                  and {{_case.defendants.length - 1}} more
+                {% endif %}
+              {% endset %}
+
+              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+                <a href="/cases/{{_case.id}}" class="govuk-link--no-visited-state">{{defendantsValue}}</a>
+                <div class="app-list__tag">
+                  {{ govukTag({ text: _case.priority, classes: _case.priority | priorityTagClass }) }}
+                </div>
+              </h2>
+
+              {% set lawyerValue %}
+                {% if _case.lawyers.length %}
+
+                  {{_case.lawyers[0].firstName}} {{_case.lawyers[0].lastName}}
+                  {% if _case.lawyers.length > 1 %}
+                    and {{_case.lawyers.length - 1}} more
+                  {% endif %}
+                {% else %}
+                  Unassigned
+                {% endif %}
+              {% endset %}
+
+              {{ govukSummaryList({
+                classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                rows: [
+                  {
+                    key: {
+                      html: 'Reference'
+                    },
+                    value: {
+                      html: _case.reference
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Unit'
+                    },
+                    value: {
+                      html: _case.unit.name
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Complexity'
+                    },
+                    value: {
+                      html: _case.complexity
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Type'
+                    },
+                    value: {
+                      html: _case.type
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Lawyer'
+                    },
+                    value: {
+                      html: lawyerValue
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Hearing'
+                    },
+                    value: {
+                      html: _case.hearing.date | isoDateString | govukDateTime
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'DGA'
+                    },
+                    value: {
+                      html: 'Needs review' 
+                    }
+                  } if _case.dgaReview                  
+                ]
+              })}}
+
+
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no results.</p>
+      {% endif %}
+
+      {% include "_includes/pagination.njk" %}
+    </div>
+  </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script>
+    new App.FilterToggleButton({
+      bigModeMediaQuery: '(min-width: 48.063em)',
+      startHidden: false,
+      toggleButton: {
+        container: $('.app-action-bar__filter'),
+        showText: 'Show filter',
+        hideText: 'Hide filter',
+        classes: 'govuk-button--secondary govuk-!-margin-bottom-3'
+      },
+      closeButton: {
+        container: $('.app-filter__header-action'),
+        text: 'Close'
+      },
+      filter: {
+        container: $('.app-filter-layout__filter')
+      }
+    })
+
+    new App.ListFilter({
+      container: $('.lawyer-filter'),
+      textBox: {
+        label: 'Find lawyer'
+      }
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'lawyers' %}
+{% set pageName = "Lawyers (:total)" | replace(':total', totalLawyers) %}
+
+{% block content %}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {% include "_includes/lawyer-search-form.njk" %}
+      {% include "_includes/lawyer-sort-controls.njk" %}
+
+      {% if lawyers.length %}
+         <div class="app-list">
+          {% for lawyer in lawyers %}
+           <div class="app-list__item">
+              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+                <a href="/lawyers/{{lawyer.id}}" class="govuk-link--no-visited-state">{{lawyer.firstName}} {{lawyer.lastName}}</a>
+              </h2>
+
+              {% set specialistAreas %}
+                {{appValue({ attribute: lawyer.specialistAreas, emptyLabel: 'No specialist areas' })}}
+              {% endset %}
+
+              {% set preferredAreas %}
+                {{appValue({ attribute: lawyer.preferredAreas, emptyLabel: 'No preferred areas' })}}
+              {% endset %}
+
+              {% set restrictedAreas %}
+                {{appValue({ attribute: lawyer.restrictedAreas, emptyLabel: 'No restricted areas' })}}
+              {% endset %}
+
+              {{ govukSummaryList({
+                classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                rows: [
+                  {
+                    key: {
+                      html: 'Number of cases'
+                    },
+                    value: {
+                      html: lawyer._count.cases or 'None'
+                    }
+                  } if 1==2,
+                  {
+                    key: {
+                      html: 'Unit'
+                    },
+                    value: {
+                      html: lawyer.unit.name
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Specialist areas'
+                    },
+                    value: {
+                      html: specialistAreas
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Preferred areas'
+                    },
+                    value: {
+                      html: preferredAreas
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Restricted areas'
+                    },
+                    value: {
+                      html: restrictedAreas
+                    }
+                  }                   
+                ]
+              })}}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no results.</p>
+      {% endif %}
+
+      {% include "_includes/pagination.njk" %}
+  </div>
+</div>
+
+{% endblock %}
+

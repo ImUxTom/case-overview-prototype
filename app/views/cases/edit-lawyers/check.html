@@ -1,0 +1,75 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Check details and assign lawyers" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+
+      <span class="govuk-caption-l">{{_case.reference}}</span>
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {% set lawyersValue %}
+        {% if lawyers.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for item in lawyers %}
+              <li>
+                {{item.firstName}} {{item.lastName}}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          None
+        {% endif %}
+      {% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: {
+              text: "Lawyers"
+            },
+            value: {
+              html: lawyersValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-lawyers" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Lawyers"
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
+
+      <p>Wel’ll send an email to:</p>
+
+      <ul class="govuk-list govuk-list--bullet">
+        <li>
+          the added lawyers to tell them that they’re assigned to the case
+        </li>
+        <li>
+          the removed lawyers to tell them that they’ve been removed from the case
+        </li>
+      </ul>
+
+
+      <form method="post">
+        {{ govukButton({
+          text: "Update assigned lawyers"
+        }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

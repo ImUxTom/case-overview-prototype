@@ -1,0 +1,8 @@
+{
+  "serviceName": "Manage criminal cases",
+  "plugins": {
+    "govuk-frontend": {
+      "rebrand": true
+    }
+  }
+}

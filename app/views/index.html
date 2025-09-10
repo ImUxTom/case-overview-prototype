@@ -1,0 +1,23 @@
+{% extends "layouts/main.html" %}
+
+{% set hideNav = true %}
+
+{% set pageName = "Prototype" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+      </h1>
+
+      {{ govukButton({
+        text: "Start prototype",
+        isStartButton: true,
+        href: '/account/sign-in'
+      }) }}
+
+    </div>
+  </div>
+{% endblock %}

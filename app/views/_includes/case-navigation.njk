@@ -1,0 +1,31 @@
+{{ xGovukSecondaryNavigation({
+    classes: 'govuk-!-margin-bottom-6',
+    visuallyHiddenTitle: "Secondary menu",
+    items: [{
+      text: "Overview",
+      href: "/cases/:caseId" | replace(':caseId', _case.id),
+      current: secondaryNavId == 'overview'
+    }, {
+      text: "Witnesses",
+      href: "/cases/:caseId/witnesses" | replace(':caseId', _case.id),
+      current: secondaryNavId == 'witnesses'
+    }, {
+      text: "Defendants",
+      href: "#"
+    }, {
+      text: "Victims",
+      href: "#"
+    }, {
+      href: "#",
+      text: "Documents"
+    }, {
+      text: "DGA",
+      href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
+      current: secondaryNavId == 'dga'
+    } if _case.dga,
+    {
+      text: "Activity",
+      href: "/cases/:caseId/activity" | replace(':caseId', _case.id),
+      current: secondaryNavId == 'activity'
+    }]
+  })}}

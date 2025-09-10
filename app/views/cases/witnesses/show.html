@@ -1,0 +1,154 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set defendantName = _case.defendants[0].firstName + ' ' + _case.defendants[0].lastName %}
+{% set witnessName = witness.firstName + ' ' + witness.lastName %}
+{% set pageName = witnessName %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Cases",
+        href: "/cases"
+      },
+      {
+        text: defendantName,
+        href: "/cases/:caseId" | replace(':caseId', _case.id)
+      },
+      {
+        text: 'Witnesses',
+        href: "/cases/:caseId/witnesses" | replace(':caseId', _case.id)
+      },
+      {
+        text: pageName
+      }
+    ]
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      <span class="govuk-caption-l">{{_case.reference}}</span>
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+      </h1>
+
+      {% set specialistAreas %}
+        {{appValue({ attribute: witness.specialistAreas, emptyLabel: 'No specialist areas' })}}
+      {% endset %}
+
+      {% set preferredAreas %}
+        {{appValue({ attribute: witness.preferredAreas, emptyLabel: 'No preferred areas' })}}
+      {% endset %}
+
+      {% set restrictedAreas %}
+        {{appValue({ attribute: witness.restrictedAreas, emptyLabel: 'No restricted areas' })}}
+      {% endset %}
+      
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { 
+              text: "First name" 
+            },
+            value: { 
+              html: witness.firstName 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/witnesses/:witnessId/edit-first-name" | replace(':witnessId', witness.id),
+                  text: "Change",
+                  visuallyHiddenText: "First name"
+                }
+              ]
+            }
+          },
+          {
+            key: { 
+              text: "Last name" 
+            },
+            value: { 
+              html: witness.lastName 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/witnesses/:witnessId/edit-last-name" | replace(':caseId', witness.id),
+                  text: "Change",
+                  visuallyHiddenText: "Last name"
+                }
+              ]
+            }
+          }         
+        ]
+      }) }}
+
+      <h2 class="govuk-heading-m">Witness options</h2>
+
+      {% if not witness.callOrDewarn and not witness.serveSection9 and not witness.useStatement %}
+        {{ govukButton({
+          text: "Add witness options areas",
+          href: '/cases/:caseId/witnesses/:witnessId/edit-options' | replace(':caseId', witness.id)
+        }) }}
+      {% else %}
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: {
+                html: 'Do you want to call or dewarn the witness?'
+              },
+              value: {
+                html: witness.callOrDewarn
+              },
+              actions: {
+                items: [{
+                  text: 'Change',
+                  href: '/cases/:caseId/witnesses/:witnessId/edit-options' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
+                  visuallyHiddenText: 'if you want to serve a section 9'
+                }]
+              }
+            },
+            {
+              key: {
+                html: 'Do you want to serve a section 9?'
+              },
+              value: {
+                html: witness.serveSection9
+              },
+              actions: {
+                items: [{
+                  text: 'Change',
+                  href: '/cases/:caseId/witnesses/:witnessId/edit-options/serve-section9' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
+                  visuallyHiddenText: 'if you want to serve a section 9'
+                }]
+              }
+            },
+            {
+              key: {
+                html: 'Will the statement be used?'
+              },
+              value: {
+                html: witness.useStatement
+              },
+              actions: {
+                items: [{
+                  text: 'Change',
+                  href: '/cases/:caseId/witnesses/:witnessId/edit-options/use-statement' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
+                  visuallyHiddenText: 'if the statement will be used'
+                }]
+              }
+            }               
+          ]
+        }) }}
+      {% endif %}
+
+
+
+    </div>
+  </div>
+{% endblock %}

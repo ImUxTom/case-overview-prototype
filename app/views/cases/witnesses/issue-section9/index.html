@@ -1,0 +1,26 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Confirm that you want to issue Section 9" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{witness.firstName}} {{witness.lastName}}</span>
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+      <form method="post">
+        {{ govukButton({
+          text: "Issue Section 9"
+        }) }}
+      </form>
+      <p><a href="/cases/{{_case.id}}/witnesses">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}

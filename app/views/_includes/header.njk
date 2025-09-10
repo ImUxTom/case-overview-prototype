@@ -1,0 +1,17 @@
+{% if data.user %}
+  {% set serviceUrl = '/applications' %}
+{% else %}
+  {% set serviceUrl = '/account/sign-in' %}
+{% endif %}
+
+{{ appHeader({ 
+  productName: serviceName,
+  serviceUrl: serviceUrl,
+  navigationClasses: "govuk-header__navigation--end",
+  navigation: [
+    {
+      href: "/account/sign-out",
+      text: "Sign out" if data.user else "Sign in"
+    }
+  ]
+}) }}
