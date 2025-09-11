@@ -15,24 +15,25 @@
         <a href="/cases/shortcut/unassigned" class="app-overview-card app-overview-card--green">
           <span class="app-overview-card__count">{{unassignedCaseCount}}</span>
           <span class="app-overview-card__status">
+            unassigned
             {% if unassignedCaseCount == 1 %}
               case
             {% else %}
               cases
             {% endif %}
-            are unassigned
           </span>
         </a>
 
         <a href="/cases/shortcut/dga" class="app-overview-card app-overview-card--yellow">
           <span class="app-overview-card__count">{{needsDGAReviewCount}}</span>
           <span class="app-overview-card__status">
+            DGA
             {% if needsDGAReviewCount == 1 %}
-              case needs
+              case
             {% else %}
-              cases need
+              cases
             {% endif %}
-            DGA review
+            need review
           </span>
         </a>
       </div>

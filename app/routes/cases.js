@@ -131,12 +131,24 @@ module.exports = router => {
     if (selectedTypeFilters?.length) {
       where.AND.push({ type: { in: selectedTypeFilters } })
     }
-    if (lawyerIds?.length) {
-      where.AND.push({ lawyers: { some: { id: { in: lawyerIds } } } })
+
+    if(selectedLawyerFilters?.length) {
+      let lawyerFilters = []
+
+      if (selectedLawyerFilters?.includes("Unassigned")) {
+        lawyerFilters.push({ lawyers: { none: {} } })
+      }
+
+      if (lawyerIds?.length) {
+        lawyerFilters.push({ lawyers: { some: { id: { in: lawyerIds } } } })
+      }
+
+      if (lawyerFilters.length) {
+        where.AND.push({ OR: lawyerFilters })
+      }
+
     }
-    if (selectedLawyerFilters?.includes("Unassigned")) {
-      where.AND.push({ lawyers: { none: {} } })
-    }
+    
     if (where.AND.length === 0) {
       where = {}
     }
