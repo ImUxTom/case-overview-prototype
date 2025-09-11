@@ -106,11 +106,11 @@
                     {% endif %}
 
                     {% if statement.useAsEvidence == true %}                    
-                      {% set useAsEvidenceValue = 'Using' %}
+                      {% set useAsEvidenceValue = 'Used' %}
                     {% elseif statement.useAsEvidence == false %}
-                      {% set useAsEvidenceValue = 'Not using' %}
+                      {% set useAsEvidenceValue = 'Unused' %}
                     {% else %}
-                      {% set useAsEvidenceValue = 'Not entered' %}
+                      {% set useAsEvidenceValue = 'None' %}
                     {% endif %}
 
 
@@ -135,7 +135,7 @@
                         },
                         {
                           key: {
-                            html: 'Using as evidence'
+                            html: 'Material status'
                           },
                           value: {
                             html: useAsEvidenceValue
