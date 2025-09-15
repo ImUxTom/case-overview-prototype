@@ -91,7 +91,24 @@
                 }
               ]
             }
-          }        
+          },
+          {
+            key: { 
+              text: "Working pattern" 
+            },
+            value: { 
+              html: 'Full time'
+            },
+            actions: {
+              items: [
+                {
+                  href: "/lawyers/:lawyerId/edit-working-pattern" | replace(':lawyerId', lawyer.id),
+                  text: "Change",
+                  visuallyHiddenText: "Working pattern"
+                }
+              ]
+            }
+          }         
         ]
       }) }}
 
@@ -159,6 +176,22 @@
           ]
         }) }}
       {% endif %}
+
+      <h2 class="govuk-heading-m">Leave</h2>
+
+      {{ govukButton({
+        text: "Add leave"
+      }) }}
+
+      <ul class="govuk-list govuk-list--bullet">
+        <li>
+          11 September 2025
+        </li>
+        <li>
+          15 October 2025 to 20 October 2025
+        </li>
+      </ul>
+
 
 
 
