@@ -9,6 +9,7 @@ const dgaStatuses = ['Needs review', 'Does not need review']
 function resetFilters(req) {
   _.set(req, 'session.data.filters.dga', null)
   _.set(req, 'session.data.filters.ctl', null)
+  _.set(req, 'session.data.filters.unit', null)
   _.set(req, 'session.data.filters.complexities', null)
   _.set(req, 'session.data.filters.types', null)
   _.set(req, 'session.data.filters.lawyers', null)
@@ -29,6 +30,7 @@ module.exports = router => {
   router.get("/cases", async (req, res) => {
     let selectedDgaFilters = _.get(req.session.data.filters, 'dga', [])
     let selectedCtlFilters = _.get(req.session.data.filters, 'ctl', [])
+    let selectedUnitFilters = _.get(req.session.data.filters, 'unit', [])
     let selectedComplexityFilters = _.get(req.session.data.filters, 'complexities', [])
     let selectedTypeFilters = _.get(req.session.data.filters, 'types', [])
     let selectedLawyerFilters = _.get(req.session.data.filters, 'lawyers', [])
@@ -54,6 +56,23 @@ module.exports = router => {
         })
       })
     }
+
+
+    if (selectedUnitFilters?.length) {
+      const unitIds = selectedUnitFilters.map(Number)
+
+      let fetchedUnits = await prisma.unit.findMany({
+        where: { id: { in: unitIds } }
+      })
+
+      let items = selectedUnitFilters.map(function (selectedUnit) {
+        let unit = fetchedUnits.find(u => u.id === Number(selectedUnit))
+        return { text: unit ? unit.name : selectedUnit, href: '/cases/remove-unit/' + selectedUnit }
+      })
+
+      selectedFilters.categories.push({ heading: { text: 'Unit' }, items })
+    }
+
 
     // Type filter display
     if (selectedComplexityFilters?.length) {
@@ -137,6 +156,11 @@ module.exports = router => {
       }
     }
 
+    if (selectedUnitFilters?.length) {
+      const unitIds = selectedUnitFilters.map(Number) // convert to Int
+      where.AND.push({ unitId: { in: unitIds } })
+    }
+
     if (selectedComplexityFilters?.length) {
       where.AND.push({ complexity: { in: selectedComplexityFilters } })
     }
@@ -204,6 +228,14 @@ module.exports = router => {
       value: type
     }))
     
+    let units = await prisma.unit.findMany()
+
+    let unitItems = units.map(unit => ({
+      text: `${unit.name}`,
+      value: `${unit.id}`
+    }))
+
+
     let lawyers = await prisma.lawyer.findMany()
 
     let lawyerItems = [
@@ -219,12 +251,12 @@ module.exports = router => {
     let pagination = new Pagination(cases, req.query.page, pageSize)
     cases = pagination.getData()
 
-
     res.render('cases/index', {
       totalCases, 
       cases,
       dgaItems,
       ctlItems,
+      unitItems,
       complexityItems, 
       typeItems, 
       lawyerItems,
@@ -240,6 +272,11 @@ module.exports = router => {
 
   router.get('/cases/remove-ctl/:ctl', (req, res) => {
     _.set(req, 'session.data.filters.ctl', _.pull(req.session.data.filters.ctl, req.params.ctl))
+    res.redirect('/cases')
+  })
+
+  router.get('/cases/remove-unit/:unit', (req, res) => {
+    _.set(req, 'session.data.filters.unit', _.pull(req.session.data.filters.unit, req.params.unit))
     res.redirect('/cases')
   })
 
