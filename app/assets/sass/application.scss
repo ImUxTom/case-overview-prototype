@@ -163,3 +163,13 @@ $statuses: (
 .govuk-summary-card .govuk-summary-list:last-child {
   margin-bottom: 0 !important;
 }
+
+.govuk-summary-card {
+  
+  .govuk-tabs__panel {
+    border: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}

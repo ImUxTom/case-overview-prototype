@@ -74,32 +74,12 @@
                   <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-appearing-in-court">Mark as attending court</a></p>
                 {% endif %}
 
-                {{ govukSummaryList({
-                  classes: 'app-summary-list--compac app-summary-list--small-tex govuk-!-margin-bottom-5',
-                  rows: [
-                    {
-                      key: {
-                        html: 'Is the witness appearing in court?'
-                      },
-                      value: {
-                        html: witness.appearingInCourt
-                      },
-                      actions: {
-                        items: [{
-                          text: 'Change',
-                          href: '/cases/:caseId/witnesses/:witnessId/edit-appearing-in-court' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
-                          visuallyHiddenText: 'if you want to serve a section 9'
-                        }]
-                      }
-                    }            
-                  ]
-                }) if 1==2}}
-
                 {% if witness.statements.length > 0 %}
 
-
                   {% for statement in witness.statements %}
-                    {% if statement.serveSection9 %}
+
+                    {% set section9Status = '' %}
+                    {% if statement.serveSection9 == true %}
                       {% set section9Status = 'Section 9' %}
                     {% elseif statement.serveSection9 == false %}
                       {# {% set section9Status = 'Section 9 withdrawn' %} #}
@@ -178,7 +158,7 @@
                           value: {
                             html: 'Evidence'
                           }
-                        }
+                        } if 1==2
                                      
                       ]
                     })}}

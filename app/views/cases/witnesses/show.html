@@ -29,26 +29,44 @@
 {% block content %}
   {% include "_includes/success-banner.njk" %}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      
-      <span class="govuk-caption-l">{{_case.reference}}</span>
+
+  {# <span class="govuk-caption-l">{{_case.reference}}</span> #}
       <h1 class="govuk-heading-l">
         {{ pageName }}
       </h1>
 
-      {% set specialistAreas %}
-        {{appValue({ attribute: witness.specialistAreas, emptyLabel: 'No specialist areas' })}}
-      {% endset %}
+      {{ xGovukSecondaryNavigation({
+                  classes: 'govuk-!-margin-bottom-5',
+                  visuallyHiddenTitle: "Secondary menu",
+                  items: [{
+                    text: "Details",
+                    href: "#",
+                    current: true
+                  }, {
+                    text: "Statements",
+                    href: "#"
+                  }, {
+                    text: "Availability",
+                    href: "#"
+                  }, {
+                    text: "Special measures",
+                    href: "#"
+                  }]
+                })}}
 
-      {% set preferredAreas %}
-        {{appValue({ attribute: witness.preferredAreas, emptyLabel: 'No preferred areas' })}}
-      {% endset %}
-
-      {% set restrictedAreas %}
-        {{appValue({ attribute: witness.restrictedAreas, emptyLabel: 'No restricted areas' })}}
-      {% endset %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
       
+      
+
+      {% if witness.appearingInCourt %}
+        {% set attendanceStatus = 'Attending court' %}
+      {% elseif witness.appearingInCourt == false %}
+        {% set attendanceStatus = 'Not attending court' %}
+        {% else %}
+        {% set attendanceStatus = 'Not entered' %}
+      {% endif %}
+
       {{ govukSummaryList({
         rows: [
           {
@@ -84,68 +102,19 @@
                 }
               ]
             }
-          }         
+          }        
         ]
       }) }}
 
-      <h2 class="govuk-heading-m">Witness options</h2>
+      <h2 class="govuk-heading-m">Court attendance</h2>
 
-      {% if not witness.callOrDewarn and not witness.serveSection9 and not witness.useStatement %}
-        {{ govukButton({
-          text: "Add witness options areas",
-          href: '/cases/:caseId/witnesses/:witnessId/edit-options' | replace(':caseId', witness.id)
-        }) }}
-      {% else %}
-        {{ govukSummaryList({
-          rows: [
-            {
-              key: {
-                html: 'Do you want to call or dewarn the witness?'
-              },
-              value: {
-                html: witness.callOrDewarn
-              },
-              actions: {
-                items: [{
-                  text: 'Change',
-                  href: '/cases/:caseId/witnesses/:witnessId/edit-options' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
-                  visuallyHiddenText: 'if you want to serve a section 9'
-                }]
-              }
-            },
-            {
-              key: {
-                html: 'Do you want to serve a section 9?'
-              },
-              value: {
-                html: witness.serveSection9
-              },
-              actions: {
-                items: [{
-                  text: 'Change',
-                  href: '/cases/:caseId/witnesses/:witnessId/edit-options/serve-section9' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
-                  visuallyHiddenText: 'if you want to serve a section 9'
-                }]
-              }
-            },
-            {
-              key: {
-                html: 'Will the statement be used?'
-              },
-              value: {
-                html: witness.useStatement
-              },
-              actions: {
-                items: [{
-                  text: 'Change',
-                  href: '/cases/:caseId/witnesses/:witnessId/edit-options/use-statement' | replace(':caseId', _case.id) | replace(':witnessId', witness.id),
-                  visuallyHiddenText: 'if the statement will be used'
-                }]
-              }
-            }               
-          ]
-        }) }}
-      {% endif %}
+      {{ govukButton({
+        text: "Mark as attending court"
+      }) }}
+
+      <h2 class="govuk-heading-m">Statements</h2>
+
+      <p>Etc or nav</p>
 
 
 

@@ -23,13 +23,27 @@ model Victim {
 }
 
 model Witness {
-  id               Int                @id @default(autoincrement())
-  firstName        String
-  lastName         String
-  appearingInCourt Boolean?
-  caseId           Int
-  case             Case               @relation(fields: [caseId], references: [id])
-  statements       WitnessStatement[]
+  id                          Int                @id @default(autoincrement())
+  firstName                   String
+  lastName                    String
+  appearingInCourt            Boolean?
+  caseId                      Int
+  case                        Case               @relation(fields: [caseId], references: [id])
+  statements                  WitnessStatement[]
+  relevant                    Boolean?
+  keyWitness                  Boolean?
+  type                        String?
+  attendanceIssues            String?
+  previousTransgressions      String?
+  warned                      Boolean?
+  dateOfBirth                 DateTime?
+  emailAddress                String?
+  phoneNumber                 String?
+  courtAvailabilityStartDate  DateTime?
+  courtAvailabilityEndDate    DateTime?
+  courtSpecialMeasures        String?
+  courtNeeds                  String?
+  requiresMeeting             Boolean?
 }
 
 model WitnessStatement {

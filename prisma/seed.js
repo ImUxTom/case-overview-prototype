@@ -155,13 +155,18 @@ async function main() {
       caseUnitId = faker.number.int({ min: 1, max: 6 });
     }
 
-    const courtType = faker.helpers.arrayElement(['Magistrates court', 'Crown court'])
+    const courtType = faker.helpers.arrayElement([
+      "Magistrates court",
+      "Crown court",
+    ]);
 
     const createdCase = await prisma.case.create({
       data: {
         reference: generateCaseReference(),
         type: faker.helpers.arrayElement(types),
-        user: { connect: { id: faker.helpers.arrayElement([users[0].id, users[1].id]) } },
+        user: {
+          connect: { id: faker.helpers.arrayElement([users[0].id, users[1].id]) },
+        },
         ctl: faker.datatype.boolean(),
         complexity: faker.helpers.arrayElement(complexities),
         courtType: courtType,
@@ -213,6 +218,21 @@ async function main() {
           lastName: faker.helpers.arrayElement(lastNames),
           appearingInCourt: faker.helpers.arrayElement([true, false, null]),
           caseId: createdCase.id,
+          // New fields
+          relevant: faker.datatype.boolean(),
+          keyWitness: faker.datatype.boolean(),
+          type: faker.helpers.arrayElement(["Expert", "Character", "Eye witness", "Other"]),
+          attendanceIssues: faker.helpers.arrayElement([null, faker.lorem.sentence()]),
+          previousTransgressions: faker.helpers.arrayElement([null, faker.lorem.words(5)]),
+          warned: faker.datatype.boolean(),
+          dateOfBirth: faker.date.birthdate({ min: 18, max: 90, mode: "age" }),
+          emailAddress: faker.internet.email(),
+          phoneNumber: faker.phone.number(),
+          courtAvailabilityStartDate: faker.date.future(),
+          courtAvailabilityEndDate: faker.date.future(),
+          courtSpecialMeasures: faker.helpers.arrayElement([null, faker.lorem.sentence()]),
+          courtNeeds: faker.helpers.arrayElement([null, faker.lorem.sentence()]),
+          requiresMeeting: faker.datatype.boolean(),
         },
       });
 
@@ -223,7 +243,7 @@ async function main() {
             witnessId: createdWitness.id,
             receivedDate: faker.date.past(),
             useAsEvidence: faker.helpers.arrayElement([true, false, null]),
-            serveSection9: faker.helpers.arrayElement([true, false, null])
+            serveSection9: faker.helpers.arrayElement([true, false, null]),
           },
         });
       }
