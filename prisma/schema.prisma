@@ -42,6 +42,7 @@ model Witness {
   firstName                   String
   lastName                    String
   appearingInCourt            Boolean?
+  reasonForNotAppearingInCourt String?
   caseId                      Int
   case                        Case               @relation(fields: [caseId], references: [id])
   statements                  WitnessStatement[]

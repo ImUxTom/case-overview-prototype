@@ -20,7 +20,7 @@
           {% for event in events %}
             <div class="app-activity-log__item">
               <div class="app-activity-log__header">
-                <h2 class="app-activity-log__title govuk-heading-s govuk-!-font-size-24 govuk-!-margin-bottom-1">{{event.title}}</h2>
+                <h2 class="app-activity-log__title govuk-heading-s govuk-!-font-size-2 govuk-!-margin-bottom-1">{{event.title}}</h2>
                 <p class="app-activity-log__byline">
                   {% if event.user %}
                     {{event.user.email}},
@@ -31,24 +31,83 @@
                 </p>
               </div>
               <div class="app-activity-log__description">
-                <div class="app-activity-log__box">
-                  {{ govukSummaryList({
-                    rows: [
-                      {
-                        key: {
-                          text: "Witness"
-                        },
-                        value: {
-                          text: event.meta.witness.firstName + ' ' + event.meta.witness.lastName
+                {% if event.title == 'Witness marked as appearing in court' %}
+                  <div class="app-activity-log__box">      
+                    {{ govukSummaryList({
+                      rows: [
+                        {
+                          key: {
+                            text: "Witness"
+                          },
+                          value: {
+                            text: event.meta.witness.firstName + ' ' + event.meta.witness.lastName
+                          }
                         }
-                      }
-                    ]
-                  }) }}
-                </div>
+                      ]
+                    }) }}
+                  </div>
+                  <p class="app-log-card__note--link">
+                    <a class="govuk-link" href="/cases/{{ event.case.id }}/witnesses">View witness</a>
+                  </p>
+                {% endif %}
 
-                <p class="app-log-card__note--link">
-                  <a class="govuk-link" href="/cases/{{ event.case.id }}/witnesses">View witness</a>
-                </p>
+                {% if event.title == 'Witness marked as not appearing in court' %}
+                  <div class="app-activity-log__box">  
+                    {{ govukSummaryList({
+                      rows: [
+                        {
+                          key: {
+                            text: "Witness"
+                          },
+                          value: {
+                            text: event.meta.witness.firstName + ' ' + event.meta.witness.lastName
+                          }
+                        },
+                        {
+                          key: {
+                            text: "Reason for marking the witness as not attending court"
+                          },
+                          value: {
+                            text: event.meta.witness.reasonForNotAppearingInCourt
+                          }
+                        }
+                      ]
+                    }) }}
+                  </div>
+                  <p class="app-log-card__note--link">
+                    <a class="govuk-link" href="/cases/{{ event.case.id }}/witnesses">View witness</a>
+                  </p>
+                {% endif %}
+
+                {% if event.title == 'Witness statement marked as Section 9' or event.title == 'Witness statement unmarked as Section 9' %}
+                  <div class="app-activity-log__box">  
+                    {{ govukSummaryList({
+                      rows: [
+                        {
+                          key: {
+                            text: "Witness"
+                          },
+                          value: {
+                            text: event.meta.witness.firstName + ' ' + event.meta.witness.lastName
+                          }
+                        },
+                        {
+                          key: {
+                            text: "Statement number"
+                          },
+                          value: {
+                            text: 1
+                          }
+                        }
+                      ]
+                    })  }}
+                  </div>
+                  <p class="app-log-card__note--link">
+                    <a class="govuk-link" href="/cases/{{ event.case.id }}/witnesses">View statement</a>
+                  </p>
+                {% endif %}
+
+                
               </div>
             </div>
           {% endfor %}
