@@ -58,6 +58,8 @@ router.get('/clear-data', function (req, res) {
 
 require('./routes/account')(router)
 require('./routes/overview')(router)
+require('./routes/activity')(router)
+
 require('./routes/cases')(router)
 require('./routes/cases--edit-lawyers')(router)
 require('./routes/case--overview')(router)
@@ -69,7 +71,7 @@ require('./routes/case--witness--mark-as-appearing-in-court')(router)
 require('./routes/case--witness--mark-as-not-appearing-in-court')(router)
 require('./routes/case--witness-statement--issue-section9')(router)
 require('./routes/case--witness-statement--withdraw-section9')(router)
-// require('./routes/case--witness--withdraw-section9')(router)
+
 require('./routes/lawyers')(router)
 require('./routes/lawyers--add-specialist-area')(router)
 

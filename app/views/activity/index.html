@@ -1,17 +1,63 @@
 {% extends "layouts/main.html" %}
-
 {% set navId = 'activity' %}
-{% set pageName = "Activity" %}
+{% set pageName = 'Activity' %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+      
+      {% if events.length %}
+        <div class="app-activity-log">
+          {% for event in events %}
+            <div class="app-activity-log__item">
+              <div class="app-activity-log__header">
+                <h2 class="app-activity-log__title govuk-heading-s govuk-!-margin-bottom-1">
+                  {{event.title}}
 
-      <h1 class="govuk-heading-l">
-        {{ pageName }}
-      </h1>
+                  {% if event.case %}
+                    ({{event.case.defendants[0].firstName}} {{event.case.defendants[0].lastName}} 
+                    {%- if event.case.defendants.length > 1 %}
+                      and {{event.case.defendants.length - 1}} more
+                    {%- endif -%})
+                  {% endif %}
+                </h2>
+                <p class="app-activity-log__byline">
+                  {% if event.user %}
+                    {{event.user.email}},
+                  {% endif %}
+                  <time datetime="{{ event.createdAt }}">
+                    {{- event.createdAt | isoDateString | govukDateTime -}}
+                  </time>
+                </p>
+              </div>
+              <div class="app-activity-log__description">
+                <div class="app-activity-log__box">
+                  {{ govukSummaryList({
+                    rows: [
+                      {
+                        key: {
+                          text: "Witness"
+                        },
+                        value: {
+                          text: event.meta.witness.firstName + ' ' + event.meta.witness.lastName
+                        }
+                      }
+                    ]
+                  }) }}
+                </div>
 
-      <p>Will show all the events, newest first.</p>
+                <p class="app-log-card__note--link">
+                  <a class="govuk-link" href="/cases/{{ event.case.id }}/witnesses">View witness</a>
+                </p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No events.</p>
+      {% endif %}
+
 
     </div>
   </div>
