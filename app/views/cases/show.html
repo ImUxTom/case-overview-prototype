@@ -143,40 +143,6 @@
           },
           {
             key: { 
-              text: "Type of hearing" 
-            },
-            value: { 
-              html: _case.type 
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/:caseId/edit-type" | replace(':caseId', _case.id),
-                  text: "Change",
-                  visuallyHiddenText: "Type"
-                }
-              ]
-            }
-          },
-          {
-            key: { 
-              text: "Location" 
-            },
-            value: { 
-              html: locationValue
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/:caseId/edit-location" | replace(':caseId', _case.id),
-                  text: "Change",
-                  visuallyHiddenText: "Location"
-                }
-              ]
-            }
-          },
-          {
-            key: { 
               text: "Defendants" 
             },
             value: { 
@@ -194,7 +160,7 @@
           },
           {
             key: { 
-              text: "Lawyers" 
+              text: "Prosecutors" 
             },
             value: { 
               html: lawyerValue
@@ -213,8 +179,8 @@
             actions: {
               items: [
                 {
-                  href: "/cases/:caseId/add-lawyer" | replace(':caseId', _case.id),
-                  text: "Change",
+                  href: "#" | replace(':caseId', _case.id),
+                  text: "Add",
                   visuallyHiddenText: "Lawyer"
                 }
               ]
@@ -233,6 +199,23 @@
                   href: "/cases/:caseId/edit-hearing" | replace(':caseId', _case.id),
                   text: "Change",
                   visuallyHiddenText: "Hearing"
+                }
+              ]
+            }
+          },
+                    {
+            key: { 
+              text: "Type of hearing" 
+            },
+            value: { 
+              html: _case.type 
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/edit-type" | replace(':caseId', _case.id),
+                  text: "Change",
+                  visuallyHiddenText: "Type"
                 }
               ]
             }

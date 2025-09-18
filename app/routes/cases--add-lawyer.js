@@ -199,7 +199,7 @@ module.exports = router => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Lawyer assigned',
+        title: 'Prosecutor assigned',
         caseId: caseId,
         meta: { lawyer }
       }
@@ -207,7 +207,7 @@ module.exports = router => {
 
     delete req.session.data.assignLawyer
 
-    req.flash('success', 'Lawyer assigned')
+    req.flash('success', 'Prosecutor assigned')
     res.redirect(`/cases/${req.params.caseId}`)
   })
 

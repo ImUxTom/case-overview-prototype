@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Lawyer" %}
+{% set pageName = "Prosecutor" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -13,7 +13,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{_case.reference}} - assign lawyer</span>
+      <span class="govuk-caption-l">{{_case.reference}} - assign prosecutor</span>
       <form method="post">
         {{ govukRadios({
           name: "assignLawyer[lawyer]",

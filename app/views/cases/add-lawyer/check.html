@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Check details and assign lawyer" %}
+{% set pageName = "Check details and assign prosecutor" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -21,7 +21,7 @@
         rows: [
           {
             key: {
-              text: "Lawyer"
+              text: "Prosecutor"
             },
             value: {
               html: lawyer.firstName + ' ' + lawyer.lastName
@@ -39,11 +39,9 @@
         ]
       }) }}
 
-      <p>We’ll send an email to the lawyer to tell them that they’ve been assigned to the case.</p>
-
       <form method="post">
         {{ govukButton({
-          text: "Assign lawyer"
+          text: "Assign prosecutor"
         }) }}
       </form>
     </div>

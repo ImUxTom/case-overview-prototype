@@ -76,9 +76,9 @@
                     {% else %}
                       {% set useAsEvidenceValue = 'None' %}
                     {% endif %}
-
+                    
                     {{ govukSummaryList({
-                      classes: "govuk-!-margin-top-0 govuk-!-margin-bottom-6",
+                      classes: "govuk-!-margin-top-0 govuk-!-margin-bottom-7",
                       rows: [
                         {
                           key: {
@@ -101,7 +101,7 @@
                             html: 'Statement date'
                           },
                           value: {
-                            html: statement.receivedDate | isoDateString | govukDateTime
+                            html: statement.receivedDate | isoDateString | govukDate
                           }
                         },
                         {

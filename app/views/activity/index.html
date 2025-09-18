@@ -34,13 +34,13 @@
                 </p>
               </div>
               <div class="app-activity-log__description">
-                {% if event.title == 'Lawyer assigned' %}
+                {% if event.title == 'Prosecutor assigned' %}
                   <div class="app-activity-log__box">      
                     {{ govukSummaryList({
                       rows: [
                         {
                           key: {
-                            text: "Lawyer"
+                            text: "Prosecutor"
                           },
                           value: {
                             text: event.meta.lawyer.firstName + ' ' + event.meta.lawyer.lastName
