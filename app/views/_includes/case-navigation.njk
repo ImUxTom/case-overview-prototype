@@ -19,7 +19,7 @@
     text: "DGA",
     href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
     current: secondaryNavId == 'dga'
-  } if _case.dga,
+  } if _case.dga and 1==2,
   {
     text: "Activity",
     href: "/cases/:caseId/activity" | replace(':caseId', _case.id),

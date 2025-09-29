@@ -4,26 +4,46 @@
 {% set pageName = 'Overview' %}
 
 {% block beforeContent %}
-  {% include "_includes/case-identity-bar.njk" %}
+  {# {% include "_includes/case-identity-bar.njk" %} #}
 {% endblock %}
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
+  {% include "_includes/case-header.njk" %}
+
+  {% if _case.dga and not _case.dga.outcome %}
+    {% set inset %}
+      <p>You need to record the Director’s Guidance Assessment (DGA).</p>
+
+      {{ govukButton({
+        text: 'Record DGA',
+        href: '/cases/:caseId/dga/new' | replace(':caseId', _case.id)
+      }) }}
+    {% endset %}
+
+    {{ govukInsetText({
+      html: inset,
+      classes: 'app-inset-action govuk-!-margin-bottom-9'
+    }) }}
+  {% endif %}
+
+  {# {{ govukButton({
+    text: "Record DGA outcome"
+  }) }}<br>
+
+  {{ govukButton({
+    text: "Assign prosecutor"
+  }) }}<br>
+
+  {{ govukButton({
+    text: "Do another thing"
+  }) }}<br><br><br> #}
+
   {% include "_includes/case-navigation.njk" %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       
-      {# <span class="govuk-caption-l">{{_case.reference}}</span>
-      <h1 class="govuk-heading-l">
-        {{ pageName }}
-
-        {{ govukTag({
-          text: _case.priority,
-          classes: _case.priority | priorityTagClass
-        }) }}
-      </h1> #}
-
       <h1 class="govuk-heading-l">Overview</h1>
       
       {% set lawyerValue %}
