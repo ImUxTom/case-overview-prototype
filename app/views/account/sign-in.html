@@ -1,27 +1,28 @@
 {% extends "layouts/main.html" %}
 
 {% set hideNav = true %}
-{% set pageName = "Sign in" %}
+{% set pageName = "Work Manamgent App" %}
 
 {% block content %}
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-one-half">
+      insert CPS logo
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
+      <h1 class="govuk-heading-m">Sign in to your account</h1>
 
-      <p><a href="/account/password/reset">Reset your password</a> if you’ve forgotten it.</p>
 
       <form method="post" novalidate>
 
         {{ govukInput({
-          id: "signIn[emailAddress]",
-          name: "signIn[emailAddress]",
-          type: "email",
+          id: "signIn[username]",
+          name: "signIn[username]",
+          type: "username",
           label: {
-            text: "Email address",
+            text: "Username",
             classes: "govuk-label--m"
           },
-          value: data.signIn.emailAddress
+          value: data.signIn.username
         }) }}
 
         {{ govukInput({
@@ -43,6 +44,11 @@
       </form>
 
     </div>
+ 
+        <div class="govuk-grid-column-one-half">
+    <p>Information contained within CMS is processed in accordance with data protection legislation. CMS is classified to hold data up to and including OFFICIAL (SENSITIVE). You must have a legitimate business reason for accessing both the system and any specific case held on the system. All activity is monitored, and misuse or unauthorised use of the system or data therein may result in disciplinary action and/or prosecution.As a CMS user you have a responsibility to keep the vital data of victims, defendants and witnesses safe and confidential. If you are made aware of a data breach, you must report it immediately. For information on reporting a breach, go to the Incident Management & Reporting Policy on the Security & Information Assurance intranet hub. By signing into the system, you are agreeing to the Terms and Conditions of use as set out in the CMS, Crown Court Digital Case System (DCS) and Common Platform Security Policy. You can find the policy on the Security & Information Assurance intranet hub.
+ </p>
+
   </div>
 
 {% endblock %}
