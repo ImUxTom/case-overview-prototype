@@ -10,10 +10,15 @@ module.exports = router => {
     })
   })
 
+
   router.post('/account/sign-in', async (req, res) => {
     req.session.data.user = await prisma.user.findFirst()
+if (req.session.data['state'] === 'current') {
+    res.redirect('/tasks')
+  } else {
     res.redirect('/overview')
-  })
+  }
+})
 
   router.get('/account/sign-out', (req, res) => {
     req.session.data.user = null
