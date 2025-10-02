@@ -1,0 +1,73 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set secondaryNavId = 'material' %}
+{% set pageName = 'Material' %}
+
+{% set defendantName %}
+  {{_case.defendants[0].firstName}} {{_case.defendants[0].lastName}} 
+  {% if _case.defendants.length > 1 %}
+    and {{_case.defendants.length - 1}} more
+  {% endif %}
+{% endset %}
+
+
+
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: defendantName,
+        href: "/cases/:caseId" | replace(':caseId', _case.id)
+      },
+      {
+        text: pageName
+      }
+    ]
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {{ xGovukSecondaryNavigation({
+  classes: 'govuk-!-margin-bottom-6 app-case-navigatio',
+  visuallyHiddenTitle: "Secondary menu",
+  items: [{
+    text: "Whatever",
+    href: "/cases/:caseId" | replace(':caseId', _case.id),
+    current: true
+  }, {
+    text: "Sub",
+    href: "/cases/:caseId/witnesses" | replace(':caseId', _case.id),
+  }, {
+    text: "Nav",
+    href: "#"
+  }, {
+    href: "/cases/:caseId/material" | replace(':caseId', _case.id),
+    text: "Needs"
+  }, {
+    href: "#",
+    text: "To"
+  }, {
+    text: "Be",
+    href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
+    current: secondaryNavId == 'dga'
+  } if _case.dga and 1==2,
+  {
+    text: "Here",
+    href: "/cases/:caseId/activity" | replace(':caseId', _case.id),
+    current: secondaryNavId == 'activity'
+  }]
+})}}
+
+
+
+      <p>Not done.</p>
+    </div>
+  </div>
+{% endblock %}

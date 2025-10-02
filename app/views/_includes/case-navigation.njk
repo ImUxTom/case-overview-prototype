@@ -13,8 +13,11 @@
     text: "Defendants",
     href: "#"
   }, {
+    href: "/cases/:caseId/material" | replace(':caseId', _case.id),
+    text: "Material"
+  }, {
     href: "#",
-    text: "Documents"
+    text: "Reviews"
   }, {
     text: "DGA",
     href: "/cases/:caseId/dga" | replace(':caseId', _case.id),

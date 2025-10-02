@@ -8,10 +8,6 @@
   {{ govukBreadcrumbs({
     items: [
       {
-        text: "Cases",
-        href: "/cases"
-      },
-      {
         text: defendantName,
         href: "/cases/:caseId" | replace(':caseId', _case.id)
       },
@@ -35,30 +31,38 @@
         {{ pageName }}
       </h1>
 
+      <div class="govuk-button-group">
+        {# <a href="#" class="govuk-link"></a> #}
+        {{ govukButton({
+          text: "Mark as attending court"
+        }) }}
+      </div>
+
+
       {{ xGovukSecondaryNavigation({
-                  classes: 'govuk-!-margin-bottom-5',
-                  visuallyHiddenTitle: "Secondary menu",
-                  items: [{
-                    text: "Details",
-                    href: "#",
-                    current: true
-                  }, {
-                    text: "Statements",
-                    href: "#"
-                  }, {
-                    text: "Availability",
-                    href: "#"
-                  }, {
-                    text: "Special measures",
-                    href: "#"
-                  }]
-                })}}
+        classes: 'govuk-!-margin-bottom-5',
+        visuallyHiddenTitle: "Secondary menu",
+        items: [{
+          text: "Details",
+          href: "#",
+          current: true
+        }, {
+          text: "Statements",
+          href: "#"
+        }, {
+          text: "Availability",
+          href: "#"
+        }, {
+          text: "Special measures",
+          href: "#"
+        }, {
+          text: "Activity",
+          href: "#"
+        }]
+      })}}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      
-      
-
       {% if witness.appearingInCourt %}
         {% set attendanceStatus = 'Attending court' %}
       {% elseif witness.appearingInCourt == false %}
@@ -105,16 +109,6 @@
           }        
         ]
       }) }}
-
-      <h2 class="govuk-heading-m">Court attendance</h2>
-
-      {{ govukButton({
-        text: "Mark as attending court"
-      }) }}
-
-      <h2 class="govuk-heading-m">Statements</h2>
-
-      <p>Etc or nav</p>
 
 
 

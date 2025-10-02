@@ -117,7 +117,7 @@ module.exports = router => {
         return { text: lawyer ? lawyer.firstName + " " + lawyer.lastName : selectedLawyer, href: '/cases/remove-lawyer/' + selectedLawyer }
       })
 
-      selectedFilters.categories.push({ heading: { text: 'Lawyer' }, items: items })
+      selectedFilters.categories.push({ heading: { text: 'Prosecutor' }, items: items })
     }
 
     // Build Prisma where clause
