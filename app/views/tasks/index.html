@@ -11,7 +11,39 @@
         {{ pageName }}
       </h1>
 
-      <p>Not yet.</p>
+      {% if tasks.length %}
+         <div class="app-list">
+          {% for task in tasks %}
+           <div class="app-list__item">
+              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">                
+                <a href="/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
+              </h2>
+
+              {{ govukSummaryList({
+                classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                rows: [
+                  {
+                    key: {
+                      html: 'Reference'
+                    },
+                    value: {
+                      html: task.case.reference
+                    }
+                  }              
+                ]
+              })}}
+
+
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no results.</p>
+      {% endif %}
+
+      {% include "_includes/pagination.njk" %}
+    </div>
+  </div>
 
     </div>
   </div>

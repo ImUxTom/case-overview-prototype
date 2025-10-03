@@ -64,6 +64,7 @@ router.use(checkSignedIn)
 require('./routes/overview')(router)
 require('./routes/activity')(router)
 
+require('./routes/tasks')(router)
 require('./routes/cases')(router)
 require('./routes/cases--add-lawyer')(router)
 require('./routes/case--overview')(router)

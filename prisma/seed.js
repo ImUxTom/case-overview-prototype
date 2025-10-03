@@ -152,6 +152,18 @@ async function main() {
 
   const createdCases = [];
 
+  // Define a pool of possible task names
+  const taskNames = [
+    "Retrieve core details",
+    "Check communications",
+    "Review disclosure",
+    "Prepare witness briefing",
+    "Schedule pre-trial meeting",
+    "Draft opening statement",
+    "Submit evidence bundle",
+    "Confirm hearing date",
+  ];
+
   for (let i = 0; i < TOTAL_CASES; i++) {
     const assignedDefendants = faker.helpers.arrayElements(
       defendants,
@@ -163,6 +175,15 @@ async function main() {
     );
 
     const caseUnitId = faker.number.int({ min: 1, max: 4 });
+
+    // Pick between 0 and 5 unique task names
+    const numTasks = faker.number.int({ min: 0, max: 5 });
+    const chosenTaskNames = faker.helpers.arrayElements(taskNames, numTasks);
+
+    const tasksData = chosenTaskNames.map((name) => ({
+      name,
+      dueDate: faker.date.future(),
+    }));
 
     const createdCase = await prisma.case.create({
       data: {
@@ -190,10 +211,7 @@ async function main() {
         },
         tasks: {
           createMany: {
-            data: [
-              { name: "Retrieve core details", dueDate: faker.date.future() },
-              { name: "Check communications", dueDate: faker.date.future() },
-            ],
+            data: tasksData, // now unique per case
           },
         },
       },
