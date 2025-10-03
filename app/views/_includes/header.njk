@@ -4,6 +4,58 @@
   {% set serviceUrl = '/account/sign-in' %}
 {% endif %}
 
+{# --- Solid speech bubble with 3 dots --- #}
+{% set speechHTML %}
+  <svg class="app-icon app-icon--inline" width="18" height="18" viewBox="0 0 24 24"
+       xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <!-- bubble fill uses currentColor (white on dark header) -->
+    <path fill="currentColor" d="M12 3.5c5.247 0 9.5 3.47 9.5 7.75 0 4.28-4.253 7.75-9.5 7.75H9.1c-.2 0-.4.06-.57.17L5.3 21.6c-.76.49-1.67-.26-1.47-1.12l.66-2.83c.05-.2-.01-.41-.16-.56C2.94 15.58 2.5 13.96 2.5 11.25 2.5 6.97 6.753 3.5 12 3.5Z"/>
+    <!-- three dots cut through using header background colour -->
+    <circle cx="9"  cy="11.25" r="1.25" fill="var(--app-header-bg, #0b0c0c)"/>
+    <circle cx="12" cy="11.25" r="1.25" fill="var(--app-header-bg, #0b0c0c)"/>
+    <circle cx="15" cy="11.25" r="1.25" fill="var(--app-header-bg, #0b0c0c)"/>
+  </svg>
+  <span class="govuk-visually-hidden">Feedback</span>
+{% endset %}
+
+{# --- Exit icon: rounded door + right arrow --- #}
+{% set exitHTML %}
+  <svg class="app-icon app-icon--inline" width="18" height="18" viewBox="0 0 24 24"
+       xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <!-- door/frame -->
+    <rect x="3" y="4" width="11" height="16" rx="2" ry="2"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+    <!-- arrow leaving to the right -->
+    <path d="M13 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M18 8l4 4-4 4" fill="currentColor"/>
+  </svg>
+  <span class="govuk-visually-hidden">Exit</span>
+{% endset %}
+
+{% set isCurrent = (data['state'] == 'current') %}
+
+{% if isCurrent %}
+
+  {# CURRENT header: speech icon, "No SSO user", exit icon #}
+        {{ appHeader({
+    productName: "Work Management",
+    serviceUrl: serviceUrl,
+    navigationClasses: "govuk-header__navigation--end",
+    navigation: [
+      { href: "/feedback", html: speechHTML | safe },
+      {
+        href: "#",
+        html: '<span class="app-header__label app-header__label--strong">No SSO user</span>',
+        attributes: { "aria-disabled": "true" }
+      },
+      { href: "/account/sign-out", html: exitHTML | safe }
+    ]
+  }) }}
+
+{% else %}
+
+  {# NON-current header: account + sign in/out #}
+
 {{ appHeader({ 
   productName: serviceName,
   serviceUrl: serviceUrl,
@@ -20,3 +72,6 @@
     }
   ]
 }) }}
+{% endif %}
+
+
