@@ -64,8 +64,8 @@ router.get('/', (req, res) => {
 router.get('/500', (req, res) => {
   res.render("500")
 })
-router.get('/403', (req, res) => {
-  res.render("403")
+router.get('/403-case', (req, res) => {
+  res.render("403-case")
 })
 
 require('./routes/account')(router)
