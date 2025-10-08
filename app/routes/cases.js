@@ -7,33 +7,33 @@ const complexities = require('../data/complexities')
 const dgaStatuses = ['Needs review', 'Does not need review']
 
 function resetFilters(req) {
-  _.set(req, 'session.data.filters.dga', null)
-  _.set(req, 'session.data.filters.ctl', null)
-  _.set(req, 'session.data.filters.unit', null)
-  _.set(req, 'session.data.filters.complexities', null)
-  _.set(req, 'session.data.filters.types', null)
-  _.set(req, 'session.data.filters.lawyers', null)
+  _.set(req, 'session.data.caseListFilters.dga', null)
+  _.set(req, 'session.data.caseListFilters.ctl', null)
+  _.set(req, 'session.data.caseListFilters.unit', null)
+  _.set(req, 'session.data.caseListFilters.complexities', null)
+  _.set(req, 'session.data.caseListFilters.types', null)
+  _.set(req, 'session.data.caseListFilters.lawyers', null)
 }
 
 module.exports = router => {
 
   router.get('/cases/shortcut/unassigned', (req, res) => {
     resetFilters(req)
-    res.redirect('/cases/?filters[lawyers][]=Unassigned')
+    res.redirect('/cases/?caseListFilters[lawyers][]=Unassigned')
   })
 
   router.get('/cases/shortcut/dga', (req, res) => {
     resetFilters(req)
-    res.redirect('/cases/?filters[dga][]=Needs review')
+    res.redirect('/cases/?caseListFilters[dga][]=Needs review')
   })
 
   router.get("/cases", async (req, res) => {
-    let selectedDgaFilters = _.get(req.session.data.filters, 'dga', [])
-    let selectedCtlFilters = _.get(req.session.data.filters, 'ctl', [])
-    let selectedUnitFilters = _.get(req.session.data.filters, 'unit', [])
-    let selectedComplexityFilters = _.get(req.session.data.filters, 'complexities', [])
-    let selectedTypeFilters = _.get(req.session.data.filters, 'types', [])
-    let selectedLawyerFilters = _.get(req.session.data.filters, 'lawyers', [])
+    let selectedDgaFilters = _.get(req.session.data.caseListFilters, 'dga', [])
+    let selectedCtlFilters = _.get(req.session.data.caseListFilters, 'ctl', [])
+    let selectedUnitFilters = _.get(req.session.data.caseListFilters, 'unit', [])
+    let selectedComplexityFilters = _.get(req.session.data.caseListFilters, 'complexities', [])
+    let selectedTypeFilters = _.get(req.session.data.caseListFilters, 'types', [])
+    let selectedLawyerFilters = _.get(req.session.data.caseListFilters, 'lawyers', [])
 
     let selectedFilters = { categories: [] }
 
@@ -266,32 +266,32 @@ module.exports = router => {
   })
 
   router.get('/cases/remove-dga/:dga', (req, res) => {
-    _.set(req, 'session.data.filters.dga', _.pull(req.session.data.filters.dga, req.params.dga))
+    _.set(req, 'session.data.caseListFilters.dga', _.pull(req.session.data.caseListFilters.dga, req.params.dga))
     res.redirect('/cases')
   })
 
   router.get('/cases/remove-ctl/:ctl', (req, res) => {
-    _.set(req, 'session.data.filters.ctl', _.pull(req.session.data.filters.ctl, req.params.ctl))
+    _.set(req, 'session.data.caseListFilters.ctl', _.pull(req.session.data.caseListFilters.ctl, req.params.ctl))
     res.redirect('/cases')
   })
 
   router.get('/cases/remove-unit/:unit', (req, res) => {
-    _.set(req, 'session.data.filters.unit', _.pull(req.session.data.filters.unit, req.params.unit))
+    _.set(req, 'session.data.caseListFilters.unit', _.pull(req.session.data.caseListFilters.unit, req.params.unit))
     res.redirect('/cases')
   })
 
   router.get('/cases/remove-complexity/:complexity', (req, res) => {
-    _.set(req, 'session.data.filters.complexities', _.pull(req.session.data.filters.complexities, req.params.complexity))
+    _.set(req, 'session.data.caseListFilters.complexities', _.pull(req.session.data.caseListFilters.complexities, req.params.complexity))
     res.redirect('/cases')
   })
 
   router.get('/cases/remove-type/:type', (req, res) => {
-    _.set(req, 'session.data.filters.types', _.pull(req.session.data.filters.types, req.params.type))
+    _.set(req, 'session.data.caseListFilters.types', _.pull(req.session.data.caseListFilters.types, req.params.type))
     res.redirect('/cases')
   })
 
   router.get('/cases/remove-lawyer/:lawyer', (req, res) => {
-    _.set(req, 'session.data.filters.lawyers', _.pull(req.session.data.filters.lawyers, req.params.lawyer))
+    _.set(req, 'session.data.caseListFilters.lawyers', _.pull(req.session.data.caseListFilters.lawyers, req.params.lawyer))
     res.redirect('/cases')
   })
 

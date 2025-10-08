@@ -1,8 +1,8 @@
 {% set filterOptionsHtml %}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[dga]",
-    name: "filters[dga]",
+    idPrefix: "caseListFilters[dga]",
+    name: "caseListFilters[dga]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -11,12 +11,12 @@
       }
     },
     items: dgaItems,
-    values: data.filters.dga
+    values: data.caseListFilters.dga
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[ctl]",
-    name: "filters[ctl]",
+    idPrefix: "caseListFilters[ctl]",
+    name: "caseListFilters[ctl]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -25,12 +25,12 @@
       }
     },
     items: ctlItems,
-    values: data.filters.ctl
+    values: data.caseListFilters.ctl
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[unit]",
-    name: "filters[unit]",
+    idPrefix: "caseListFilters[unit]",
+    name: "caseListFilters[unit]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -39,12 +39,12 @@
       }
     },
     items: unitItems,
-    values: data.filters.unit
+    values: data.caseListFilters.unit
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[complexities]",
-    name: "filters[complexities]",
+    idPrefix: "caseListFilters[complexities]",
+    name: "caseListFilters[complexities]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -53,12 +53,12 @@
       }
     },
     items: complexityItems,
-    values: data.filters.complexities
+    values: data.caseListFilters.complexities
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[types]",
-    name: "filters[types]",
+    idPrefix: "caseListFilters[types]",
+    name: "caseListFilters[types]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -67,12 +67,12 @@
       }
     },
     items: typeItems,
-    values: data.filters.types
+    values: data.caseListFilters.types
   }) }}
 
   {{ appCheckboxFilter({
-    idPrefix: "filters[lawyers]",
-    name: "filters[lawyers]",
+    idPrefix: "caseListFilters[lawyers]",
+    name: "caseListFilters[lawyers]",
     classes: "govuk-checkboxes--small lawyer-filter" ,
     attributes: {
       id: 'lawyer-filter'
@@ -85,7 +85,7 @@
     },
     maxHeight: true,
     items: lawyerItems,
-    values: data.filters.lawyers,
+    values: data.caseListFilters.lawyers,
     selectedItems: selectedLawyerItems
   }) }}
 

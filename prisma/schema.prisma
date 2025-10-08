@@ -165,6 +165,7 @@ model Location {
 model Task {
   id       Int      @id @default(autoincrement())
   name     String
+  type     String
   dueDate  DateTime
   case     Case     @relation(fields: [caseId], references: [id])
   caseId   Int

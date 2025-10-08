@@ -1,8 +1,8 @@
 {% set filterOptionsHtml %}
 
   {{ govukCheckboxes({
-    idPrefix: "filters[type]",
-    name: "filters[type]",
+    idPrefix: "taskListFilters[taskTypes]",
+    name: "taskListFilters[taskTypes]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -10,17 +10,8 @@
         classes: "govuk-fieldset__legend--s"
       }
     },
-    items: [{
-      value: 'Reminder',
-      text: 'Reminder'
-    }, {
-      value: 'Direction',
-      text: 'Direction'
-    }, {
-      value: 'Etc',
-      text: 'Etc'
-    }],
-    values: data.filters.type
+    items: taskTypeItems,
+    values: data.taskListFilters.taskTypes
   }) }}
 
 {% endset %}
@@ -40,7 +31,7 @@
         <div class="app-filter__selected-heading">
           <div class="app-filter__heading-title">
             <h2 class="govuk-heading-m govuk-!-margin-bottom-1">Selected filters</h2>
-            <p class="govuk-body"><a class="govuk-link govuk-link--no-visited-state" href="/cases/clear-filters">Clear filters</a></p>
+            <p class="govuk-body"><a class="govuk-link govuk-link--no-visited-state" href="/tasks/clear-filters">Clear filters</a></p>
           </div>
         </div>
         {% for category in selectedFilters.categories %}

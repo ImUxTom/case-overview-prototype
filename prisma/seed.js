@@ -5,6 +5,7 @@ const complexities = require("../app/data/complexities.js");
 const firstNames = require("../app/data/first-names.js");
 const lastNames = require("../app/data/last-names.js");
 const types = require("../app/data/types.js");
+const taskTypes = require("../app/data/task-types.js");
 const specialisms = require("../app/data/specialisms.js");
 
 const prisma = new PrismaClient();
@@ -182,6 +183,7 @@ async function main() {
 
     const tasksData = chosenTaskNames.map((name) => ({
       name,
+      type: faker.helpers.arrayElement(taskTypes),
       dueDate: faker.date.future(),
     }));
 

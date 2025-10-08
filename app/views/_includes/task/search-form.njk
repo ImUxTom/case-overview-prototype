@@ -4,7 +4,7 @@
       id: "taskSearch[keywords]",
       name: "taskSearch[keywords]",
       label: {
-        text: "Search task name",
+        text: "Search by task name, case reference or defendant",
         classes: "govuk-label--s app-search-form__label"
       },
       value: data.taskSearch.keywords
@@ -17,6 +17,6 @@
   </form>
 
   {% if data.taskSearch.keywords %}
-    <p class="govuk-!-margin-top-2 govuk-!-margin-bottom-0"><a class="govuk-link--no-visited-state" href="/cases/clear-search">Clear search</a></p>
+    <p class="govuk-!-margin-top-2 govuk-!-margin-bottom-0"><a class="govuk-link--no-visited-state" href="/tasks/clear-search">Clear search</a></p>
   {% endif %}
 </div>
