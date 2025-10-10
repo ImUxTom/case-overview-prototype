@@ -87,6 +87,7 @@ require('./routes/case--task')(router)
 require('./routes/case--documents')(router)
 require('./routes/case--witnesses')(router)
 require('./routes/case--witness')(router)
+require('./routes/case--defendants')(router)
 require('./routes/case--witness--mark-as-attending-court')(router)
 require('./routes/case--witness--mark-as-not-attending-court')(router)
 require('./routes/case--witness-statement--mark-as-section9')(router)
@@ -94,6 +95,7 @@ require('./routes/case--witness-statement--unmark-as-section9')(router)
 
 require('./routes/lawyers')(router)
 require('./routes/lawyers--add-specialist-area')(router)
+require('./routes/paralegal-officers')(router)
 
 // router.use((err, req, res, next) => {
 //   // console.error(err.stack)
