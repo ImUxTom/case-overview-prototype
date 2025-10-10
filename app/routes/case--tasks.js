@@ -6,7 +6,16 @@ module.exports = router => {
   router.get("/cases/:caseId/tasks", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
-      include: { tasks: true, user: true, unit: true, lawyers: true, defendants: true, hearing: true, location: true, tasks: true, dga: true },
+      include: {
+        tasks: { orderBy: { dueDate: 'asc' } },
+        user: true,
+        unit: true,
+        lawyers: true,
+        defendants: true,
+        hearing: true,
+        location: true,
+        dga: true
+      },
     })
 
     res.render("cases/tasks/index", { _case })

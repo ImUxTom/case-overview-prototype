@@ -1,5 +1,6 @@
 module.exports = {
-  sort: 'Name'
+  caseSort: 'Name',
+  taskSort: 'Due date'
   // Insert values here
 
 }

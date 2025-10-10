@@ -38,6 +38,7 @@ module.exports = router => {
 
     let tasks = await prisma.task.findMany({
       where: where,
+      orderBy: { dueDate: 'asc' },
       include: {
         case: {
           include: {
