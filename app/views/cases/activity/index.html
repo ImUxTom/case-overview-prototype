@@ -4,12 +4,12 @@
 {% set pageName = "Activity (:total)" | replace(':total', totalEvents) %}
 
 {% block beforeContent %}
-  {# {% include "_includes/case-identity-bar.njk" %} #}
+  {% include "_includes/case/identity-bar.njk" %}
 {% endblock %}
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
-  {% include "_includes/case/header.njk" %}
+  {# {% include "_includes/case/header.njk" %} #}
   {% include "_includes/case/navigation.njk" %}
 
   <div class="govuk-grid-row">
