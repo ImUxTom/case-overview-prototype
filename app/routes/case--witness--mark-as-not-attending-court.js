@@ -64,10 +64,11 @@ module.exports = router => {
 
     delete req.session.data.markWitnessAsNotAttendingCourt
 
-    // req.flash('success', 'Witness marked as not attending court')
-    req.flash('success', `Witness marked as not attending court (${witness.firstName} ${witness.lastName})`)
-
-    res.redirect(`/cases/${req.params.caseId}/witnesses`)
+    // req.flash('success', `Witness marked as not attending court (${witness.firstName} ${witness.lastName})`)
+    // res.redirect(`/cases/${req.params.caseId}/witnesses`)
+    
+    req.flash('success', 'Witness marked as not attending court')
+    res.redirect(`/cases/${req.params.caseId}/witnesses/${req.params.witnessId}`)
 
   })
 
