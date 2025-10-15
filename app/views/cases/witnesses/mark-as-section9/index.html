@@ -13,7 +13,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{witness.firstName}} {{witness.lastName}} - statement number {{witnessStatement.number}}</span>
+      <span class="govuk-caption-l">{{_case.reference}} - {{witness.firstName}} {{witness.lastName}} - statement number {{witnessStatement.number}}</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
       <form method="post">
         {{ govukButton({
