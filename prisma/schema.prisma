@@ -62,6 +62,7 @@ model Witness {
   courtSpecialMeasures        String?
   courtNeeds                  String?
   requiresMeeting             Boolean?
+  victim                      Boolean?
 }
 
 model WitnessStatement {

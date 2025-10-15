@@ -34,7 +34,15 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+      <h1 class="govuk-heading-l">
+        {{ pageName }}
+        {% if witness.victim %}
+          {{ govukTag({ text: 'Victim' })}}
+        {% endif %}
+        {% if witness.keyWitness %}
+          {{ govukTag({ text: 'Key witness' })}}
+        {% endif %}
+      </h1>
 
       {% if witness.appearingInCourt == true %}
         {# <p>Witness called.</p> #}
@@ -158,6 +166,23 @@
             },
             value: {
               text: "Yes" if witness.warned == true else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "Item label"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Victim"
+            },
+            value: {
+              text: "Yes" if witness.victim == true else "No"
             },
             actions: {
               items: [

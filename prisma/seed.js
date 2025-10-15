@@ -297,6 +297,7 @@ async function main() {
             faker.lorem.sentence(),
           ]),
           requiresMeeting: faker.datatype.boolean(),
+          victim: faker.datatype.boolean(),
         },
       });
 
