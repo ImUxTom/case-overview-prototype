@@ -41,7 +41,15 @@
                     value: {
                       html: task.dueDate | isoDateString | govukDateTime
                     }
-                  }           
+                  },
+                  {
+                    key: {
+                      html: 'Type'
+                    },
+                    value: {
+                      html: task.type
+                    }
+                  }
                 ]
               })}}
             </div>

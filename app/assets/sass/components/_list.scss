@@ -57,7 +57,7 @@
 
   @include govuk-media-query($from: tablet) {
     .govuk-summary-list__key {
-      width: 40%;
+      width: 30%;
     }
   }
 }
