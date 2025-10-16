@@ -37,9 +37,9 @@
         {% for statement in witness.statements %}
 
           {% set section9Status = '' %}
-          {% if statement.serveSection9 == true %}
+          {% if statement.isMarkedAsSection9 == true %}
             {% set section9Status = 'Section 9' %}
-          {% elseif statement.serveSection9 == false %}
+          {% elseif statement.isMarkedAsSection9 == false %}
             {# {% set section9Status = 'Section 9 withdrawn' %} #}
           {% endif %}
 
@@ -50,18 +50,18 @@
 
           <div class="govuk-button-group govuk-!-margin-bottom-0">
             <a class="govuk-link govuk-link--no-visited-state" href="#">View statement</a>
-            {% if statement.serveSection9 == true %}
+            {% if statement.isMarkedAsSection9 == true %}
             <a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/unmark-as-section9">Unmark as Section 9</a>
-          {% elseif statement.serveSection9 == false %}
+          {% elseif statement.isMarkedAsSection9 == false %}
             <a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a>
           {% else %}
             <a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a>
           {% endif %}
           </div>
 
-          {% if statement.useAsEvidence == true %}
+          {% if statement.isUsedAsEvidence == true %}
             {% set useAsEvidenceValue = 'Used' %}
-          {% elseif statement.useAsEvidence == false %}
+          {% elseif statement.isUsedAsEvidence == false %}
             {% set useAsEvidenceValue = 'Unused' %}
           {% else %}
             {% set useAsEvidenceValue = 'None' %}

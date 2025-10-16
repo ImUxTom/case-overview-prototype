@@ -36,28 +36,86 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">
         {{ pageName }}
-        {% if witness.victim %}
+        {% if witness.isVictim %}
           {{ govukTag({ text: 'Victim' })}}
         {% endif %}
-        {% if witness.keyWitness %}
+        {% if witness.isKeyWitness %}
           {{ govukTag({ text: 'Key witness' })}}
         {% endif %}
       </h1>
 
-      {% if witness.appearingInCourt == true %}
+      {% if witness.isAppearingInCourt == true %}
         {# <p>Witness called.</p> #}
         <p><a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-not-attending-court">Mark as not attending court</a></p>
-      {% elseif witness.appearingInCourt == false %}
+      {% elseif witness.isAppearingInCourt == false %}
         {# <p>Witness dewarned.</p> #}
         <p><a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-attending-court">Mark as attending court</a></p>
       {% else %}
         <p><a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-attending-court">Mark as attending court</a></p>
       {% endif %}
 
-      <h2 class="govuk-heading-m govuk-!-margin-top-7">Details</h2>
+      {% set witnessTypeValue %}
+        {% set hasTypes = witness.isVictim or witness.isKeyWitness or witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
+
+        {% if hasTypes %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% if witness.isVictim %}
+              <li>Victim</li>
+            {% endif %}
+            {% if witness.isKeyWitness %}
+              <li>Key witness</li>
+            {% endif %}
+            {% if witness.isChild %}
+              <li>Child</li>
+            {% endif %}
+            {% if witness.isExpert %}
+              <li>Expert</li>
+            {% endif %}
+            {% if witness.isInterpreter %}
+              <li>Interpreter</li>
+            {% endif %}
+            {% if witness.isPolice %}
+              <li>Police</li>
+            {% endif %}
+            {% if witness.isProfessional %}
+              <li>Professional</li>
+            {% endif %}
+            {% if witness.isPrisoner %}
+              <li>Prisoner</li>
+            {% endif %}
+            {% if witness.isVulnerable %}
+              <li>Vulnerable</li>
+            {% endif %}
+            {% if witness.isIntimidated %}
+              <li>Intimidated</li>
+            {% endif %}
+          </ul>
+        {% else %}
+          None
+        {% endif %}
+      {% endset %}
+
+      {# <h2 class="govuk-heading-m govuk-!-margin-top-7">Details</h2> #}
 
       {{ govukSummaryList({
         rows: [
+          {
+            key: {
+              text: "Title"
+            },
+            value: {
+              text: witness.title or "Not provided"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "title"
+                }
+              ]
+            }
+          },
           {
             key: {
               text: "First name"
@@ -70,7 +128,7 @@
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "first name"
                 }
               ]
             }
@@ -87,7 +145,7 @@
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "last name"
                 }
               ]
             }
@@ -97,14 +155,116 @@
               text: "Date of birth"
             },
             value: {
-              text: witness.dateOfBirth | isoDateString | govukDate
+              text: witness.dateOfBirth | isoDateString | govukDate if witness.dateOfBirth else "Not provided"
             },
             actions: {
               items: [
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "date of birth"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Gender"
+            },
+            value: {
+              text: witness.gender or "Not provided"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "gender"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Ethnicity"
+            },
+            value: {
+              text: witness.ethnicity | replace("_", " ") if witness.ethnicity else "Not provided"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "ethnicity"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Preferred language"
+            },
+            value: {
+              text: witness.preferredLanguage
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "preferred language"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "CPS contact allowed"
+            },
+            value: {
+              text: "Yes" if witness.isCpsContactAllowed == true else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "CPS contact allowed"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Address"
+            },
+            value: {
+              html: ([witness.addressLine1, witness.addressLine2, witness.addressTown, witness.addressPostcode] | reject("equalto", none) | reject("equalto", "") | join("<br>")) if witness.addressLine1 else "Not provided"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "address"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Mobile number"
+            },
+            value: {
+              text: witness.mobileNumber or "Not provided"
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "mobile number"
                 }
               ]
             }
@@ -114,82 +274,56 @@
               text: "Email address"
             },
             value: {
-              text: witness.emailAddress
+              text: witness.emailAddress or "Not provided"
             },
             actions: {
               items: [
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "email address"
                 }
               ]
             }
           },
           {
             key: {
-              text: "Phone number"
+              text: "Type"
             },
             value: {
-              text: witness.phoneNumber
+              html: witnessTypeValue
             },
             actions: {
               items: [
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "type"
                 }
               ]
             }
-          },
-          {
-            key: {
-              text: "Key witness"
-            },
-            value: {
-              text: "Yes" if witness.keyWitness == true else "No"
-            },
-            actions: {
-              items: [
-                {
-                  href: "#",
-                  text: "Change",
-                  visuallyHiddenText: "Item label"
-                }
-              ]
-            }
-          },
+          }
+        ]
+      }) }}
+
+
+      {# <h2 class="govuk-heading-m govuk-!-margin-top-7">Other information</h2>
+
+      {{ govukSummaryList({
+        rows: [
           {
             key: {
               text: "Warned by police"
             },
             value: {
-              text: "Yes" if witness.warned == true else "No"
+              text: "Yes" if witness.wasWarned == true else "No"
             },
             actions: {
               items: [
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
-                }
-              ]
-            }
-          },
-          {
-            key: {
-              text: "Victim"
-            },
-            value: {
-              text: "Yes" if witness.victim == true else "No"
-            },
-            actions: {
-              items: [
-                {
-                  href: "#",
-                  text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "warned by police"
                 }
               ]
             }
@@ -199,20 +333,20 @@
               text: "Previous transgressions"
             },
             value: {
-              text: previousTransgressions or 'None'
+              text: witness.previousTransgressions or "None"
             },
             actions: {
               items: [
                 {
                   href: "#",
                   text: "Change",
-                  visuallyHiddenText: "Item label"
+                  visuallyHiddenText: "previous transgressions"
                 }
               ]
             }
           }
         ]
-      }) }}
+      }) }} #}
 
       <h2 class="govuk-heading-m govuk-!-margin-top-7">Statements</h2>
 
@@ -221,9 +355,9 @@
         {% for statement in witness.statements %}
 
           {% set section9Status = '' %}
-          {% if statement.serveSection9 == true %}
+          {% if statement.isMarkedAsSection9 == true %}
             {% set section9Status = 'Section 9' %}
-          {% elseif statement.serveSection9 == false %}
+          {% elseif statement.isMarkedAsSection9 == false %}
             {# {% set section9Status = 'Section 9 withdrawn' %} #}
           {% endif %}
 
@@ -234,18 +368,18 @@
 
           <div class="govuk-button-group govuk-!-margin-bottom-0">
             <a class="govuk-link govuk-link--no-visited-state" href="#">View statement</a>
-            {% if statement.serveSection9 == true %}
+            {% if statement.isMarkedAsSection9 == true %}
             <a class="govuk-link govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/unmark-as-section9">Unmark as Section 9</a>
-          {% elseif statement.serveSection9 == false %}
+          {% elseif statement.isMarkedAsSection9 == false %}
             <a class="govuk-link govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a>
           {% else %}
             <a class="govuk-link govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a>
           {% endif %}
           </div>
 
-          {% if statement.useAsEvidence == true %}
+          {% if statement.isUsedAsEvidence == true %}
             {% set useAsEvidenceValue = 'Used' %}
-          {% elseif statement.useAsEvidence == false %}
+          {% elseif statement.isUsedAsEvidence == false %}
             {% set useAsEvidenceValue = 'Unused' %}
           {% else %}
             {% set useAsEvidenceValue = 'None' %}
@@ -334,7 +468,7 @@
               text: "Is a meeting required?"
             },
             value: {
-              text: "Yes" if witness.keyWitness == true else "No"
+              text: "Yes" if witness.isKeyWitness == true else "No"
             }
           }
         ]

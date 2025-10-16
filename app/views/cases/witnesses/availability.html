@@ -33,10 +33,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h2 class="govuk-heading-m">Court attendance</h2>
-      {% if witness.appearingInCourt == true %}
+      {% if witness.isAppearingInCourt == true %}
         {# <p>Witness called.</p> #}
         <p><a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-not-attending-court">Mark as not attending court</a></p>
-      {% elseif witness.appearingInCourt == false %}
+      {% elseif witness.isAppearingInCourt == false %}
         {# <p>Witness dewarned.</p> #}
         <p><a class="govuk-link--no-visited-state" href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-attending-court">Mark as attending court</a></p>
       {% else %}

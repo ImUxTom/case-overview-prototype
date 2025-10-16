@@ -18,9 +18,9 @@
       
       {% if _case.witnesses.length %}
           {% for witness in _case.witnesses %}
-            {% if witness.appearingInCourt %}
+            {% if witness.isAppearingInCourt %}
               {% set attendanceStatus = 'Attending court' %}
-            {% elseif witness.appearingInCourt == false %}
+            {% elseif witness.isAppearingInCourt == false %}
               {# {% set attendanceStatus = 'Dewarned' %} #}
             {% endif %}
 
@@ -33,8 +33,53 @@
 
                   {{ govukTag({
                     classes: 'govuk-!-margin-left-1',
+                    text: "Victim"
+                  }) if witness.isVictim }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
                     text: "Key witness"
-                  }) if witness.keyWitness }}
+                  }) if witness.isKeyWitness }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Child"
+                  }) if witness.isChild }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Expert"
+                  }) if witness.isExpert }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Interpreter"
+                  }) if witness.isInterpreter }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Police"
+                  }) if witness.isPolice }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Professional"
+                  }) if witness.isProfessional }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Prisoner"
+                  }) if witness.isPrisoner }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Vulnerable"
+                  }) if witness.isVulnerable }}
+
+                  {{ govukTag({
+                    classes: 'govuk-!-margin-left-1',
+                    text: "Intimidated"
+                  }) if witness.isIntimidated }}
 
                   {% if attendanceStatus %} {{ govukTag({ text: attendanceStatus, classes: 'govuk-!-margin-left-1' }) }}{% endif %}
                 </h2>
@@ -60,10 +105,10 @@
                 })}}
 
                 <h3 class="govuk-heading-m">Court attendance</h3>
-                {% if witness.appearingInCourt == true %}
+                {% if witness.isAppearingInCourt == true %}
                   {# <p>Witness called.</p> #}
                   <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-not-attending-court">Mark as not attending court</a></p>
-                {% elseif witness.appearingInCourt == false %}
+                {% elseif witness.isAppearingInCourt == false %}
                   {# <p>Witness dewarned.</p> #}
                   <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/mark-as-attending-court">Mark as attending court</a></p>
                 {% else %}
@@ -75,9 +120,9 @@
                   {% for statement in witness.statements %}
 
                     {% set section9Status = '' %}
-                    {% if statement.serveSection9 == true %}
+                    {% if statement.isMarkedAsSection9 == true %}
                       {% set section9Status = 'Section 9' %}
-                    {% elseif statement.serveSection9 == false %}
+                    {% elseif statement.isMarkedAsSection9 == false %}
                       {# {% set section9Status = 'Section 9 withdrawn' %} #}
                     {% endif %}
 
@@ -86,19 +131,19 @@
                       {% if section9Status %} {{ govukTag({ text: section9Status, classes: 'govuk-!-margin-left-1' }) }}{% endif %}
                     </h3>
 
-                    {% if statement.serveSection9 == true %}
+                    {% if statement.isMarkedAsSection9 == true %}
                       {# <p>Served as Section 9.</p> #}
                       <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/unmark-as-section9">Unmark as Section 9</a></p>
-                    {% elseif statement.serveSection9 == false %}
+                    {% elseif statement.isMarkedAsSection9 == false %}
                       {# <p>Section 9 withdrawn.</p> #}
                       <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a></p>
                     {% else %}
                       <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}/statements/{{statement.id}}/mark-as-section9">Mark as Section 9</a></p>
                     {% endif %}
  
-                    {% if statement.useAsEvidence == true %}                    
+                    {% if statement.isUsedAsEvidence == true %}                    
                       {% set useAsEvidenceValue = 'Used' %}
-                    {% elseif statement.useAsEvidence == false %}
+                    {% elseif statement.isUsedAsEvidence == false %}
                       {% set useAsEvidenceValue = 'Unused' %}
                     {% else %}
                       {% set useAsEvidenceValue = 'None' %}

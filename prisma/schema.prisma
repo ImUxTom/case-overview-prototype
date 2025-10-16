@@ -41,45 +41,61 @@ model Victim {
 
 model Witness {
   id                          Int                @id @default(autoincrement())
+  title                       String?
   firstName                   String
   lastName                    String
-  appearingInCourt            Boolean?
+  dateOfBirth                 DateTime?
+  gender                      Gender?
+  ethnicity                   Ethnicity?
+  preferredLanguage           PreferredLanguage  @default(English)
+  isCpsContactAllowed         Boolean            @default(true)
+  addressLine1                String?
+  addressLine2                String?
+  addressTown                 String?
+  addressPostcode             String?
+  mobileNumber                String?
+  emailAddress                String?
+  isVictim                    Boolean            @default(false)
+  isKeyWitness                Boolean            @default(false)
+  isChild                     Boolean            @default(false)
+  isExpert                    Boolean            @default(false)
+  isInterpreter               Boolean            @default(false)
+  isPolice                    Boolean            @default(false)
+  isProfessional              Boolean            @default(false)
+  isPrisoner                  Boolean            @default(false)
+  isVulnerable                Boolean            @default(false)
+  isIntimidated               Boolean            @default(false)
+  isAppearingInCourt          Boolean?
   reasonForNotAppearingInCourt String?
-  caseId                      Int
-  case                        Case               @relation(fields: [caseId], references: [id])
-  statements                  WitnessStatement[]
-  relevant                    Boolean?
-  keyWitness                  Boolean?
-  type                        String?
+  isRelevant                  Boolean?
   attendanceIssues            String?
   previousTransgressions      String?
-  warned                      Boolean?
-  dateOfBirth                 DateTime?
-  emailAddress                String?
-  phoneNumber                 String?
+  wasWarned                   Boolean?
   courtAvailabilityStartDate  DateTime?
   courtAvailabilityEndDate    DateTime?
   courtSpecialMeasures        String?
   courtNeeds                  String?
   requiresMeeting             Boolean?
-  victim                      Boolean?
+  caseId                      Int
+  case                        Case               @relation(fields: [caseId], references: [id])
+  statements                  WitnessStatement[]
 }
 
 model WitnessStatement {
-  id                Int      @id @default(autoincrement())
-  witnessId         Int
-  witness           Witness  @relation(fields: [witnessId], references: [id])
-  number   Int 
-  serveSection9     Boolean?  
-  useAsEvidence     Boolean?  
-  receivedDate      DateTime
+  id                    Int      @id @default(autoincrement())
+  witnessId             Int
+  witness               Witness  @relation(fields: [witnessId], references: [id])
+  number                Int
+  isMarkedAsSection9    Boolean?
+  isUsedAsEvidence      Boolean?
+  receivedDate          DateTime
   @@unique([witnessId, number]) // enforce uniqueness per witness
 }
 
 model Case {
   id          Int         @id @default(autoincrement())
   reference   String      @unique
-  ctl         Boolean
+  isCTL       Boolean
   complexity  String?
   type        String?
   userId      Int
@@ -110,6 +126,26 @@ enum DGAOutcome {
   NOT_DISPUTED
   DISPUTED_SUCCESSFULLY
   DISPUTED_UNSUCCESSFULLY
+}
+
+enum Gender {
+  Male
+  Female
+  Unknown
+}
+
+enum PreferredLanguage {
+  English
+  Welsh
+}
+
+enum Ethnicity {
+  White
+  Asian_or_Asian_British
+  Black_or_Black_British
+  Mixed
+  Other
+  Prefer_not_to_say
 }
 
 model Lawyer {

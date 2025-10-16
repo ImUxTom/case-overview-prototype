@@ -94,13 +94,13 @@ module.exports = router => {
           }
         },
         cases: {
-          select: { id: true, complexity: true, ctl: true }
+          select: { id: true, complexity: true, isCTL: true }
         }
       }
     })
 
     lawyers = lawyers.map((lawyer, index) => {
-      const ctlCases = lawyer.cases?.filter(c => c.ctl) || []
+      const ctlCases = lawyer.cases?.filter(c => c.isCTL) || []
 
       const level1Cases = lawyer.cases?.filter(c => c.complexity === "Level 1") || []
       const level2Cases = lawyer.cases?.filter(c => c.complexity === "Level 2") || []

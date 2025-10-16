@@ -34,7 +34,7 @@ module.exports = router => {
     let witnessStatement = await prisma.witnessStatement.update({
       where: { id: parseInt(req.params.statementId) },
       data: {
-        serveSection9: true
+        isMarkedAsSection9: true
       },
       include: {
         witness: true

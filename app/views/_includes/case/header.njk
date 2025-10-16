@@ -5,7 +5,7 @@
     and {{_case.defendants.length - 1}} more
   {% endif %}
 
-  {% if _case.ctl %}
+  {% if _case.isCTL %}
     {{ govukTag({ text: 'CTL', classes: 'govuk-tag--red' })}}
   {% endif %}
 </h1>

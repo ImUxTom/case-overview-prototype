@@ -18,14 +18,55 @@
       {% if _case.witnesses.length %}
         <div class="app-list">
           {% for witness in _case.witnesses %}
+            {% set witnessTypeValue %}
+              {% set hasTypes = witness.isVictim or witness.isKeyWitness or witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
+
+              {% if hasTypes %}
+                <ul class="govuk-list govuk-list--bullet">
+                  {% if witness.isVictim %}
+                    <li>Victim</li>
+                  {% endif %}
+                  {% if witness.isKeyWitness %}
+                    <li>Key witness</li>
+                  {% endif %}
+                  {% if witness.isChild %}
+                    <li>Child</li>
+                  {% endif %}
+                  {% if witness.isExpert %}
+                    <li>Expert</li>
+                  {% endif %}
+                  {% if witness.isInterpreter %}
+                    <li>Interpreter</li>
+                  {% endif %}
+                  {% if witness.isPolice %}
+                    <li>Police</li>
+                  {% endif %}
+                  {% if witness.isProfessional %}
+                    <li>Professional</li>
+                  {% endif %}
+                  {% if witness.isPrisoner %}
+                    <li>Prisoner</li>
+                  {% endif %}
+                  {% if witness.isVulnerable %}
+                    <li>Vulnerable</li>
+                  {% endif %}
+                  {% if witness.isIntimidated %}
+                    <li>Intimidated</li>
+                  {% endif %}
+                </ul>
+              {% else %}
+                None
+              {% endif %}
+            {% endset %}
+
             <div class="app-list__item">
               <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
                 <a href="/cases/{{_case.id}}/witnesses/{{witness.id}}" class="govuk-link--no-visited-state">{{witness.firstName}} {{witness.lastName}}</a>
                 <div class="app-list__tag">
-                  {% if witness.victim %}
+                  {% if witness.isVictim %}
                     {{ govukTag({ text: 'Victim' })}}
                   {% endif %}
-                  {% if witness.keyWitness %}
+                  {% if witness.isKeyWitness %}
                     {{ govukTag({ text: 'Key witness' })}}
                   {% endif %}
                 </div>
@@ -40,6 +81,14 @@
                     },
                     value: {
                       html: witness.dateOfBirth | isoDateString | govukDate
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Type'
+                    },
+                    value: {
+                      html: witnessTypeValue
                     }
                   }
                 ]

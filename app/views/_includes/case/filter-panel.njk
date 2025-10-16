@@ -15,8 +15,8 @@
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "caseListFilters[ctl]",
-    name: "caseListFilters[ctl]",
+    idPrefix: "caseListFilters[isCTL]",
+    name: "caseListFilters[isCTL]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -25,7 +25,7 @@
       }
     },
     items: ctlItems,
-    values: data.caseListFilters.ctl
+    values: data.caseListFilters.isCTL
   }) }}
 
   {{ govukCheckboxes({

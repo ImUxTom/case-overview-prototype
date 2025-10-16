@@ -8,7 +8,7 @@ const dgaStatuses = ['Needs review', 'Does not need review']
 
 function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.dga', null)
-  _.set(req, 'session.data.caseListFilters.ctl', null)
+  _.set(req, 'session.data.caseListFilters.isCTL', null)
   _.set(req, 'session.data.caseListFilters.unit', null)
   _.set(req, 'session.data.caseListFilters.complexities', null)
   _.set(req, 'session.data.caseListFilters.types', null)
@@ -29,7 +29,7 @@ module.exports = router => {
 
   router.get("/cases", async (req, res) => {
     let selectedDgaFilters = _.get(req.session.data.caseListFilters, 'dga', [])
-    let selectedCtlFilters = _.get(req.session.data.caseListFilters, 'ctl', [])
+    let selectedCtlFilters = _.get(req.session.data.caseListFilters, 'isCTL', [])
     let selectedUnitFilters = _.get(req.session.data.caseListFilters, 'unit', [])
     let selectedComplexityFilters = _.get(req.session.data.caseListFilters, 'complexities', [])
     let selectedTypeFilters = _.get(req.session.data.caseListFilters, 'types', [])
@@ -144,11 +144,11 @@ module.exports = router => {
       const ctlFilters = []
 
       if (selectedCtlFilters.includes('CTL')) {
-        ctlFilters.push({ ctl: true })
+        ctlFilters.push({ isCTL: true })
       }
 
       if (selectedCtlFilters.includes('Not CTL')) {
-        ctlFilters.push({ ctl: false })
+        ctlFilters.push({ isCTL: false })
       }
 
       if (ctlFilters.length) {
@@ -193,7 +193,7 @@ module.exports = router => {
       where: where,
       include: { unit: true, user: true, lawyers: true, defendants: true, hearing: true, location: true, tasks: true, dga: true },
       orderBy: {
-        ctl: 'desc', // true values first
+        isCTL: 'desc', // true values first
       }
     })
 
@@ -272,8 +272,8 @@ module.exports = router => {
   })
 
   router.get('/cases/remove-ctl/:ctl', (req, res) => {
-    const currentFilters = _.get(req, 'session.data.caseListFilters.ctl', [])
-    _.set(req, 'session.data.caseListFilters.ctl', _.pull(currentFilters, req.params.ctl))
+    const currentFilters = _.get(req, 'session.data.caseListFilters.isCTL', [])
+    _.set(req, 'session.data.caseListFilters.isCTL', _.pull(currentFilters, req.params.ctl))
     res.redirect('/cases')
   })
 

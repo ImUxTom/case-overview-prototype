@@ -45,7 +45,7 @@ module.exports = router => {
     let witness = await prisma.witness.update({
       where: { id: parseInt(req.params.witnessId) },
       data: {
-        appearingInCourt: false,
+        isAppearingInCourt: false,
         reasonForNotAppearingInCourt: req.session.data.markWitnessAsNotAttendingCourt.reason
       }
     })
