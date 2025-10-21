@@ -6,6 +6,7 @@ node_modules/
 .env
 migrate.log
 usage-data-config.json
+.claude/
 
 # General ignores
 .DS_Store
