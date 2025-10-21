@@ -412,67 +412,69 @@
         <p class="govuk-body">No statements.</p>
       {% endif %}
 
-      <h2 class="govuk-heading-m govuk-!-margin-top-7">Availability</h2>
+      {% if witness.dcf %}
+        <h2 class="govuk-heading-m govuk-!-margin-top-7">Availability</h2>
 
-      {{ govukSummaryList({
-        rows: [
-          {
-            key: {
-              text: "Available from"
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: {
+                text: "Available from"
+              },
+              value: {
+                text: witness.courtAvailabilityStartDate | isoDateString | govukDate
+              }
             },
-            value: {
-              text: witness.courtAvailabilityStartDate | isoDateString | govukDate
-            }
-          },
-          {
-            key: {
-              text: "Available to"
+            {
+              key: {
+                text: "Available to"
+              },
+              value: {
+                text: witness.courtAvailabilityEndDate | isoDateString | govukDate
+              }
             },
-            value: {
-              text: witness.courtAvailabilityEndDate | isoDateString | govukDate
+            {
+              key: {
+                text: "Unavailable dates"
+              },
+              value: {
+                text: "None"
+              }
             }
-          },
-          {
-            key: {
-              text: "Unavailable dates"
-            },
-            value: {
-              text: "None"
-            }
-          }
-        ]
-      }) }}
+          ]
+        }) }}
 
-      <h2 class="govuk-heading-m govuk-!-margin-top-7">Special measures</h2>
+        <h2 class="govuk-heading-m govuk-!-margin-top-7">Special measures</h2>
 
-      {{ govukSummaryList({
-        rows: [
-          {
-            key: {
-              text: "Special measures"
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: {
+                text: "Special measures"
+              },
+              value: {
+                text: witness.courtSpecialMeasures or "None"
+              }
             },
-            value: {
-              text: witness.courtSpecialMeasures or "None"
-            }
-          },
-          {
-            key: {
-              text: "Needs"
+            {
+              key: {
+                text: "Needs"
+              },
+              value: {
+                text: witness.courtNeeds or "None"
+              }
             },
-            value: {
-              text: witness.courtNeeds or "None"
+            {
+              key: {
+                text: "Is a meeting required?"
+              },
+              value: {
+                text: "Yes" if witness.isKeyWitness == true else "No"
+              }
             }
-          },
-          {
-            key: {
-              text: "Is a meeting required?"
-            },
-            value: {
-              text: "Yes" if witness.isKeyWitness == true else "No"
-            }
-          }
-        ]
-      }) }}
+          ]
+        }) }}
+      {% endif %}
     </div>
   </div>
 {% endblock %}

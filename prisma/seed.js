@@ -302,6 +302,9 @@ async function main() {
         isIntimidated: selectedTypes.includes("isIntimidated")
       };
 
+      // Randomly assign dcf (50/50 split between new and old architecture)
+      const isDcf = faker.datatype.boolean();
+
       const createdWitness = await prisma.witness.create({
         data: {
           title: faker.helpers.arrayElement([null, "Mr", "Mrs", "Ms", "Dr", "Prof"]),
@@ -338,17 +341,19 @@ async function main() {
             faker.lorem.sentence(),
           ]),
           wasWarned: faker.datatype.boolean(),
-          courtAvailabilityStartDate: faker.date.future(),
-          courtAvailabilityEndDate: faker.date.future(),
-          courtSpecialMeasures: faker.helpers.arrayElement([
+          dcf: isDcf,
+          // Only set availability and special measures fields if dcf = true (new architecture)
+          courtAvailabilityStartDate: isDcf ? faker.date.future() : null,
+          courtAvailabilityEndDate: isDcf ? faker.date.future() : null,
+          courtSpecialMeasures: isDcf ? faker.helpers.arrayElement([
             null,
             faker.lorem.sentence(),
-          ]),
-          courtNeeds: faker.helpers.arrayElement([
+          ]) : null,
+          courtNeeds: isDcf ? faker.helpers.arrayElement([
             null,
             faker.lorem.sentence(),
-          ]),
-          requiresMeeting: faker.datatype.boolean(),
+          ]) : null,
+          requiresMeeting: isDcf ? faker.datatype.boolean() : null,
           caseId: createdCase.id,
         },
       });

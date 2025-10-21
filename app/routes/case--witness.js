@@ -49,6 +49,11 @@ module.exports = router => {
       include: { statements: true }
     })
 
+    // Redirect to details page if witness doesn't support availability (old architecture)
+    if (!witness.dcf) {
+      return res.redirect(`/cases/${req.params.caseId}/witnesses/${req.params.witnessId}`)
+    }
+
     res.render("cases/witnesses/availability", {
       _case,
       witness
@@ -65,6 +70,11 @@ module.exports = router => {
       where: { id: parseInt(req.params.witnessId) },
       include: { statements: true }
     })
+
+    // Redirect to details page if witness doesn't support special measures (old architecture)
+    if (!witness.dcf) {
+      return res.redirect(`/cases/${req.params.caseId}/witnesses/${req.params.witnessId}`)
+    }
 
     res.render("cases/witnesses/special-measures", {
       _case,

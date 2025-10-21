@@ -71,6 +71,7 @@ model Witness {
   attendanceIssues            String?
   previousTransgressions      String?
   wasWarned                   Boolean?
+  dcf                         Boolean
   courtAvailabilityStartDate  DateTime?
   courtAvailabilityEndDate    DateTime?
   courtSpecialMeasures        String?

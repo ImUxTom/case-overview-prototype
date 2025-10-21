@@ -9,7 +9,6 @@
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
-  {# {% include "_includes/case/header.njk" %} #}
   {% include "_includes/case/navigation.njk" %}
 
   <div class="govuk-grid-row">
@@ -371,7 +370,7 @@
                           }
                         }
                       ]
-                    }) }}
+                    }) if witness.dcf}}
                 {% endset %}
 
                 {% set specialMeasuresTab %}
@@ -422,16 +421,18 @@
                         Details
                       </a>
                     </li>
-                    <li class="govuk-tabs__list-item">
-                      <a class="govuk-tabs__tab" href="#availability-{{witness.id}}">
-                        Availability
-                      </a>
-                    </li>
-                    <li class="govuk-tabs__list-item">
-                      <a class="govuk-tabs__tab" href="#special-measures-{{witness.id}}">
-                        Special measures
-                      </a>
-                    </li>
+                    {% if witness.dcf %}
+                      <li class="govuk-tabs__list-item">
+                        <a class="govuk-tabs__tab" href="#availability-{{witness.id}}">
+                          Availability
+                        </a>
+                      </li>
+                      <li class="govuk-tabs__list-item">
+                        <a class="govuk-tabs__tab" href="#special-measures-{{witness.id}}">
+                          Special measures
+                        </a>
+                      </li>
+                    {% endif %}
                   </ul>
                   <div class="govuk-tabs__panel" id="statements-{{witness.id}}">
                     {{statementsTab | safe}}
@@ -439,53 +440,15 @@
                   <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="details-{{witness.id}}">
                     {{detailsTab | safe}}
                   </div>
-                  <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="availability-{{witness.id}}">
-                    {{availabilityTab | safe}}
-                  </div>
-                  <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="special-measures-{{witness.id}}">
-                    {{specialMeasuresTab | safe}}
-                  </div>
+                  {% if witness.dcf %}
+                    <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="availability-{{witness.id}}">
+                      {{availabilityTab | safe}}
+                    </div>
+                    <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="special-measures-{{witness.id}}">
+                      {{specialMeasuresTab | safe}}
+                    </div>
+                  {% endif %}
                 </div>
-
-
-
-
-
-
-
-                
-                {{ govukTabs({
-                  items: [
-                    {
-                      label: "Statements",
-                      id: "statements-:witnessId" | replace(':witnessId', witness.id),
-                      panel: {
-                        html: statementsTab
-                      }
-                    },
-                    {
-                      label: "Details",
-                      id: "details-:witnessId" | replace(':witnessId', witness.id),
-                      panel: {
-                        html: detailsTab
-                      }
-                    },
-                    {
-                      label: "Availability",
-                      id: "availability-:witnessId" | replace(':witnessId', witness.id),
-                      panel: {
-                        html: availabilityTab
-                      }
-                    },
-                    {
-                      label: "Special measures",
-                      id: "special-measures-:witnessId" | replace(':witnessId', witness.id),
-                      panel: {
-                        html: specialMeasuresTab
-                      }
-                    }
-                  ]
-                }) if 1==2}}
                
               </div>
             </div>
