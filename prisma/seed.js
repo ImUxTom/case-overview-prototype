@@ -11,6 +11,43 @@ const specialisms = require("../app/data/specialisms.js");
 
 const prisma = new PrismaClient();
 
+const ukCities = [
+  "London", "Birmingham", "Manchester", "Leeds", "Glasgow", "Liverpool",
+  "Newcastle", "Sheffield", "Bristol", "Edinburgh", "Leicester", "Coventry",
+  "Bradford", "Cardiff", "Belfast", "Nottingham", "Kingston upon Hull",
+  "Plymouth", "Stoke-on-Trent", "Wolverhampton", "Derby", "Southampton",
+  "Portsmouth", "Brighton", "Reading", "Northampton", "Luton", "Bolton",
+  "Aberdeen", "Sunderland", "Dundee", "Norwich", "Ipswich", "York",
+  "Swansea", "Oxford", "Cambridge", "Peterborough", "Gloucester", "Chester"
+];
+
+function generateUKMobileNumber() {
+  // UK mobile numbers: 07 + 9 digits (07XXXXXXXXX)
+  return `07${faker.string.numeric(9)}`;
+}
+
+function generateUKLandlineNumber() {
+  // Mix of geographic (01XXX XXXXXX) and major city (020 XXXX XXXX) numbers
+  const type = faker.helpers.arrayElement(['geographic', 'london', 'major']);
+
+  if (type === 'london') {
+    // London: 020 + 8 digits
+    return `020${faker.string.numeric(8)}`;
+  } else if (type === 'major') {
+    // Major cities (Manchester 0161, Birmingham 0121, etc.): 01XX + 7 digits
+    const areaCode = faker.helpers.arrayElement(['0161', '0121', '0131', '0141', '0113', '0114', '0117', '0151']);
+    return `${areaCode}${faker.string.numeric(7)}`;
+  } else {
+    // Geographic: 01XXX + 6 digits
+    return `01${faker.string.numeric(3)}${faker.string.numeric(6)}`;
+  }
+}
+
+function generateUKPhoneNumber() {
+  // Mix of mobile and landline for general phone numbers
+  return faker.helpers.arrayElement([generateUKMobileNumber(), generateUKLandlineNumber()]);
+}
+
 function futureDateAt10am() {
   const d = faker.date.future();
   d.setHours(10, 0, 0, 0);
@@ -241,7 +278,7 @@ async function main() {
             name: faker.company.name(),
             line1: faker.location.streetAddress(),
             line2: faker.location.secondaryAddress(),
-            town: faker.location.city(),
+            town: faker.helpers.arrayElement(ukCities),
             postcode: faker.location.zipCode("WD# #SF"),
           },
         },
@@ -325,15 +362,15 @@ async function main() {
           isCpsContactAllowed: faker.datatype.boolean(),
           addressLine1: faker.helpers.arrayElement([null, faker.location.streetAddress()]),
           addressLine2: faker.helpers.arrayElement([null, faker.location.secondaryAddress()]),
-          addressTown: faker.helpers.arrayElement([null, faker.location.city()]),
+          addressTown: faker.helpers.arrayElement([null, faker.helpers.arrayElement(ukCities)]),
           addressPostcode: faker.helpers.arrayElement([null, faker.location.zipCode("WD# #SF")]),
-          mobileNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
+          mobileNumber: faker.helpers.arrayElement([null, generateUKMobileNumber()]),
           emailAddress: faker.helpers.arrayElement([null, faker.internet.email()]),
           preferredContactMethod: faker.helpers.arrayElement([null, "Email", "Phone", "Post"]),
-          faxNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
-          homeNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
-          workNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
-          otherNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
+          faxNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
+          homeNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
+          workNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
+          otherNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
           ...witnessTypes,
           isAppearingInCourt: faker.helpers.arrayElement([false, null]),
           isRelevant: faker.datatype.boolean(),
@@ -406,8 +443,8 @@ async function main() {
             data: {
               witnessId: createdWitness.id,
               type: selectedTypes[sm],
-              details: faker.helpers.arrayElement([null, faker.lorem.sentence()]),
-              needs: faker.helpers.arrayElement([null, faker.lorem.sentence()]),
+              details: faker.lorem.sentence(),
+              needs: faker.lorem.sentence(),
               requiresMeeting: requiresMeeting,
               meetingUrl: requiresMeeting ? faker.helpers.arrayElement(meetingUrls) : null,
               hasAppliedForReportingRestrictions: faker.datatype.boolean(),

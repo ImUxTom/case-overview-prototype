@@ -200,7 +200,7 @@
               text: "Preferred language"
             },
             value: {
-              text: witness.preferredLanguage
+              text: witness.preferredLanguage or "Not entered"
             },
             actions: {
               items: [
@@ -234,7 +234,7 @@
               text: "Attendance at court issues"
             },
             value: {
-              text: witness.attendanceIssues or "None"
+              text: witness.attendanceIssues or "Not entered"
             }
           },
           {
@@ -242,7 +242,7 @@
               text: "Previous transgressions"
             },
             value: {
-              text: witness.previousTransgressions or "None"
+              text: witness.previousTransgressions or "Not entered"
             }
           },
           {
@@ -561,7 +561,7 @@
                 text: "Unavailable dates"
               },
               value: {
-                text: "None"
+                text: "Not entered"
               }
             }
           ]
@@ -579,7 +579,7 @@
                   text: "Details"
                 },
                 value: {
-                  text: specialMeasure.details or "None"
+                  text: specialMeasure.details
                 }
               },
               {
@@ -587,7 +587,7 @@
                   text: "Needs"
                 },
                 value: {
-                  text: specialMeasure.needs or "None"
+                  text: specialMeasure.needs
                 }
               },
               {
@@ -606,7 +606,7 @@
                   text: "Meeting URL"
                 },
                 value: {
-                  text: specialMeasure.meetingUrl or "None"
+                  text: specialMeasure.meetingUrl or "Not entered"
                 }
               }), specialMeasureRows) %}
             {% endif %}

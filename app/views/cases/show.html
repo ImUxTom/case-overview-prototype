@@ -160,10 +160,10 @@
             }
           },
           {
-            key: { 
-              text: "Paralegal officers" 
+            key: {
+              text: "Paralegal officers"
             },
-            value: { 
+            value: {
               html: 'Unassigned'
             },
             actions: {
@@ -171,7 +171,7 @@
                 {
                   href: "#" | replace(':caseId', _case.id),
                   text: "Add",
-                  visuallyHiddenText: "Lawyer"
+                  visuallyHiddenText: "Paralegal officers"
                 }
               ]
             }
@@ -194,18 +194,18 @@
             }
           },
                     {
-            key: { 
-              text: "Type of hearing" 
+            key: {
+              text: "Type of hearing"
             },
-            value: { 
-              html: _case.type 
+            value: {
+              html: _case.type
             },
             actions: {
               items: [
                 {
                   href: "/cases/:caseId/edit-type" | replace(':caseId', _case.id),
                   text: "Change",
-                  visuallyHiddenText: "Type"
+                  visuallyHiddenText: "Type of hearing"
                 }
               ]
             }
