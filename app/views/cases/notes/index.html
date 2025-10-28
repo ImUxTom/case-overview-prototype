@@ -12,13 +12,13 @@
   {% include "_includes/case/navigation.njk" %}
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
       <div class="govuk-button-group">
         {{ govukButton({
           text: "Add note",
-          href: "/cases/:caseId/notes/new" | replace(':caseId', _case.id)
+          href: "/cases/:caseId/notes/new/type" | replace(':caseId', _case.id)
         }) }}
 
         {{ govukButton({
@@ -27,51 +27,66 @@
         }) }}
       </div>
 
-      
-
-      {% if _case.notes.length %}
-        <div class="app-list">
-          {% for note in _case.notes %}
-            {% set notePreview %}
-              {% if note.content.length > 75 %}
-                {{ note.content | truncate(75) }}
-              {% else %}
-                {{ note.content }}
-              {% endif %}
-            {% endset %}
-
-            <div class="app-list__item">
-              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-                <a href="/cases/{{_case.id}}/notes/{{note.id}}" class="govuk-link--no-visited-state">{{ notePreview | trim }}</a>
-              </h2>
-
-              {{ govukSummaryList({
-                classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
-                rows: [
-                  {
-                    key: {
-                      html: 'User'
-                    },
-                    value: {
-                      html: note.user.firstName + ' ' + note.user.lastName
-                    }
-                  },
-                  {
-                    key: {
-                      html: 'Date added'
-                    },
-                    value: {
-                      html: note.createdAt | isoDateString | govukDateTime
-                    }
-                  }
-                ]
-              })}}
-            </div>
-          {% endfor %}
+      <div class="app-filter-layout">
+        <div class="app-filter-layout__filter">
+          {% include "_includes/note/filter-panel.njk" %}
         </div>
-      {% else %}
-        <p>There are no notes.</p>
-      {% endif %}
+        <div class="app-filter-layout__content">
+
+          <div class="app-action-bar">
+            <div class="app-action-bar__filter"></div>
+          </div>
+
+          {% include "_includes/note/search-form.njk" %}
+
+          {% if _case.notes.length %}
+            <div class="app-list">
+              {% for note in _case.notes %}
+                {% set notePreview %}
+                  {% if note.content.length > 75 %}
+                    {{ note.content | truncate(75) }}
+                  {% else %}
+                    {{ note.content }}
+                  {% endif %}
+                {% endset %}
+
+                <div class="app-list__item">
+                  <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+                    <a href="/cases/{{_case.id}}/notes/{{note.id}}" class="govuk-link--no-visited-state">{{ notePreview | trim }}</a>
+                  </h2>
+
+                  {% set summaryRows = [] %}
+
+                  {% if note.type %}
+                    {% set summaryRows = (summaryRows.push({
+                      key: { html: 'Type' },
+                      value: { html: note.type }
+                    }), summaryRows) %}
+                  {% endif %}
+
+                  {% set summaryRows = (summaryRows.push({
+                    key: { html: 'User' },
+                    value: { html: note.user.firstName + ' ' + note.user.lastName }
+                  }), summaryRows) %}
+
+                  {% set summaryRows = (summaryRows.push({
+                    key: { html: 'Date added' },
+                    value: { html: note.createdAt | isoDateString | govukDateTime }
+                  }), summaryRows) %}
+
+                  {{ govukSummaryList({
+                    classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                    rows: summaryRows
+                  })}}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>There are no notes.</p>
+          {% endif %}
+
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

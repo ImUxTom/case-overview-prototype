@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Note" %}
+{% set pageName = "Type (optional)" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -15,16 +15,17 @@
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <span class="govuk-caption-l">{{_case.reference}} - add note</span>
       <form method="post">
-        {{ govukCharacterCount({
-          name: "addNote[content]",
-          id: "note-content",
-          maxlength: 5000,
-          label: {
-            text: pageName,
-            isPageHeading: true,
-            classes: "govuk-label--l"
+        {{ govukRadios({
+          name: "addNote[type]",
+          fieldset: {
+            legend: {
+              text: pageName,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
           },
-          value: data.addNote.content
+          items: noteTypeItems,
+          value: data.addNote.type
         }) }}
 
         {{ govukButton({

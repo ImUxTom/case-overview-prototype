@@ -497,8 +497,14 @@ async function main() {
         "Case conference scheduled for next week to discuss trial strategy with team."
       ]);
 
+      // 70% chance of having a type, 30% chance of no type
+      const noteType = faker.datatype.boolean(0.7)
+        ? faker.helpers.arrayElement(['CTL log', 'General', 'Review note', 'Case update'])
+        : null;
+
       await prisma.note.create({
         data: {
+          type: noteType,
           content: noteContent,
           caseId: createdCase.id,
           userId: faker.helpers.arrayElement(users).id

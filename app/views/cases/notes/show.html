@@ -33,10 +33,36 @@
         rows: [
           {
             key: {
+              text: "Type"
+            },
+            value: {
+              text: note.type if note.type else 'Not entered'
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/notes/:noteId/edit/type" | replace(':caseId', _case.id) | replace(':noteId', note.id),
+                  text: "Change",
+                  visuallyHiddenText: "Type"
+                }
+              ]
+            }
+          },
+          {
+            key: {
               text: "Note"
             },
             value: {
               text: note.content
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/:caseId/notes/:noteId/edit" | replace(':caseId', _case.id) | replace(':noteId', note.id),
+                  text: "Change",
+                  visuallyHiddenText: "Note"
+                }
+              ]
             }
           },
           {

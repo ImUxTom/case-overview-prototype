@@ -163,17 +163,22 @@
 
     {% if params.event.title == 'Note added' %}
       <div class="app-activity-log__box">
+        {% set activityRows = [] %}
+
+        {% if params.event.meta.type %}
+          {% set activityRows = (activityRows.push({
+            key: { text: 'Type' },
+            value: { text: params.event.meta.type }
+          }), activityRows) %}
+        {% endif %}
+
+        {% set activityRows = (activityRows.push({
+          key: { text: 'Note' },
+          value: { text: params.event.meta.content }
+        }), activityRows) %}
+
         {{ govukSummaryList({
-          rows: [
-            {
-              key: {
-                text: "Note"
-              },
-              value: {
-                text: params.event.meta.content
-              }
-            }
-          ]
+          rows: activityRows
         }) }}
       </div>
       <p class="app-log-card__note--link">
