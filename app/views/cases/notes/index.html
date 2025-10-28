@@ -15,17 +15,26 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
-      {{ govukButton({
-        text: "Add note",
-        href: "/cases/:caseId/notes/new" | replace(':caseId', _case.id)
-      }) }}
+      <div class="govuk-button-group">
+        {{ govukButton({
+          text: "Add note",
+          href: "/cases/:caseId/notes/new" | replace(':caseId', _case.id)
+        }) }}
+
+        {{ govukButton({
+          text: "Export",
+          classes: 'govuk-button--secondary'
+        }) }}
+      </div>
+
+      
 
       {% if _case.notes.length %}
         <div class="app-list">
           {% for note in _case.notes %}
             {% set notePreview %}
-              {% if note.content.length > 200 %}
-                {{ note.content | truncate(200) }}
+              {% if note.content.length > 75 %}
+                {{ note.content | truncate(75) }}
               {% else %}
                 {{ note.content }}
               {% endif %}

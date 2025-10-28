@@ -1,7 +1,12 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'notes' %}
-{% set pageName = "Note" %}
+
+{% if note.content.length > 75 %}
+  {% set pageName = note.content | truncate(75) %}
+{% else %}
+  {% set pageName = note.content %}
+{% endif %}
 
 {% block beforeContent %}
     {{ govukBreadcrumbs({
