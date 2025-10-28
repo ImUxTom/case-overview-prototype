@@ -13,6 +13,20 @@
   }) }}
 
   {{ govukCheckboxes({
+    idPrefix: "taskListFilters[unit]",
+    name: "taskListFilters[unit]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "Unit",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: unitItems,
+    values: selectedUnitFilters
+  }) }}
+
+  {{ govukCheckboxes({
     idPrefix: "taskListFilters[taskTypes]",
     name: "taskListFilters[taskTypes]",
     classes: "govuk-checkboxes--small",

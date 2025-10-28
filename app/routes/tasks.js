@@ -7,6 +7,7 @@ const taskTypes = require('../data/task-types')
 function resetFilters(req) {
   _.set(req, 'session.data.taskListFilters.taskTypes', null)
   _.set(req, 'session.data.taskListFilters.assigned', null)
+  _.set(req, 'session.data.taskListFilters.unit', null)
 }
 
 module.exports = router => {
@@ -14,23 +15,29 @@ module.exports = router => {
   router.get("/tasks", async (req, res) => {
     const currentUser = req.session.data.user
 
+    // Track if this is the first visit (filters object doesn't exist)
+    const isFirstVisit = !req.session.data.taskListFilters
+
     // Ensure taskListFilters object exists
     if (!req.session.data.taskListFilters) {
       req.session.data.taskListFilters = {}
     }
 
-    // Make sure the default assignee is the signed in user
-    if (!_.has(req.session.data, 'taskListFilters.assigned')) {
+    // Only set default assignee to current user on first visit
+    // If filters exist but assigned is missing, user cleared it intentionally
+    if (isFirstVisit && !_.has(req.session.data, 'taskListFilters.assigned')) {
       _.set(req.session.data.taskListFilters, 'assigned', [`${req.session.data.user.id}`])
     }
 
     let selectedAssigneeFilters = _.get(req.session.data.taskListFilters, 'assigned', [])
     let selectedTaskTypeFilters = _.get(req.session.data.taskListFilters, 'taskTypes', [])
+    let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'unit', [])
 
     let selectedFilters = { categories: [] }
 
     let userIds
     let selectedAssigneeItems = []
+    let selectedUnitItems = []
 
     // Assigned filter display
     if (selectedAssigneeFilters?.length) {
@@ -59,6 +66,22 @@ module.exports = router => {
       })
 
       selectedFilters.categories.push({ heading: { text: 'Assignee' }, items: selectedAssigneeItems })
+    }
+
+    // Unit filter display
+    if (selectedUnitFilters?.length) {
+      const unitIds = selectedUnitFilters.map(Number)
+
+      let fetchedUnits = await prisma.unit.findMany({
+        where: { id: { in: unitIds } }
+      })
+
+      selectedUnitItems = selectedUnitFilters.map(function(selectedUnit) {
+        let unit = fetchedUnits.find(function(u) { return u.id === Number(selectedUnit) })
+        return { text: unit ? unit.name : selectedUnit, href: '/tasks/remove-unit/' + selectedUnit }
+      })
+
+      selectedFilters.categories.push({ heading: { text: 'Unit' }, items: selectedUnitItems })
     }
 
     // Task type filter display
@@ -94,6 +117,11 @@ module.exports = router => {
       where.AND.push({ type: { in: selectedTaskTypeFilters } })
     }
 
+    if (selectedUnitFilters?.length) {
+      const unitIds = selectedUnitFilters.map(Number)
+      where.AND.push({ case: { unitId: { in: unitIds } } })
+    }
+
     if (where.AND.length === 0) {
       where = {}
     }
@@ -104,7 +132,8 @@ module.exports = router => {
       include: {
         case: {
           include: {
-            defendants: true
+            defendants: true,
+            unit: true
           }
         },
         assignedTo: true
@@ -150,6 +179,14 @@ module.exports = router => {
     // Put "Unassigned" second
     assigneeItems.splice(1, 0, { text: 'Unassigned', value: 'Unassigned' })
 
+    // Fetch all units for the filter
+    let units = await prisma.unit.findMany()
+
+    let unitItems = units.map(unit => ({
+      text: unit.name,
+      value: `${unit.id}`
+    }))
+
     let taskTypeItems = taskTypes.map(taskType => ({
       text: taskType,
       value: taskType
@@ -167,6 +204,9 @@ module.exports = router => {
       assigneeItems,
       selectedAssigneeFilters,
       selectedAssigneeItems,
+      unitItems,
+      selectedUnitFilters,
+      selectedUnitItems,
       taskTypeItems,
       selectedFilters
     })
@@ -181,6 +221,12 @@ module.exports = router => {
   router.get('/tasks/remove-type/:type', (req, res) => {
     const currentFilters = _.get(req, 'session.data.taskListFilters.taskTypes', [])
     _.set(req, 'session.data.taskListFilters.taskTypes', _.pull(currentFilters, req.params.type))
+    res.redirect('/tasks')
+  })
+
+  router.get('/tasks/remove-unit/:unitId', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.taskListFilters.unit', [])
+    _.set(req, 'session.data.taskListFilters.unit', _.pull(currentFilters, req.params.unitId))
     res.redirect('/tasks')
   })
 
