@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'notes' %}
-{% set pageName = "Notes (:total)" | replace(':total', _case.notes.length) %}
+{% set pageName = "Notes (:total)" | replace(':total', _case.notes.length | formatNumber) %}
 
 {% block beforeContent %}
   {% include "_includes/case/identity-bar.njk" %}

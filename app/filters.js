@@ -21,3 +21,7 @@ addFilter('priorityTagClass', status => {
 addFilter('isoDateString', date => {
   return date.toISOString()
 })
+
+addFilter('formatNumber', number => {
+  return Number(number).toLocaleString('en-GB')
+})

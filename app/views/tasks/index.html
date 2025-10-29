@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'tasks' %}
-{% set pageName = "Tasks (:total)" | replace(':total', totalTasks) %}
+{% set pageName = "Tasks (:total)" | replace(':total', totalTasks | formatNumber) %}
 
 {% block content %}
     <h1 class="govuk-heading-l">

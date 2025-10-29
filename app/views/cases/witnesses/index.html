@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'witnesses' %}
-{% set pageName = "Witnesses (:total)" | replace(':total', _case.witnesses.length) %}
+{% set pageName = "Witnesses (:total)" | replace(':total', _case.witnesses.length | formatNumber) %}
 
 {% block beforeContent %}
   {% include "_includes/case/identity-bar.njk" %}
