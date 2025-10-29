@@ -6,6 +6,7 @@ const firstNames = require("../app/data/first-names.js");
 const lastNames = require("../app/data/last-names.js");
 const types = require("../app/data/types.js");
 const taskTypes = require("../app/data/task-types.js");
+const taskNames = require("../app/data/task-names.js");
 const documentTypes = require("../app/data/document-types.js");
 const specialisms = require("../app/data/specialisms.js");
 
@@ -203,18 +204,6 @@ async function main() {
   const DGA_TARGET = 50; // set desired number of DGAs
 
   const createdCases = [];
-
-  // Define a pool of possible task names
-  const taskNames = [
-    "Retrieve core details",
-    "Check communications",
-    "Review disclosure",
-    "Prepare witness briefing",
-    "Schedule pre-trial meeting",
-    "Draft opening statement",
-    "Submit evidence bundle",
-    "Confirm hearing date",
-  ];
 
   // Define a pool of possible document names
   const documentNames = [

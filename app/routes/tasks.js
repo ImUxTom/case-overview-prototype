@@ -3,11 +3,13 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const Pagination = require('../helpers/pagination')
 const taskTypes = require('../data/task-types')
+const taskNames = require('../data/task-names')
 
 function resetFilters(req) {
   _.set(req, 'session.data.taskListFilters.taskTypes', null)
   _.set(req, 'session.data.taskListFilters.assigned', null)
-  _.set(req, 'session.data.taskListFilters.unit', null)
+  _.set(req, 'session.data.taskListFilters.units', null)
+  _.set(req, 'session.data.taskListFilters.taskNames', null)
 }
 
 module.exports = router => {
@@ -31,13 +33,16 @@ module.exports = router => {
 
     let selectedAssigneeFilters = _.get(req.session.data.taskListFilters, 'assigned', [])
     let selectedTaskTypeFilters = _.get(req.session.data.taskListFilters, 'taskTypes', [])
-    let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'unit', [])
+    let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'units', [])
+    let selectedTaskNameFilters = _.get(req.session.data.taskListFilters, 'taskNames', [])
 
     let selectedFilters = { categories: [] }
 
     let userIds
     let selectedAssigneeItems = []
     let selectedUnitItems = []
+    let selectedTaskTypeItems = []
+    let selectedTaskNameItems = []
 
     // Assigned filter display
     if (selectedAssigneeFilters?.length) {
@@ -86,11 +91,25 @@ module.exports = router => {
 
     // Task type filter display
     if (selectedTaskTypeFilters?.length) {
+      selectedTaskTypeItems = selectedTaskTypeFilters.map(function(label) {
+        return { text: label, href: '/tasks/remove-type/' + label }
+      })
+
       selectedFilters.categories.push({
         heading: { text: 'Type' },
-        items: selectedTaskTypeFilters.map(function(label) {
-          return { text: label, href: '/tasks/remove-type/' + label }
-        })
+        items: selectedTaskTypeItems
+      })
+    }
+
+    // Task name filter display
+    if (selectedTaskNameFilters?.length) {
+      selectedTaskNameItems = selectedTaskNameFilters.map(function(taskName) {
+        return { text: taskName, href: '/tasks/remove-task-name/' + encodeURIComponent(taskName) }
+      })
+
+      selectedFilters.categories.push({
+        heading: { text: 'Task' },
+        items: selectedTaskNameItems
       })
     }
 
@@ -120,6 +139,10 @@ module.exports = router => {
     if (selectedUnitFilters?.length) {
       const unitIds = selectedUnitFilters.map(Number)
       where.AND.push({ case: { unitId: { in: unitIds } } })
+    }
+
+    if (selectedTaskNameFilters?.length) {
+      where.AND.push({ name: { in: selectedTaskNameFilters } })
     }
 
     if (where.AND.length === 0) {
@@ -192,6 +215,11 @@ module.exports = router => {
       value: taskType
     }))
 
+    let taskNameItems = taskNames.map(taskName => ({
+      text: taskName,
+      value: taskName
+    }))
+
     let totalTasks = tasks.length
     let pageSize = 25
     let pagination = new Pagination(tasks, req.query.page, pageSize)
@@ -208,6 +236,11 @@ module.exports = router => {
       selectedUnitFilters,
       selectedUnitItems,
       taskTypeItems,
+      selectedTaskTypeFilters,
+      selectedTaskTypeItems,
+      taskNameItems,
+      selectedTaskNameFilters,
+      selectedTaskNameItems,
       selectedFilters
     })
   })
@@ -225,8 +258,15 @@ module.exports = router => {
   })
 
   router.get('/tasks/remove-unit/:unitId', (req, res) => {
-    const currentFilters = _.get(req, 'session.data.taskListFilters.unit', [])
-    _.set(req, 'session.data.taskListFilters.unit', _.pull(currentFilters, req.params.unitId))
+    const currentFilters = _.get(req, 'session.data.taskListFilters.units', [])
+    _.set(req, 'session.data.taskListFilters.units', _.pull(currentFilters, req.params.unitId))
+    res.redirect('/tasks')
+  })
+
+  router.get('/tasks/remove-task-name/:taskName', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.taskListFilters.taskNames', [])
+    const taskName = decodeURIComponent(req.params.taskName)
+    _.set(req, 'session.data.taskListFilters.taskNames', _.pull(currentFilters, taskName))
     res.redirect('/tasks')
   })
 

@@ -13,8 +13,8 @@
   }) }}
 
   {{ govukCheckboxes({
-    idPrefix: "taskListFilters[unit]",
-    name: "taskListFilters[unit]",
+    idPrefix: "taskListFilters[units]",
+    name: "taskListFilters[units]",
     classes: "govuk-checkboxes--small",
     fieldset: {
       legend: {
@@ -37,7 +37,19 @@
       }
     },
     items: taskTypeItems,
-    values: data.taskListFilters.taskTypes
+    values: selectedTaskTypeFilters
+  }) }}
+
+  {{ appCheckboxFilter({
+    idPrefix: "taskListFilters[taskNames]",
+    name: "taskListFilters[taskNames]",
+    classes: "govuk-checkboxes--small task-name-filter",
+    attributes: { id: 'task-name-filter' },
+    fieldset: { legend: { text: "Task", classes: "govuk-fieldset__legend--s" } },
+    maxHeight: true,
+    items: taskNameItems,
+    values: selectedTaskNameFilters,
+    selectedItems: selectedTaskNameItems
   }) }}
 
 {% endset %}
