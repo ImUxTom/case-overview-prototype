@@ -24,20 +24,11 @@
                 <a href="/cases/{{_case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
               </h2>
 
-              {% set defendantsValue %}
-                {{task.case.defendants[0].firstName}} {{task.case.defendants[0].lastName}}
-                {% if task.case.defendants.length > 1 %}
-                  and {{task.case.defendants.length - 1}} more
-                {% endif %}
-              {% endset %}
-
               {% set ownerValue %}
                 {% if task.assignedToUser %}
                   {{task.assignedToUser.firstName}} {{task.assignedToUser.lastName}}
                 {% elif task.assignedToTeam %}
                   {{task.assignedToTeam.name}} ({{task.assignedToTeam.unit.name}})
-                {% else %}
-                  Unassigned
                 {% endif %}
               {% endset %}
 
@@ -54,18 +45,18 @@
                   },
                   {
                     key: {
-                      html: 'Type'
-                    },
-                    value: {
-                      html: task.type
-                    }
-                  },
-                  {
-                    key: {
                       html: 'Owner'
                     },
                     value: {
                       html: ownerValue
+                    }
+                  },
+                  {
+                    key: {
+                      html: 'Type'
+                    },
+                    value: {
+                      html: task.type
                     }
                   }
                 ]

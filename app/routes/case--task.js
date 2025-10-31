@@ -11,6 +11,20 @@ module.exports = router => {
 
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
+      include: {
+        case: {
+          include: {
+            defendants: true,
+            unit: true
+          }
+        },
+        assignedToUser: true,
+        assignedToTeam: {
+          include: {
+            unit: true
+          }
+        }
+      }
     })
 
     res.render("cases/tasks/show", { _case, task })

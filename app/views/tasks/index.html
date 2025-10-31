@@ -41,8 +41,6 @@
                     {{task.assignedToUser.firstName}} {{task.assignedToUser.lastName}}
                   {% elif task.assignedToTeam %}
                     {{task.assignedToTeam.name}} ({{task.assignedToTeam.unit.name}})
-                  {% else %}
-                    Unassigned
                   {% endif %}
                 {% endset %}
 
@@ -51,26 +49,10 @@
                   rows: [
                     {
                       key: {
-                        html: 'Due date'
-                      },
-                      value: {
-                        html: task.dueDate | isoDateString | govukDateTime
-                      }
-                    },
-                    {
-                      key: {
                         html: 'Case reference'
                       },
                       value: {
                         html: task.case.reference
-                      }
-                    },
-                    {
-                      key: {
-                        html: 'Unit'
-                      },
-                      value: {
-                        html: task.case.unit.name
                       }
                     },
                     {
@@ -83,12 +65,12 @@
                     },
                     {
                       key: {
-                        html: 'Type'
+                        html: 'Due date'
                       },
                       value: {
-                        html: task.type
+                        html: task.dueDate | isoDateString | govukDateTime
                       }
-                    },
+                    },                 
                     {
                       key: {
                         html: 'Owner'
@@ -96,7 +78,23 @@
                       value: {
                         html: ownerValue
                       }
-                    }
+                    },
+                    {
+                      key: {
+                        html: 'Unit'
+                      },
+                      value: {
+                        html: task.case.unit.name
+                      }
+                    },
+                    {
+                      key: {
+                        html: 'Type'
+                      },
+                      value: {
+                        html: task.type
+                      }
+                    }                                     
                   ]
                 })}}
 

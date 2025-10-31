@@ -39,24 +39,63 @@
         }) }}
       </div>
 
+      {% set defendantsValue %}
+        {{task.case.defendants[0].firstName}} {{task.case.defendants[0].lastName}}
+        {% if task.case.defendants.length > 1 %}
+          and {{task.case.defendants.length - 1}} more
+        {% endif %}
+      {% endset %}
+
+      {% set ownerValue %}
+        {% if task.assignedToUser %}
+          {{task.assignedToUser.firstName}} {{task.assignedToUser.lastName}}
+        {% elif task.assignedToTeam %}
+          {{task.assignedToTeam.name}} ({{task.assignedToTeam.unit.name}})
+        {% endif %}
+      {% endset %}
+
       {{ govukSummaryList({
         rows: [
           {
             key: {
-              text: 'Due date'
+              html: 'Defendant'
             },
             value: {
-              html: task.dueDate | isoDateString | govukDateTime
+              html: defendantsValue
             }
           },
           {
             key: {
-              text: 'Type'
+              html: 'Due date'
+            },
+            value: {
+              html: task.dueDate | isoDateString | govukDateTime
+            }
+          },                 
+          {
+            key: {
+              html: 'Owner'
+            },
+            value: {
+              html: ownerValue
+            }
+          },
+          {
+            key: {
+              html: 'Unit'
+            },
+            value: {
+              html: task.case.unit.name
+            }
+          },
+          {
+            key: {
+              html: 'Type'
             },
             value: {
               html: task.type
             }
-          }
+          }              
         ]
       })}}
 

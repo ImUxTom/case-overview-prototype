@@ -15,7 +15,7 @@
       active: accountNavId == 'account'
     } if data.user,
     {
-      href: "/account/sign-out",
+      href: "/account/sign-out" if data.user else "/account/sign-in",
       text: "Sign out" if data.user else "Sign in"
     }
   ]
