@@ -329,7 +329,9 @@ async function main() {
       let assignedToTeamId = null;
 
       if (assignmentType === 'user') {
-        assignedToUserId = faker.helpers.arrayElement(users).id;
+        // Exclude Tony Stark (casework assistant) from task assignments
+        const usersExcludingTony = users.filter(u => u.email !== 'tony@cps.gov.uk');
+        assignedToUserId = faker.helpers.arrayElement(usersExcludingTony).id;
       } else if (assignmentType === 'team') {
         // Pick a random team from the case's unit (4 teams per unit)
         const unitTeamOffset = (caseUnitId - 1) * 4;
