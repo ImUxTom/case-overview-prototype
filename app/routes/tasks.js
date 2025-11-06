@@ -319,7 +319,7 @@ module.exports = router => {
     // Handle sorting
     const sortBy = _.get(req.session.data, 'taskSort', 'Due date')
 
-    if (sortBy === 'Defendant release date') {
+    if (sortBy === 'Custody release date') {
       // Sort by soonest CTL first, then tasks without CTL
       tasks.sort((a, b) => {
         if (a.case.hasCTL && !b.case.hasCTL) return -1

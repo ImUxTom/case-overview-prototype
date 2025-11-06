@@ -56,7 +56,7 @@ module.exports = router => {
     // CTL filter display
     if (selectedCtlFilters?.length) {
       selectedFilters.categories.push({
-        heading: { text: 'CTL' },
+        heading: { text: 'Custody status' },
         items: selectedCtlFilters.map(function(label) {
           return { text: label, href: '/cases/remove-ctl/' + label }
         })
@@ -159,7 +159,7 @@ module.exports = router => {
     if (selectedCtlFilters?.length) {
       const ctlFilters = []
 
-      if (selectedCtlFilters.includes('CTL')) {
+      if (selectedCtlFilters.includes('In custody')) {
         ctlFilters.push({
           defendants: {
             some: {
@@ -173,7 +173,7 @@ module.exports = router => {
         })
       }
 
-      if (selectedCtlFilters.includes('Not CTL')) {
+      if (selectedCtlFilters.includes('Not in custody')) {
         ctlFilters.push({
           defendants: {
             every: {
@@ -283,8 +283,8 @@ module.exports = router => {
       value: dgaStatus
     }))
 
-    let ctlItems = ['CTL', 'Not CTL'].map(ctl => ({ 
-      text: ctl, 
+    let ctlItems = ['In custody', 'Not in custody'].map(ctl => ({
+      text: ctl,
       value: ctl
     }))
 
