@@ -48,7 +48,7 @@
                 <a href="/cases/{{_case.id}}" class="govuk-link--no-visited-state">{{defendantsValue}}</a>
                 <div class="app-list__tag">
                   {% if _case.hasCTL %}
-                    {{ govukTag({ text: 'In custody', classes: 'govuk-tag--red' })}}
+                    {{ govukTag({ text: 'Custody time limit', classes: 'govuk-tag--red' })}}
                   {% endif %}
                 </div>
               </h2>
@@ -134,7 +134,7 @@
                   },
                   {
                     key: {
-                      html: 'Custody release date'
+                      html: 'Custody time limit'
                     },
                     value: {
                       html: (_case.soonestCTL | isoDateString | govukDateTime) + ' (' + (_case.soonestCTL | daysUntil) + ')'

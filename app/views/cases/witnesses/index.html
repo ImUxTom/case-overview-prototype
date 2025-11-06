@@ -19,7 +19,7 @@
         <div class="app-list">
           {% for witness in _case.witnesses %}
             {% set witnessTypeValue %}
-              {% set hasTypes = witness.isVictim or witness.isKeyWitness or witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
+              {% set hasTypes = witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
 
               {% if hasTypes %}
                 <ul class="govuk-list govuk-list--bullet">
@@ -49,7 +49,7 @@
                   {% endif %}
                 </ul>
               {% else %}
-                None
+                Not entered
               {% endif %}
             {% endset %}
 
@@ -66,7 +66,6 @@
                   {% if witness.isAppearingInCourt %}
                     {{ govukTag({ text: 'Attending court' })}}
                   {% endif %}
-
                   {% if witness.isAppearingInCourt == false %}
                     {{ govukTag({ text: 'Not attending court' })}}
                   {% endif %}

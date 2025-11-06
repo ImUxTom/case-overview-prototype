@@ -62,7 +62,7 @@
       {% endif %}
 
       {% set witnessTypeValue %}
-        {% set hasTypes = witness.isVictim or witness.isKeyWitness or witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
+        {% set hasTypes = witness.isChild or witness.isExpert or witness.isInterpreter or witness.isPolice or witness.isProfessional or witness.isPrisoner or witness.isVulnerable or witness.isIntimidated %}
 
         {% if hasTypes %}
           <ul class="govuk-list govuk-list--bullet">
