@@ -12,7 +12,7 @@
     }) }}
 
     {{ govukButton({
-      text: "Export",
+      text: "Export cases",
       classes: 'govuk-button--secondary'
     }) }}
   </div>  
@@ -70,7 +70,7 @@
                 rows: [
                   {
                     key: {
-                      html: 'Reference'
+                      html: 'Reference number'
                     },
                     value: {
                       html: _case.reference
@@ -118,7 +118,7 @@
                   },
                   {
                     key: {
-                      html: 'Type of hearing'
+                      html: 'Hearing type'
                     },
                     value: {
                       html: _case.type
@@ -126,7 +126,7 @@
                   },
                   {
                     key: {
-                      html: 'Hearing'
+                      html: 'Hearing date'
                     },
                     value: {
                       html: _case.hearing.date | isoDateString | govukDateTime
@@ -134,24 +134,14 @@
                   },
                   {
                     key: {
-                      html: 'Custody time limit'
+                      html: 'Defendant release date'
                     },
                     value: {
-                      html: (_case.soonestCTL | isoDateString | govukDate) + (' (' + _case.ctlCount + ' CTLs)' if _case.ctlCount > 1 else '')
+                      html: (_case.soonestCTL | isoDateString | govukDateTime) + (' (' + _case.ctlCount + ' CTLs)' if _case.ctlCount > 1 else '')
                     }
-                  } if _case.hasCTL,
-                  {
-                    key: {
-                      html: 'DGA'
-                    },
-                    value: {
-                      html: 'Needs review'
-                    }
-                  } if _case.dgaReview                  
+                  } if _case.hasCTL                
                 ]
               })}}
-
-
             </div>
           {% endfor %}
         </div>
@@ -162,8 +152,6 @@
       {% include "_includes/pagination.njk" %}
     </div>
   </div>
-
-
 {% endblock %}
 
 {% block scripts %}

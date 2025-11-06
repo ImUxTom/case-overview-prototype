@@ -93,7 +93,7 @@ module.exports = router => {
     // Type filter display
     if (selectedTypeFilters?.length) {
       selectedFilters.categories.push({
-        heading: { text: 'Type' },
+        heading: { text: 'Hearing type' },
         items: selectedTypeFilters.map(function(label) {
           return { text: label, href: '/cases/remove-type/' + label }
         })
