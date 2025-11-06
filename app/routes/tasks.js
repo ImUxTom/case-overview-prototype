@@ -125,7 +125,7 @@ module.exports = router => {
       })
 
       selectedFilters.categories.push({
-        heading: { text: 'Type' },
+        heading: { text: 'Task type' },
         items: selectedTaskTypeItems
       })
     }
@@ -319,7 +319,7 @@ module.exports = router => {
     // Handle sorting
     const sortBy = _.get(req.session.data, 'taskSort', 'Due date')
 
-    if (sortBy === 'Days left in custody') {
+    if (sortBy === 'Defendant release date') {
       // Sort by soonest CTL first, then tasks without CTL
       tasks.sort((a, b) => {
         if (a.case.hasCTL && !b.case.hasCTL) return -1

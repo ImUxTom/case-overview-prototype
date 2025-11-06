@@ -77,7 +77,7 @@
               html: 'Custody time limit'
             },
             value: {
-              html: (_case.soonestCTL | isoDateString | govukDate) + (' (' + _case.ctlCount + ' CTLs)' if _case.ctlCount > 1 else '')
+              html: (_case.soonestCTL | isoDateString | govukDateTime) + (' (' + _case.ctlCount + ' CTLs)' if _case.ctlCount > 1 else '')
             }
           } if _case.hasCTL,
           {
@@ -98,7 +98,7 @@
           },
           {
             key: {
-              html: 'Type'
+              html: 'Task type'
             },
             value: {
               html: task.type

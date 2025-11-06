@@ -49,7 +49,7 @@
                   rows: [
                     {
                       key: {
-                        html: 'Case reference'
+                        html: 'Case reference number'
                       },
                       value: {
                         html: task.case.reference
@@ -73,10 +73,10 @@
                     },
                     {
                       key: {
-                        html: 'Custody time limit'
+                        html: 'Defendant release date'
                       },
                       value: {
-                        html: (task.case.soonestCTL | isoDateString | govukDate) + (' (' + task.case.ctlCount + ' CTLs)' if task.case.ctlCount > 1 else '')
+                        html: (task.case.soonestCTL | isoDateString | govukDateTime) + (' (' + task.case.ctlCount + ' CTLs)' if task.case.ctlCount > 1 else '')
                       }
                     } if task.case.hasCTL,
                     {
@@ -97,7 +97,7 @@
                     },
                     {
                       key: {
-                        html: 'Type'
+                        html: 'Task type'
                       },
                       value: {
                         html: task.type
