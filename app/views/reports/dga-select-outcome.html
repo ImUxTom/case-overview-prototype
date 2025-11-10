@@ -11,17 +11,16 @@
 
 {% block content %}
   <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">{{ failureReason.reason }}</h1>
+  <h1 class="govuk-heading-l">What is the outcome?</h1>
+
+  <div class="govuk-inset-text">
+    <h3 class="govuk-heading-s">Failure reason</h3>
+{{ failureReason.reason }}
+</div>
 
   <form method="post">
     {{ govukRadios({
-      name: "outcome",
-      fieldset: {
-        legend: {
-          text: "What is the outcome?",
-          classes: "govuk-fieldset__legend--m"
-        }
-      },
+    name: "outcome",
       items: [
         {
           value: "Disputed successfully",

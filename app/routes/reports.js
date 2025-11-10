@@ -25,11 +25,6 @@ module.exports = router => {
     const isFirstVisit = req.session.data.reportListFilters === undefined || 
                          (selectedStatusFilters === undefined && selectedUnitFilters === undefined)
     
-    // Default to "Not started" ONLY on first visit
-    if (isFirstVisit) {
-      selectedStatusFilters = ['Not started']
-      _.set(req, 'session.data.reportListFilters.status', selectedStatusFilters)
-    }
     
     // Ensure selectedStatusFilters is an array (even if empty after clearing)
     if (!selectedStatusFilters) {
@@ -186,6 +181,125 @@ module.exports = router => {
   router.get('/reports/clear-search', (req, res) => {
     _.set(req, 'session.data.reportSearch.keywords', '')
     res.redirect('/reports')
+  })
+
+  router.get('/reports/export', async (req, res) => {
+    const ExcelJS = require('exceljs')
+    const currentUser = req.session.data.user
+
+    // Get user's unit IDs for filtering
+    const userUnitIds = currentUser?.units?.map(uu => uu.unitId) || []
+
+    let selectedStatusFilters = _.get(req.session.data.reportListFilters, 'status', [])
+    let selectedUnitFilters = _.get(req.session.data.reportListFilters, 'unit', [])
+
+    // Build Prisma where clause (same as main reports page)
+    let where = { 
+      AND: [
+        { dga: { outcome: null } }
+      ] 
+    }
+
+    // Restrict to cases in user's units only
+    if (selectedUnitFilters?.length) {
+      const unitIds = selectedUnitFilters.map(Number)
+      where.AND.push({ unitId: { in: unitIds } })
+    } else if (userUnitIds.length) {
+      where.AND.push({ unitId: { in: userUnitIds } })
+    }
+
+    // Status filter
+    if (selectedStatusFilters?.length > 0) {
+      const statusConditions = selectedStatusFilters.map(status => {
+        if (status === 'Not started') {
+          return { reportStatus: null }
+        }
+        return { reportStatus: status }
+      })
+      
+      where.AND.push({ OR: statusConditions })
+    }
+
+    let cases = await prisma.case.findMany({
+      where: where,
+      include: {
+        unit: true,
+        dga: {
+          include: {
+            failureReasons: true
+          }
+        }
+      }
+    })
+
+    // Create workbook and worksheet
+    const workbook = new ExcelJS.Workbook()
+    const worksheet = workbook.addWorksheet('DGA Outcomes Report')
+
+    // Define columns based on your image
+    worksheet.columns = [
+      { header: 'URN', key: 'urn', width: 15 },
+      { header: 'Casework Type', key: 'caseworkType', width: 20 },
+      { header: 'Unit', key: 'unit', width: 20 },
+      { header: 'Police Unit Name', key: 'policeUnitName', width: 20 },
+      { header: 'Police unit', key: 'policeUnit', width: 15 },
+      { header: 'Reviewing group', key: 'reviewingGroup', width: 20 },
+      { header: 'Review Type All', key: 'reviewTypeAll', width: 20 },
+      { header: 'Review', key: 'review', width: 15 },
+      { header: 'Prosecutor\'s Declaration', key: 'prosecutorDeclaration', width: 25 },
+      { header: 'Rape', key: 'rape', width: 10 },
+      { header: 'Domestic violence', key: 'domesticViolence', width: 20 },
+      { header: 'Hate Crime Flag', key: 'hateCrimeFlag', width: 20 },
+      { header: 'Failure types', key: 'failureTypes', width: 30 },
+      { header: 'Non-compliant DGA outcome', key: 'outcome', width: 30 },
+      { header: 'Contact methods', key: 'contactMethods', width: 20 },
+      { header: 'Comments', key: 'comments', width: 30 }
+    ]
+
+    // Style the header row
+    worksheet.getRow(1).font = { bold: true }
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' }
+    }
+
+    // Add data rows - one row per failure reason
+    cases.forEach(caseItem => {
+      if (caseItem.dga && caseItem.dga.failureReasons && caseItem.dga.failureReasons.length > 0) {
+        caseItem.dga.failureReasons.forEach(failureReason => {
+          // Determine outcome text
+          let outcomeText = failureReason.outcome || 'In progress'
+          
+          worksheet.addRow({
+            urn: caseItem.reference,
+            caseworkType: caseItem.type || '',
+            unit: caseItem.unit.name,
+            policeUnitName: '', // Add if you have this data
+            policeUnit: '', // Add if you have this data
+            reviewingGroup: '', // Add if you have this data
+            reviewTypeAll: '', // Add if you have this data
+            review: '', // Add if you have this data
+            prosecutorDeclaration: '', // Add if you have this data
+            rape: '', // Add if you have this data
+            domesticViolence: '', // Add if you have this data
+            hateCrimeFlag: '', // Add if you have this data
+            failureTypes: failureReason.reason,
+            outcome: outcomeText,
+            contactMethods: failureReason.methods || '',
+            comments: failureReason.details || ''
+          })
+        })
+      }
+    })
+
+    // Set response headers for download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', 'attachment; filename=dga-outcomes-report.xlsx')
+
+    // Write to response
+    await workbook.xlsx.write(res)
+    res.end()
   })
 
 }

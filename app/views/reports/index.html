@@ -1,15 +1,23 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'reports' %}
-{% set pageName = "Non-compliant DGA cases (:total)" | replace(':total', totalReports | formatNumber) %}
+{% set pageName = "Cases with non-compliant DGAs (:total)" | replace(':total', totalReports | formatNumber) %}
 
 {% block content %}
-<span class="govuk-caption-l">Reporting month: October 2025</span>
+<span class="govuk-caption-l">Reporting month — September 2025</span>
 <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
-<button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+<div class="govuk-warning-text">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-visually-hidden">Warning</span>
+    This report is incomplete. It must be completed by 6 January 2026.
+  </strong>
+</div>
+
+<a href="/reports/export" class="govuk-button govuk-button--secondary" data-module="govuk-button">
   Export report
-</button>
+</a>
 
 <div class="app-filter-layout">
   <div class="app-filter-layout__filter">
@@ -32,22 +40,28 @@
             <h2 class="govuk-heading-s govuk-!-margin-bottom-0">
               {{ caseItem.reference }}
             </h2>
-            {% if caseItem.reportStatus == "Completed" %}
-              {{ govukTag({
-                text: "Completed",
-                classes: "govuk-tag--grey"
-              }) }}
-            {% elif caseItem.reportStatus == "In progress" %}
-              {{ govukTag({
-                text: "In progress",
-                classes: "govuk-tag--yellow"
-              }) }}
-            {% else %}
-              {{ govukTag({
-                text: "Not started",
-                classes: "govuk-tag--red"
-              }) }}
-            {% endif %}
+             <div style="text-align: right;">
+              {% if caseItem.reportStatus == "Completed" %}
+                {{ govukTag({
+                  text: "Completed",
+                  classes: "govuk-tag--grey"
+                }) }}
+              {% elif caseItem.reportStatus == "In progress" %}
+                {{ govukTag({
+                  text: "In progress",
+                  classes: "govuk-tag--yellow"
+                }) }}
+              {% else %}
+                {{ govukTag({
+                  text: "Not started",
+                  classes: "govuk-tag--red"
+                }) }}
+              {% endif %}
+              <br>
+                      <p class="govuk-body">
+              <a href="/reports/{{ caseItem.id }}/dga-outcomes" class="govuk-link--no-visited-state" style="display: block; margin-top: 8px;">Record outcomes</a>
+              </p>
+            </div>
           </div>
 
           {% set defendantsValue %}
@@ -60,7 +74,7 @@
               None
             {% endif %}
           {% endset %}
-        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text">
+        <!-- <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text">
 
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Unit</dt>
@@ -78,8 +92,8 @@
             </dd>
           </div>
         </dl>
+    -->
 
-        <a href="/reports/{{ caseItem.id }}/dga-outcomes" class="govuk-link--no-visited-state">Add outcomes</a>
 
 
         </div>

@@ -15,6 +15,7 @@
     "@x-govuk/govuk-prototype-filters": "^2.0.0",
     "bcrypt": "^6.0.0",
     "connect-flash": "^0.1.1",
+    "exceljs": "^4.4.0",
     "govuk-frontend": "5.12.0",
     "govuk-prototype-kit": "13.18.1",
     "jquery": "3.7.1",

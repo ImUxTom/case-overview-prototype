@@ -11,16 +11,17 @@
 
 {% block content %}
   <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">{{ failureReason.reason }}</h1>
+  <h1 class="govuk-heading-l">How was this decision made?</h1>
+
+  <div class="govuk-inset-text">
+    <h3 class="govuk-heading-s">Failure reason</h3>
+        {{ failureReason.reason }}
+  </div>
 
   <form method="post">
     {{ govukCheckboxes({
       name: "methods",
       fieldset: {
-        legend: {
-          text: "How was this decision made?",
-          classes: "govuk-fieldset__legend--m"
-        }
       },
       hint: {
         text: "Select all that apply"

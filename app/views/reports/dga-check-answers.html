@@ -5,9 +5,14 @@
 
 {% block content %}
   <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">{{ failureReason.reason }}</h1>
+  <h1 class="govuk-heading-l">Check details and record outcome</h1>
 
-  <h2 class="govuk-heading-m">Check details and record outcome</h2>
+    <div class="govuk-inset-text">
+    <h3 class="govuk-heading-s">Failure reason</h3>
+        {{ failureReason.reason }}
+  </div>
+
+  <h2 class="govuk-heading-m"></h2>
 
   {% set methodsText %}
     {% if methods and methods.length > 0 %}
