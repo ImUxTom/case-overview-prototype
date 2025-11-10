@@ -30,7 +30,7 @@ module.exports = router => {
       return res.redirect('/reports')
     }
 
-    console.log('Rendering dga-outcomes view')
+    // console.log('Rendering dga-outcomes view')
     res.render('reports/dga-outcomes', {
       case: caseData,
       successMessage: req.query.success === 'true' ? 'Outcome updated.' : null
