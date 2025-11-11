@@ -100,6 +100,30 @@ function futureDateAt10am() {
   return d;
 }
 
+function getOverdueDate() {
+  // Returns a date 2-7 days in the past at 23:59:59.999 UTC
+  const daysAgo = faker.number.int({ min: 2, max: 7 });
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setUTCHours(23, 59, 59, 999);
+  return d;
+}
+
+function getTodayDate() {
+  // Returns today at 23:59:59.999 UTC
+  const d = new Date();
+  d.setUTCHours(23, 59, 59, 999);
+  return d;
+}
+
+function getTomorrowDate() {
+  // Returns tomorrow at 23:59:59.999 UTC
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setUTCHours(23, 59, 59, 999);
+  return d;
+}
+
 function generateCaseReference() {
   const twoDigits = faker.number.int({ min: 10, max: 99 });
   const twoLetters = faker.string.alpha({ count: 2, casing: "upper" });
@@ -828,6 +852,207 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
   console.log(
     `✅ Assigned ${assignableCases.length} cases to exactly one lawyer, left ${unassignedCount} unassigned`
   );
+
+  // -------------------- Create Guaranteed Tasks for Testing --------------------
+  // Ensure each user (except Tony Stark) has tasks that are overdue, due today, and due tomorrow
+  const usersExcludingTony = users.filter(u => u.email !== 'tony@cps.gov.uk');
+
+  let guaranteedTasksCreated = 0;
+
+  for (const user of usersExcludingTony) {
+    // Get user's unit IDs
+    const userWithUnits = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { units: true }
+    });
+    const userUnitIds = userWithUnits.units.map(uu => uu.unitId);
+
+    // Find all cases assigned to this user that are in their units
+    const userCases = await prisma.case.findMany({
+      where: {
+        userId: user.id,
+        unitId: { in: userUnitIds }
+      }
+    });
+
+    // Skip if user has no cases in their units
+    if (userCases.length === 0) continue;
+
+    // Pick a random case for these guaranteed tasks
+    const targetCase = faker.helpers.arrayElement(userCases);
+
+    // Create 3 guaranteed tasks: overdue, today, tomorrow
+    const guaranteedTasks = [
+      {
+        name: faker.helpers.arrayElement(taskNames),
+        type: faker.helpers.arrayElement(taskTypes),
+        dueDate: getOverdueDate(),
+        caseId: targetCase.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      },
+      {
+        name: faker.helpers.arrayElement(taskNames),
+        type: faker.helpers.arrayElement(taskTypes),
+        dueDate: getTodayDate(),
+        caseId: targetCase.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      },
+      {
+        name: faker.helpers.arrayElement(taskNames),
+        type: faker.helpers.arrayElement(taskTypes),
+        dueDate: getTomorrowDate(),
+        caseId: targetCase.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      }
+    ];
+
+    await prisma.task.createMany({
+      data: guaranteedTasks
+    });
+
+    guaranteedTasksCreated += guaranteedTasks.length;
+  }
+
+  console.log(`✅ Created ${guaranteedTasksCreated} guaranteed tasks (overdue, today, tomorrow) for ${usersExcludingTony.length} users`);
+
+  // -------------------- Create Guaranteed CTL Charges for Testing --------------------
+  // Ensure each user has cases with charges where CTL expires today and tomorrow
+  let ctlChargesCreated = 0;
+  let ctlTasksCreated = 0;
+
+  for (const user of usersExcludingTony) {
+    // Get user's unit IDs
+    const userWithUnits = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: { units: true }
+    });
+    const userUnitIds = userWithUnits.units.map(uu => uu.unitId);
+
+    // Find all cases assigned to this user that are in their units
+    const userCases = await prisma.case.findMany({
+      where: {
+        userId: user.id,
+        unitId: { in: userUnitIds }
+      },
+      include: { defendants: true }
+    });
+
+    // Skip if user has no cases in their units
+    if (userCases.length === 0) continue;
+
+    // Pick two different cases for today and tomorrow CTL (or same if only one case)
+    const casesForCtl = faker.helpers.arrayElements(userCases, Math.min(2, userCases.length));
+    const caseForTodayCtl = casesForCtl[0];
+    const caseForTomorrowCtl = casesForCtl.length > 1 ? casesForCtl[1] : casesForCtl[0];
+
+    // Create defendant with charge that has CTL expiring TODAY
+    const todayCtlDefendant = await prisma.defendant.create({
+      data: {
+        firstName: faker.helpers.arrayElement(firstNames),
+        lastName: faker.helpers.arrayElement(lastNames),
+        gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
+        dateOfBirth: faker.date.birthdate({ min: 18, max: 75, mode: "age" }),
+        remandStatus: "REMANDED_IN_CUSTODY", // Must be in custody for CTL to matter
+        defenceLawyer: {
+          connect: { id: faker.helpers.arrayElement(defenceLawyers).id }
+        },
+        charges: {
+          create: {
+            chargeCode: faker.helpers.arrayElement(charges).code,
+            description: faker.helpers.arrayElement(charges).description,
+            status: "Charged",
+            offenceDate: faker.date.past(),
+            plea: faker.helpers.arrayElement(pleas),
+            particulars: faker.lorem.sentence(),
+            custodyTimeLimit: getTodayDate(),
+            isCount: false,
+          }
+        }
+      },
+    });
+
+    // Connect defendant to case
+    await prisma.case.update({
+      where: { id: caseForTodayCtl.id },
+      data: {
+        defendants: {
+          connect: { id: todayCtlDefendant.id }
+        }
+      }
+    });
+
+    // Create task for today's CTL
+    await prisma.task.create({
+      data: {
+        name: "CTL expiry imminent",
+        type: "Reminder",
+        dueDate: getTodayDate(),
+        caseId: caseForTodayCtl.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      }
+    });
+
+    ctlChargesCreated++;
+    ctlTasksCreated++;
+
+    // Create defendant with charge that has CTL expiring TOMORROW
+    const tomorrowCtlDefendant = await prisma.defendant.create({
+      data: {
+        firstName: faker.helpers.arrayElement(firstNames),
+        lastName: faker.helpers.arrayElement(lastNames),
+        gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
+        dateOfBirth: faker.date.birthdate({ min: 18, max: 75, mode: "age" }),
+        remandStatus: "REMANDED_IN_CUSTODY", // Must be in custody for CTL to matter
+        defenceLawyer: {
+          connect: { id: faker.helpers.arrayElement(defenceLawyers).id }
+        },
+        charges: {
+          create: {
+            chargeCode: faker.helpers.arrayElement(charges).code,
+            description: faker.helpers.arrayElement(charges).description,
+            status: "Charged",
+            offenceDate: faker.date.past(),
+            plea: faker.helpers.arrayElement(pleas),
+            particulars: faker.lorem.sentence(),
+            custodyTimeLimit: getTomorrowDate(),
+            isCount: false,
+          }
+        }
+      },
+    });
+
+    // Connect defendant to case
+    await prisma.case.update({
+      where: { id: caseForTomorrowCtl.id },
+      data: {
+        defendants: {
+          connect: { id: tomorrowCtlDefendant.id }
+        }
+      }
+    });
+
+    // Create task for tomorrow's CTL
+    await prisma.task.create({
+      data: {
+        name: "CTL expiry imminent",
+        type: "Reminder",
+        dueDate: getTomorrowDate(),
+        caseId: caseForTomorrowCtl.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      }
+    });
+
+    ctlChargesCreated++;
+    ctlTasksCreated++;
+  }
+
+  console.log(`✅ Created ${ctlChargesCreated} charges with CTL expiring today/tomorrow for ${usersExcludingTony.length} users`);
+  console.log(`✅ Created ${ctlTasksCreated} CTL-related tasks for these charges`);
 
   // -------------------- Activity Logs --------------------
   const eventTypes = [
