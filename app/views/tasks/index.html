@@ -24,10 +24,14 @@
         {% if tasks.length %}
           <div class="app-list">
             {% for task in tasks %}
+            {# Show group heading when group changes or on first task #}
+            {% if loop.first or task.groupKey != tasks[loop.index0 - 1].groupKey %}
+              <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-0">{{task.groupHeading}}</h2>
+            {% endif %}
             <div class="app-list__item">
-                <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+                <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
                   <a href="/cases/{{task.case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
-                </h2>
+                </h3>
 
                 {% set defendantsValue %}
                   {{task.case.defendants[0].firstName}} {{task.case.defendants[0].lastName}}
@@ -68,7 +72,7 @@
                         html: 'Due date'
                       },
                       value: {
-                        html: task.dueDate | isoDateString | govukDateTime
+                        html: (task.dueDate | isoDateString | govukDateTime) + ' (' + (task.dueDate | daysUntil) + ')'
                       }
                     },
                     {
