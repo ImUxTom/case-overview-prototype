@@ -28,11 +28,18 @@ addFilter('formatNumber', number => {
 
 addFilter('daysUntil', date => {
   const now = new Date()
+  now.setHours(0, 0, 0, 0)
   const targetDate = new Date(date)
+  targetDate.setHours(0, 0, 0, 0)
   const diffTime = targetDate - now
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  if (diffDays <= 0) {
+
+  if (diffDays < 0) {
     return 'overdue'
+  } else if (diffDays === 0) {
+    return 'today'
+  } else if (diffDays === 1) {
+    return 'tomorrow'
   }
-  return diffDays === 1 ? '1 day' : `${diffDays} days`
+  return `${diffDays} days`
 })

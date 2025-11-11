@@ -2,6 +2,7 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const Pagination = require('../helpers/pagination')
+const { groupTasks } = require('../helpers/taskGrouping')
 const taskTypes = require('../data/task-types')
 const taskNames = require('../data/task-names')
 
@@ -338,6 +339,9 @@ module.exports = router => {
       })
     }
     // Default is 'Due date' which is already sorted by the orderBy in the query
+
+    // Add grouping metadata to tasks based on sort order
+    tasks = groupTasks(tasks, sortBy)
 
     let totalTasks = tasks.length
     let pageSize = 25
