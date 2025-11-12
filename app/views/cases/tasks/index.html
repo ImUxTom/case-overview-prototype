@@ -15,14 +15,18 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
-      
+
       {% if _case.tasks.length %}
         <div class="app-list">
           {% for task in _case.tasks %}
           <div class="app-list__item">
-              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+              <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
                 <a href="/cases/{{_case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
-              </h2>
+
+                <div class="app-list__tag">
+                    {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}}
+                  </div>
+              </h3>
 
               {% set ownerValue %}
                 {% if task.assignedToUser %}
@@ -37,15 +41,31 @@
                 rows: [
                   {
                     key: {
-                      html: 'Due date'
+                      text: 'Reminder date'
                     },
                     value: {
-                      html: task.dueDate | isoDateString | govukDateTime
+                      html: (task.reminderDate | isoDateString | govukDateTime)
                     }
                   },
                   {
                     key: {
-                      html: 'Custody time limit'
+                      text: 'Due date'
+                    },
+                    value: {
+                      html: (task.dueDate | isoDateString | govukDateTime)
+                    }
+                  },
+                  {
+                    key: {
+                      text: 'Escalation date'
+                    },
+                    value: {
+                      html: (task.escalationDate | isoDateString | govukDateTime)
+                    }
+                  },
+                  {
+                    key: {
+                      text: 'Custody release date'
                     },
                     value: {
                       html: (_case.soonestCTL | isoDateString | govukDateTime) + ' (' + (_case.soonestCTL | daysUntil) + ')'

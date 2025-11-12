@@ -11,6 +11,7 @@ function resetFilters(req) {
   _.set(req, 'session.data.taskListFilters.owner', null)
   _.set(req, 'session.data.taskListFilters.units', null)
   _.set(req, 'session.data.taskListFilters.taskNames', null)
+  _.set(req, 'session.data.taskListFilters.severities', null)
 }
 
 module.exports = router => {
@@ -39,6 +40,7 @@ module.exports = router => {
     let selectedTaskTypeFilters = _.get(req.session.data.taskListFilters, 'taskTypes', [])
     let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'units', [])
     let selectedTaskNameFilters = _.get(req.session.data.taskListFilters, 'taskNames', [])
+    let selectedSeverityFilters = _.get(req.session.data.taskListFilters, 'severities', [])
 
     let selectedFilters = { categories: [] }
 
@@ -46,6 +48,7 @@ module.exports = router => {
     let selectedUnitItems = []
     let selectedTaskTypeItems = []
     let selectedTaskNameItems = []
+    let selectedSeverityItems = []
 
     // Owner filter display
     if (selectedOwnerFilters?.length) {
@@ -143,8 +146,23 @@ module.exports = router => {
       })
     }
 
+    // Severity filter display
+    if (selectedSeverityFilters?.length) {
+      selectedSeverityItems = selectedSeverityFilters.map(function(severity) {
+        return { text: severity, href: '/tasks/remove-severity/' + severity }
+      })
+
+      selectedFilters.categories.push({
+        heading: { text: 'Severity' },
+        items: selectedSeverityItems
+      })
+    }
+
     // Build Prisma where clause
     let where = { AND: [] }
+
+    // MANDATORY: Exclude completed tasks
+    where.AND.push({ completedDate: null })
 
     // MANDATORY: Restrict to tasks in user's units only
     if (userUnitIds.length) {
@@ -196,7 +214,10 @@ module.exports = router => {
 
     let tasks = await prisma.task.findMany({
       where: where,
-      orderBy: { dueDate: 'asc' },
+      orderBy: [
+        { reminderDate: 'asc' },
+        { dueDate: 'asc' }
+      ],
       include: {
         case: {
           include: {
@@ -317,8 +338,26 @@ module.exports = router => {
       value: taskName
     }))
 
+    // Severity items
+    let severityItems = [
+      { text: 'Pending', value: 'Pending' },
+      { text: 'Due', value: 'Due' },
+      { text: 'Overdue', value: 'Overdue' },
+      { text: 'Escalated', value: 'Escalated' }
+    ]
+
     // Handle sorting
     const sortBy = _.get(req.session.data, 'taskSort', 'Due date')
+
+    // Add grouping metadata to tasks based on sort type
+    tasks = groupTasks(tasks, sortBy)
+
+    // Filter by severity (after grouping, since severity is calculated in groupTasks)
+    if (selectedSeverityFilters?.length) {
+      tasks = tasks.filter(task => {
+        return selectedSeverityFilters.includes(task.severity)
+      })
+    }
 
     if (sortBy === 'Custody time limit') {
       // Sort by soonest CTL first, then tasks without CTL
@@ -337,11 +376,17 @@ module.exports = router => {
         const bDate = b.case.hearing ? new Date(b.case.hearing.date) : new Date(9999, 0, 1)
         return aDate - bDate
       })
+    } else {
+      // Default 'Due date' - sort by severity priority (Escalated > Overdue > Due > Pending), then by date
+      tasks.sort((a, b) => {
+        // First sort by severity sortOrder
+        if (a.sortOrder !== b.sortOrder) {
+          return a.sortOrder - b.sortOrder
+        }
+        // Then by reminder date
+        return new Date(a.reminderDate) - new Date(b.reminderDate)
+      })
     }
-    // Default is 'Due date' which is already sorted by the orderBy in the query
-
-    // Add grouping metadata to tasks based on sort order
-    tasks = groupTasks(tasks, sortBy)
 
     let totalTasks = tasks.length
     let pageSize = 25
@@ -358,6 +403,9 @@ module.exports = router => {
       unitItems,
       selectedUnitFilters,
       selectedUnitItems,
+      severityItems,
+      selectedSeverityFilters,
+      selectedSeverityItems,
       taskTypeItems,
       selectedTaskTypeFilters,
       selectedTaskTypeItems,
@@ -390,6 +438,12 @@ module.exports = router => {
     const currentFilters = _.get(req, 'session.data.taskListFilters.taskNames', [])
     const taskName = decodeURIComponent(req.params.taskName)
     _.set(req, 'session.data.taskListFilters.taskNames', _.pull(currentFilters, taskName))
+    res.redirect('/tasks')
+  })
+
+  router.get('/tasks/remove-severity/:severity', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.taskListFilters.severities', [])
+    _.set(req, 'session.data.taskListFilters.severities', _.pull(currentFilters, req.params.severity))
     res.redirect('/tasks')
   })
 

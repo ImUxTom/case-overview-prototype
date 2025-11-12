@@ -18,6 +18,26 @@ addFilter('priorityTagClass', status => {
   }
 })
 
+addFilter('severityTagClass', severity => {
+  switch(severity) {
+    case 'Escalated':
+      return 'govuk-tag--red'
+    case 'Overdue':
+      return 'govuk-tag--orange'
+    case 'Due':
+      return 'govuk-tag--yellow'
+    case 'Pending':
+      return 'govuk-tag--blue'
+    default:
+      return ''
+  }
+})
+
+addFilter('capitalize', str => {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
+})
+
 addFilter('isoDateString', date => {
   return date.toISOString()
 })

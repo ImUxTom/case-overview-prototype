@@ -1,6 +1,24 @@
 /**
- * Helper functions for grouping tasks by date ranges
+ * Helper functions for grouping tasks by severity or date ranges
  */
+
+const { getTaskSeverity } = require('./taskState');
+
+/**
+ * Get the sort order for severity groups
+ * @param {string} severity - The task severity ('Escalated', 'Overdue', 'Due', 'Pending')
+ * @returns {number} - Sort priority (lower = higher priority)
+ */
+function getSeveritySortOrder(severity) {
+  const order = {
+    'Escalated': 1,
+    'Overdue': 2,
+    'Due': 3,
+    'Pending': 4
+  };
+
+  return order[severity] || 999;
+}
 
 /**
  * Get the date group key for a given date
@@ -48,22 +66,13 @@ function getDateGroup(date, today) {
 }
 
 /**
- * Get the heading text for a group based on sort type
+ * Get the heading text for a date group based on sort type
  * @param {string} groupKey - The group key
- * @param {string} sortBy - The sort type ('Due date', 'Custody time limit', 'Hearing date')
+ * @param {string} sortBy - The sort type ('Custody time limit', 'Hearing date')
  * @returns {string} - The heading text
  */
-function getGroupHeading(groupKey, sortBy) {
+function getDateGroupHeading(groupKey, sortBy) {
   const headings = {
-    'Due date': {
-      overdue: 'Tasks overdue',
-      today: 'Tasks due today',
-      tomorrow: 'Tasks due tomorrow',
-      thisWeek: 'Tasks due this week',
-      nextWeek: 'Tasks due next week',
-      later: 'Tasks due later',
-      noDate: 'Tasks with no due date'
-    },
     'Custody time limit': {
       overdue: 'Custody time limit has ended',
       today: 'Custody time limit ends today',
@@ -88,44 +97,66 @@ function getGroupHeading(groupKey, sortBy) {
 }
 
 /**
- * Add group metadata to tasks based on sort type
+ * Add group metadata to tasks based on their severity or date (depending on sortBy)
  * @param {Array} tasks - Array of task objects
- * @param {string} sortBy - The sort type ('Due date', 'Custody time limit', 'Hearing date')
- * @returns {Array} - Tasks with groupKey and groupHeading properties added
+ * @param {string} sortBy - Optional. The sort type ('Custody time limit', 'Hearing date'). Defaults to severity-based grouping.
+ * @returns {Array} - Tasks with groupKey, groupHeading, sortOrder, and severity properties added
  */
 function groupTasks(tasks, sortBy) {
-  // Get today's date at midnight
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  if (sortBy === 'Custody time limit' || sortBy === 'Hearing date') {
+    // Use date-based grouping
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-  // Determine which date field to use based on sort type
-  return tasks.map(task => {
-    let dateToUse = null
+    return tasks.map(task => {
+      let dateToUse = null
 
-    if (sortBy === 'Custody time limit') {
-      dateToUse = task.case?.soonestCTL
-    } else if (sortBy === 'Hearing date') {
-      dateToUse = task.case?.hearing?.date
-    } else {
-      // Default to 'Due date'
-      dateToUse = task.dueDate
-    }
+      if (sortBy === 'Custody time limit') {
+        dateToUse = task.case?.soonestCTL
+      } else if (sortBy === 'Hearing date') {
+        dateToUse = task.case?.hearing?.date
+      }
 
-    // Get the group key and heading
-    const groupKey = getDateGroup(dateToUse, today)
-    const groupHeading = getGroupHeading(groupKey, sortBy)
+      // Get the group key and heading
+      const groupKey = getDateGroup(dateToUse, today)
+      const groupHeading = getDateGroupHeading(groupKey, sortBy)
 
-    // Add group metadata to task
-    return {
-      ...task,
-      groupKey,
-      groupHeading
-    }
-  })
+      // Always calculate severity for filtering purposes
+      const severity = getTaskSeverity(task)
+      const sortOrder = getSeveritySortOrder(severity)
+
+      // Add group metadata to task
+      return {
+        ...task,
+        severity,
+        sortOrder,
+        groupKey,
+        groupHeading
+      }
+    })
+  } else {
+    // Use severity-based grouping (default for 'Due date')
+    return tasks.map(task => {
+      // Calculate task severity
+      const severity = getTaskSeverity(task);
+      const groupHeading = severity;
+      const sortOrder = getSeveritySortOrder(severity);
+
+      // Add group metadata to task
+      return {
+        ...task,
+        severity,
+        groupKey: severity,
+        groupHeading,
+        sortOrder
+      };
+    });
+  }
 }
 
 module.exports = {
+  getSeveritySortOrder,
   getDateGroup,
-  getGroupHeading,
+  getDateGroupHeading,
   groupTasks
-}
+};

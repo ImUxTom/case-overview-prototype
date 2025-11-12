@@ -20,21 +20,26 @@
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
-  
+
     <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">{{task.name}}</h1>
+      <h1 class="govuk-heading-l">
+        {{task.name}}
+        {{govukTag({ text: task.severity, classes: (task.severity | severityTagClass) })}}
+      </h1>
 
       <div class="govuk-button-group">
-        {{ govukButton({
-          text: "Start task"
-        }) }}
+        {% if task.type == 'Reminder' %}
+          <a href="/cases/{{_case.id}}/tasks/{{task.id}}/complete" class="govuk-button">Complete task</a>
+        {% else %}
+          <a href="#" class="govuk-button">Start task</a>
+        {% endif %}
         {{ govukButton({
           text: "Defer",
           classes: 'govuk-button--secondary'
         }) }}
         {{ govukButton({
-          text: "Reassign",
+          text: "Mark as urgent",
           classes: 'govuk-button--secondary'
         }) }}
       </div>
@@ -58,7 +63,15 @@
         rows: [
           {
             key: {
-              html: 'Defendant'
+              text: 'Severity'
+            },
+            value: {
+              html: govukTag({ text: task.severity, classes: (task.severity | severityTagClass) })
+            }
+          } if 1==2,
+          {
+            key: {
+              text: 'Defendant'
             },
             value: {
               html: defendantsValue
@@ -66,15 +79,31 @@
           },
           {
             key: {
-              html: 'Due date'
+              text: 'Reminder date'
             },
             value: {
-              html: task.dueDate | isoDateString | govukDateTime
+              html: (task.reminderDate | isoDateString | govukDateTime)
             }
           },
           {
             key: {
-              html: 'Custody time limit'
+              text: 'Due date'
+            },
+            value: {
+              html: (task.dueDate | isoDateString | govukDateTime)
+            }
+          },
+          {
+            key: {
+              text: 'Escalation date'
+            },
+            value: {
+              html: (task.escalationDate | isoDateString | govukDateTime)
+            }
+          },
+          {
+            key: {
+              text: 'Custody release date'
             },
             value: {
               html: (_case.soonestCTL | isoDateString | govukDateTime) + ' (' + (_case.soonestCTL | daysUntil) + ')'
@@ -86,6 +115,15 @@
             },
             value: {
               html: ownerValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "#",
+                  text: "Change",
+                  visuallyHiddenText: "Owner"
+                }
+              ]
             }
           },
           {
@@ -106,6 +144,13 @@
           }
         ]
       })}}
+
+      <h2 class="govuk-heading-m">Notes</h2>
+
+      {{ govukButton({
+        text: "Add note",
+        classes: 'govuk-button--secondary'
+      }) }}
 
     </div>
   </div>

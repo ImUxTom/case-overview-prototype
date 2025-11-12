@@ -124,6 +124,85 @@ function getTomorrowDate() {
   return d;
 }
 
+// Helper functions for generating task dates in different states
+function generatePendingTaskDates() {
+  // Pending: all dates in the future
+  const reminderDate = faker.date.soon({ days: 14 }); // 0-14 days from now
+  const daysUntilDue = faker.number.int({ min: 3, max: 7 });
+  const dueDate = new Date(reminderDate);
+  dueDate.setDate(dueDate.getDate() + daysUntilDue);
+
+  const daysUntilEscalation = faker.number.int({ min: 3, max: 7 });
+  const escalationDate = new Date(dueDate);
+  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
+
+  reminderDate.setUTCHours(23, 59, 59, 999);
+  dueDate.setUTCHours(23, 59, 59, 999);
+  escalationDate.setUTCHours(23, 59, 59, 999);
+
+  return { reminderDate, dueDate, escalationDate };
+}
+
+function generateDueTaskDates() {
+  // Due: reminder date has passed, due date in future
+  const daysAgo = faker.number.int({ min: 1, max: 3 });
+  const reminderDate = new Date();
+  reminderDate.setDate(reminderDate.getDate() - daysAgo);
+
+  const daysUntilDue = faker.number.int({ min: 2, max: 5 });
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + daysUntilDue);
+
+  const daysUntilEscalation = faker.number.int({ min: 3, max: 7 });
+  const escalationDate = new Date(dueDate);
+  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
+
+  reminderDate.setUTCHours(23, 59, 59, 999);
+  dueDate.setUTCHours(23, 59, 59, 999);
+  escalationDate.setUTCHours(23, 59, 59, 999);
+
+  return { reminderDate, dueDate, escalationDate };
+}
+
+function generateOverdueTaskDates() {
+  // Overdue: due date has passed, escalation date in future
+  const daysAgo = faker.number.int({ min: 2, max: 7 });
+  const reminderDate = new Date();
+  reminderDate.setDate(reminderDate.getDate() - daysAgo - 5);
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() - daysAgo);
+
+  const daysUntilEscalation = faker.number.int({ min: 2, max: 5 });
+  const escalationDate = new Date();
+  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
+
+  reminderDate.setUTCHours(23, 59, 59, 999);
+  dueDate.setUTCHours(23, 59, 59, 999);
+  escalationDate.setUTCHours(23, 59, 59, 999);
+
+  return { reminderDate, dueDate, escalationDate };
+}
+
+function generateEscalatedTaskDates() {
+  // Escalated: all dates have passed
+  const daysAgo = faker.number.int({ min: 3, max: 10 });
+  const reminderDate = new Date();
+  reminderDate.setDate(reminderDate.getDate() - daysAgo - 7);
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() - daysAgo - 3);
+
+  const escalationDate = new Date();
+  escalationDate.setDate(escalationDate.getDate() - daysAgo);
+
+  reminderDate.setUTCHours(23, 59, 59, 999);
+  dueDate.setUTCHours(23, 59, 59, 999);
+  escalationDate.setUTCHours(23, 59, 59, 999);
+
+  return { reminderDate, dueDate, escalationDate };
+}
+
 function generateCaseReference() {
   const twoDigits = faker.number.int({ min: 10, max: 99 });
   const twoLetters = faker.string.alpha({ count: 2, casing: "upper" });
@@ -501,13 +580,41 @@ async function main() {
         assignedToTeamId = faker.number.int({ min: unitTeamOffset + 1, max: unitTeamOffset + 4 });
       }
 
-      const dueDate = faker.date.future();
-      dueDate.setUTCHours(23, 59, 59, 999);
+      // Generate task dates based on random state
+      // 40% pending, 30% due, 20% overdue, 10% escalated
+      const stateType = faker.helpers.weightedArrayElement([
+        { weight: 40, value: 'pending' },
+        { weight: 30, value: 'due' },
+        { weight: 20, value: 'overdue' },
+        { weight: 10, value: 'escalated' }
+      ]);
+
+      let dates;
+      switch (stateType) {
+        case 'pending':
+          dates = generatePendingTaskDates();
+          break;
+        case 'due':
+          dates = generateDueTaskDates();
+          break;
+        case 'overdue':
+          dates = generateOverdueTaskDates();
+          break;
+        case 'escalated':
+          dates = generateEscalatedTaskDates();
+          break;
+      }
+
+      // 5% chance task is completed
+      const completedDate = faker.datatype.boolean({ probability: 0.05 }) ? faker.date.recent({ days: 30 }) : null;
 
       return {
         name,
         type: faker.helpers.arrayElement(taskTypes),
-        dueDate,
+        reminderDate: dates.reminderDate,
+        dueDate: dates.dueDate,
+        escalationDate: dates.escalationDate,
+        completedDate,
         assignedToUserId,
         assignedToTeamId,
       };
@@ -881,12 +988,20 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     // Pick a random case for these guaranteed tasks
     const targetCase = faker.helpers.arrayElement(userCases);
 
-    // Create 3 guaranteed tasks: overdue, today, tomorrow
+    // Create 4 guaranteed tasks in each state: pending, due, overdue, escalated
+    const pendingDates = generatePendingTaskDates();
+    const dueDates = generateDueTaskDates();
+    const overdueDates = generateOverdueTaskDates();
+    const escalatedDates = generateEscalatedTaskDates();
+
     const guaranteedTasks = [
       {
         name: faker.helpers.arrayElement(taskNames),
         type: faker.helpers.arrayElement(taskTypes),
-        dueDate: getOverdueDate(),
+        reminderDate: pendingDates.reminderDate,
+        dueDate: pendingDates.dueDate,
+        escalationDate: pendingDates.escalationDate,
+        completedDate: null,
         caseId: targetCase.id,
         assignedToUserId: user.id,
         assignedToTeamId: null,
@@ -894,7 +1009,10 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       {
         name: faker.helpers.arrayElement(taskNames),
         type: faker.helpers.arrayElement(taskTypes),
-        dueDate: getTodayDate(),
+        reminderDate: dueDates.reminderDate,
+        dueDate: dueDates.dueDate,
+        escalationDate: dueDates.escalationDate,
+        completedDate: null,
         caseId: targetCase.id,
         assignedToUserId: user.id,
         assignedToTeamId: null,
@@ -902,7 +1020,21 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       {
         name: faker.helpers.arrayElement(taskNames),
         type: faker.helpers.arrayElement(taskTypes),
-        dueDate: getTomorrowDate(),
+        reminderDate: overdueDates.reminderDate,
+        dueDate: overdueDates.dueDate,
+        escalationDate: overdueDates.escalationDate,
+        completedDate: null,
+        caseId: targetCase.id,
+        assignedToUserId: user.id,
+        assignedToTeamId: null,
+      },
+      {
+        name: faker.helpers.arrayElement(taskNames),
+        type: faker.helpers.arrayElement(taskTypes),
+        reminderDate: escalatedDates.reminderDate,
+        dueDate: escalatedDates.dueDate,
+        escalationDate: escalatedDates.escalationDate,
+        completedDate: null,
         caseId: targetCase.id,
         assignedToUserId: user.id,
         assignedToTeamId: null,
@@ -916,7 +1048,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     guaranteedTasksCreated += guaranteedTasks.length;
   }
 
-  console.log(`✅ Created ${guaranteedTasksCreated} guaranteed tasks (overdue, today, tomorrow) for ${usersExcludingTony.length} users`);
+  console.log(`✅ Created ${guaranteedTasksCreated} guaranteed tasks (pending, due, overdue, escalated) for ${usersExcludingTony.length} users`);
 
   // -------------------- Create Guaranteed CTL Charges for Testing --------------------
   // Ensure each user has cases with charges where CTL expires today and tomorrow
@@ -985,11 +1117,20 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     });
 
     // Create task for today's CTL
+    const todayCtlDueDate = getTodayDate();
+    const todayCtlReminderDate = new Date(todayCtlDueDate);
+    todayCtlReminderDate.setDate(todayCtlReminderDate.getDate() - 3);
+    const todayCtlEscalationDate = new Date(todayCtlDueDate);
+    todayCtlEscalationDate.setDate(todayCtlEscalationDate.getDate() + 2);
+
     await prisma.task.create({
       data: {
         name: "CTL expiry imminent",
         type: "Reminder",
-        dueDate: getTodayDate(),
+        reminderDate: todayCtlReminderDate,
+        dueDate: todayCtlDueDate,
+        escalationDate: todayCtlEscalationDate,
+        completedDate: null,
         caseId: caseForTodayCtl.id,
         assignedToUserId: user.id,
         assignedToTeamId: null,
@@ -1036,11 +1177,20 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     });
 
     // Create task for tomorrow's CTL
+    const tomorrowCtlDueDate = getTomorrowDate();
+    const tomorrowCtlReminderDate = new Date(tomorrowCtlDueDate);
+    tomorrowCtlReminderDate.setDate(tomorrowCtlReminderDate.getDate() - 3);
+    const tomorrowCtlEscalationDate = new Date(tomorrowCtlDueDate);
+    tomorrowCtlEscalationDate.setDate(tomorrowCtlEscalationDate.getDate() + 2);
+
     await prisma.task.create({
       data: {
         name: "CTL expiry imminent",
         type: "Reminder",
-        dueDate: getTomorrowDate(),
+        reminderDate: tomorrowCtlReminderDate,
+        dueDate: tomorrowCtlDueDate,
+        escalationDate: tomorrowCtlEscalationDate,
+        completedDate: null,
         caseId: caseForTomorrowCtl.id,
         assignedToUserId: user.id,
         assignedToTeamId: null,

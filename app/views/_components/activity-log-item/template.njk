@@ -185,5 +185,35 @@
         <a class="govuk-link" href="/cases/{{ params.event.case.id }}/notes/{{ params.event.recordId }}">View note</a>
       </p>
     {% endif %}
+
+    {% if params.event.title == 'Task completed' %}
+      <div class="app-activity-log__box">
+        {% set taskRows = [] %}
+
+        {% set taskRows = (taskRows.push({
+          key: { text: 'Task' },
+          value: { text: params.event.meta.task.name }
+        }), taskRows) %}
+
+        {% if params.event.meta.assignedToUser %}
+          {% set taskRows = (taskRows.push({
+            key: { text: 'Owner' },
+            value: { text: params.event.meta.assignedToUser.firstName + ' ' + params.event.meta.assignedToUser.lastName }
+          }), taskRows) %}
+        {% elif params.event.meta.assignedToTeam %}
+          {% set taskRows = (taskRows.push({
+            key: { text: 'Owner' },
+            value: { text: params.event.meta.assignedToTeam.name + ' (' + params.event.meta.assignedToTeam.unit.name + ')' }
+          }), taskRows) %}
+        {% endif %}
+
+        {{ govukSummaryList({
+          rows: taskRows
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
+      </p>
+    {% endif %}
   </div>
 </div>

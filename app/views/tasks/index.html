@@ -31,6 +31,11 @@
             <div class="app-list__item">
                 <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
                   <a href="/cases/{{task.case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
+
+                  <div class="app-list__tag">
+                    {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}}
+                  </div>
+
                 </h3>
 
                 {% set defendantsValue %}
@@ -53,15 +58,15 @@
                   rows: [
                     {
                       key: {
-                        html: 'Case reference number'
+                        text: 'Case reference number'
                       },
                       value: {
-                        html: task.case.reference
+                        text: task.case.reference
                       }
                     },
                     {
                       key: {
-                        html: 'Defendant'
+                        text: 'Defendant'
                       },
                       value: {
                         html: defendantsValue
@@ -69,15 +74,31 @@
                     },
                     {
                       key: {
-                        html: 'Due date'
+                        text: 'Reminder date'
                       },
                       value: {
-                        html: (task.dueDate | isoDateString | govukDateTime) + ' (' + (task.dueDate | daysUntil) + ')'
+                        html: (task.reminderDate | isoDateString | govukDateTime)
                       }
                     },
                     {
                       key: {
-                        html: 'Custody time limit'
+                        text: 'Due date'
+                      },
+                      value: {
+                        html: (task.dueDate | isoDateString | govukDateTime)
+                      }
+                    },
+                    {
+                      key: {
+                        text: 'Escalation date'
+                      },
+                      value: {
+                        html: (task.escalationDate | isoDateString | govukDateTime)
+                      }
+                    },
+                    {
+                      key: {
+                        text: 'Custody release date'
                       },
                       value: {
                         html: (task.case.soonestCTL | isoDateString | govukDateTime) + ' (' + (task.case.soonestCTL | daysUntil) + ')'
@@ -106,7 +127,7 @@
                       value: {
                         html: task.type
                       }
-                    }                                     
+                    }
                   ]
                 })}}
 

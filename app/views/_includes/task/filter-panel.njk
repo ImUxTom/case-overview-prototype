@@ -27,6 +27,20 @@
   }) }}
 
   {{ govukCheckboxes({
+    idPrefix: "taskListFilters[severities]",
+    name: "taskListFilters[severities]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "Severity",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: severityItems,
+    values: selectedSeverityFilters
+  }) }}
+
+  {{ govukCheckboxes({
     idPrefix: "taskListFilters[taskTypes]",
     name: "taskListFilters[taskTypes]",
     classes: "govuk-checkboxes--small",
