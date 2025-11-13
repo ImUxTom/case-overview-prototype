@@ -34,6 +34,7 @@
 
                   <div class="app-list__tag">
                     {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}}
+                    {# {{ govukTag({ text: 'Urgent', classes: 'govuk-tag--purple' })}} #}
                   </div>
 
                 </h3>
@@ -122,12 +123,20 @@
                     },
                     {
                       key: {
+                        html: 'Note'
+                      },
+                      value: {
+                        html: 'The latest note goes here'
+                      }
+                    },
+                    {
+                      key: {
                         html: 'Task type'
                       },
                       value: {
                         html: task.type
                       }
-                    }
+                     } if 1==2
                   ]
                 })}}
 
