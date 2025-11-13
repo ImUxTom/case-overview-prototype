@@ -11,7 +11,7 @@
         {{ pageName }}
       </h1>
 
-      <div class="app-overview-cards">
+      <div class="app-overview-cards govuk-!-margin-bottom-9">
         <a href="/cases/shortcut/unassigned" class="app-overview-card app-overview-card--green">
           <span class="app-overview-card__count">{{unassignedCaseCount}}</span>
           <span class="app-overview-card__status">
@@ -37,6 +37,70 @@
           </span>
         </a> #}
       </div>
+
+      {% if escalatedTaskCount + overdueTaskCount + dueTaskCount + pendingTaskCount > 0 %}
+        <h2 class="govuk-heading-m">
+          Tasks
+        </h2>
+
+        <div class="app-overview-cards">
+          {% if escalatedTaskCount > 0 %}
+            <a href="/tasks?taskListFilters[severities][]=Escalated" class="app-overview-card app-overview-card--red">
+              <span class="app-overview-card__count">{{escalatedTaskCount}}</span>
+              <span class="app-overview-card__status">
+                escalated
+                {% if escalatedTaskCount == 1 %}
+                  task
+                {% else %}
+                  tasks
+                {% endif %}
+              </span>
+            </a>
+          {% endif %}
+
+          {% if overdueTaskCount > 0 %}
+            <a href="/tasks?taskListFilters[severities][]=Overdue" class="app-overview-card app-overview-card--orange">
+              <span class="app-overview-card__count">{{overdueTaskCount}}</span>
+              <span class="app-overview-card__status">
+                overdue
+                {% if overdueTaskCount == 1 %}
+                  task
+                {% else %}
+                  tasks
+                {% endif %}
+              </span>
+            </a>
+          {% endif %}
+
+          {% if dueTaskCount > 0 %}
+            <a href="/tasks?taskListFilters[severities][]=Due" class="app-overview-card app-overview-card--yellow">
+              <span class="app-overview-card__count">{{dueTaskCount}}</span>
+              <span class="app-overview-card__status">
+                due
+                {% if dueTaskCount == 1 %}
+                  task
+                {% else %}
+                  tasks
+                {% endif %}
+              </span>
+            </a>
+          {% endif %}
+
+          {% if pendingTaskCount > 0 %}
+            <a href="/tasks?taskListFilters[severities][]=Pending" class="app-overview-card app-overview-card--blue">
+              <span class="app-overview-card__count">{{pendingTaskCount}}</span>
+              <span class="app-overview-card__status">
+                pending
+                {% if pendingTaskCount == 1 %}
+                  task
+                {% else %}
+                  tasks
+                {% endif %}
+              </span>
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
 
     </div>
   </div>

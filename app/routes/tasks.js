@@ -340,10 +340,10 @@ module.exports = router => {
 
     // Severity items
     let severityItems = [
-      { text: 'Pending', value: 'Pending' },
-      { text: 'Due', value: 'Due' },
+      { text: 'Not due yet', value: 'Pending' },
+      { text: 'Due soon', value: 'Due' },
       { text: 'Overdue', value: 'Overdue' },
-      { text: 'Escalated', value: 'Escalated' }
+      { text: 'Critically overdue', value: 'Escalated' }
     ]
 
     // Handle sorting
