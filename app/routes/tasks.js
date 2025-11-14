@@ -41,6 +41,12 @@ module.exports = router => {
     res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Not due yet`)
   })
 
+  router.get('/tasks/shortcut/urgent', (req, res) => {
+    const currentUser = req.session.data.user
+    resetFilters(req)
+    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[urgent][]=Urgent`)
+  })
+
   router.get("/tasks", async (req, res) => {
     const currentUser = req.session.data.user
 

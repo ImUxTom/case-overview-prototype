@@ -24,6 +24,35 @@
           </span>
         </a>
 
+        {% if incompleteProfileCount > 0 %}
+          <a href="/prosecutors" class="app-overview-card app-overview-card--yellow">
+            <span class="app-overview-card__count">{{incompleteProfileCount}}</span>
+            <span class="app-overview-card__status">
+              prosecutor
+              {% if incompleteProfileCount == 1 %}
+                profile
+              {% else %}
+                profiles
+              {% endif %}
+              incomplete
+            </span>
+          </a>
+        {% endif %}
+
+        {% if urgentTaskCount > 0 %}
+          <a href="/tasks/shortcut/urgent" class="app-overview-card app-overview-card--red">
+            <span class="app-overview-card__count">{{urgentTaskCount}}</span>
+            <span class="app-overview-card__status">
+              urgent
+              {% if urgentTaskCount == 1 %}
+                task
+              {% else %}
+                tasks
+              {% endif %}
+            </span>
+          </a>
+        {% endif %}
+
         {# <a href="/cases/shortcut/dga" class="app-overview-card app-overview-card--yellow">
           <span class="app-overview-card__count">{{needsDGAReviewCount}}</span>
           <span class="app-overview-card__status">
@@ -38,7 +67,7 @@
         </a> #}
       </div>
 
-      {% if criticallyOverdueTaskCount + overdueTaskCount + dueSoonTaskCount + notDueYetTaskCount > 0 %}
+{# {% if criticallyOverdueTaskCount + overdueTaskCount + dueSoonTaskCount + notDueYetTaskCount > 0 %}
         <h2 class="govuk-heading-m">
           Tasks
         </h2>
@@ -100,7 +129,7 @@
             </a>
           {% endif %}
         </div>
-      {% endif %}
+      {% endif %} #}
 
     </div>
   </div>

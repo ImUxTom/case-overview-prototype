@@ -17,11 +17,38 @@ module.exports = router => {
       }
     })
 
+    // Count prosecutors with incomplete profiles (no specialist, preferred, or restricted areas)
+    const allLawyers = await prisma.lawyer.findMany({
+      include: {
+        specialistAreas: true,
+        preferredAreas: true,
+        restrictedAreas: true
+      }
+    })
+
+    const incompleteProfileCount = allLawyers.filter(lawyer =>
+      lawyer.specialistAreas.length === 0 &&
+      lawyer.preferredAreas.length === 0 &&
+      lawyer.restrictedAreas.length === 0
+    ).length
+
     const needsDGAReviewCount = await prisma.case.count({
       where: {
         dga: {
           outcome: null
         }
+      }
+    })
+
+    // Count urgent tasks assigned to current user
+    const urgentTaskCount = await prisma.task.count({
+      where: {
+        AND: [
+          { completedDate: null },
+          { assignedToUserId: currentUser.id },
+          { case: { unitId: { in: userUnitIds } } },
+          { isUrgent: true }
+        ]
       }
     })
 
@@ -53,7 +80,9 @@ module.exports = router => {
 
     res.render('overview/index', {
       unassignedCaseCount,
+      incompleteProfileCount,
       needsDGAReviewCount,
+      urgentTaskCount,
       criticallyOverdueTaskCount: tasksBySeverity['Critically overdue'].length,
       overdueTaskCount: tasksBySeverity['Overdue'].length,
       dueSoonTaskCount: tasksBySeverity['Due soon'].length,
