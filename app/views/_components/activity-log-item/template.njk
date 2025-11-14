@@ -215,5 +215,34 @@
         <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
       </p>
     {% endif %}
+
+    {% if params.event.title == 'Task marked as urgent' %}
+      <div class="app-activity-log__box">
+        {% set urgentTaskRows = [] %}
+
+        {% set urgentTaskRows = (urgentTaskRows.push({
+          key: { text: 'Task' },
+          value: { text: params.event.meta.task.name }
+        }), urgentTaskRows) %}
+
+        {% set urgentTaskRows = (urgentTaskRows.push({
+          key: { text: 'Reason' },
+          value: { text: params.event.meta.urgentNote }
+        }), urgentTaskRows) %}
+
+        {{ govukSummaryList({
+          rows: urgentTaskRows
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.title == 'Task marked as not urgent' %}
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
+      </p>
+    {% endif %}
   </div>
 </div>

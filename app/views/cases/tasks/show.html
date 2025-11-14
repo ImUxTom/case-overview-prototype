@@ -25,7 +25,10 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">
         {{task.name}}
-        {{govukTag({ text: task.severity, classes: (task.severity | severityTagClass) })}}
+        {% if task.isUrgent %}
+          {{govukTag({ text: 'Urgent', classes: 'govuk-tag--purple' })}}
+        {% endif %}
+        {# {{govukTag({ text: task.severity, classes: (task.severity | severityTagClass) })}} #}
       </h1>
 
       <div class="govuk-button-group">
@@ -38,10 +41,9 @@
           text: "Defer",
           classes: 'govuk-button--secondary'
         }) }}
-        {{ govukButton({
-          text: "Mark as urgent",
-          classes: 'govuk-button--secondary'
-        }) }}
+        <a href="{% if task.isUrgent %}/cases/{{_case.id}}/tasks/{{task.id}}/mark-as-not-urgent{% else %}/cases/{{_case.id}}/tasks/{{task.id}}/mark-as-urgent{% endif %}" class="govuk-button govuk-button--secondary">
+          {% if task.isUrgent %}Mark as not urgent{% else %}Mark as urgent{% endif %}
+        </a>
       </div>
 
       {% set defendantsValue %}
@@ -56,6 +58,15 @@
           {{task.assignedToUser.firstName}} {{task.assignedToUser.lastName}}
         {% elif task.assignedToTeam %}
           {{task.assignedToTeam.name}} ({{task.assignedToTeam.unit.name}})
+        {% endif %}
+      {% endset %}
+
+      {% set dueDateValue %}
+        {{ task.dueDate | isoDateString | govukDateTime }}
+        {% if task.severity == 'Overdue' or task.severity == 'Critically overdue' %}
+          ({{ task.severity | lower }})
+        {% else %}
+          ({{ task.dueDate | daysUntil }})
         {% endif %}
       {% endset %}
 
@@ -84,13 +95,13 @@
             value: {
               html: (task.reminderDate | isoDateString | govukDateTime)
             }
-          },
+          } if 1==2,
           {
             key: {
               text: 'Due date'
             },
             value: {
-              html: (task.dueDate | isoDateString | govukDateTime)
+              html: dueDateValue
             }
           },
           {
@@ -100,7 +111,7 @@
             value: {
               html: (task.escalationDate | isoDateString | govukDateTime)
             }
-          },
+          } if 1==2,
           {
             key: {
               text: 'Custody time limit'

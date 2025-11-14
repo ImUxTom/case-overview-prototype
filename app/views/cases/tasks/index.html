@@ -24,8 +24,11 @@
                 <a href="/cases/{{_case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
 
                 <div class="app-list__tag">
-                    {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}}
-                  </div>
+                  {# {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}} #}
+                  {% if task.isUrgent %}
+                    {{ govukTag({ text: 'Urgent', classes: 'govuk-tag--purple govuk-!-margin-left-' })}}
+                  {% endif %}
+                </div>
               </h3>
 
               {% set ownerValue %}
@@ -33,6 +36,15 @@
                   {{task.assignedToUser.firstName}} {{task.assignedToUser.lastName}}
                 {% elif task.assignedToTeam %}
                   {{task.assignedToTeam.name}} ({{task.assignedToTeam.unit.name}})
+                {% endif %}
+              {% endset %}
+
+              {% set dueDateValue %}
+                {{ task.dueDate | isoDateString | govukDateTime }}
+                {% if task.severity == 'Overdue' or task.severity == 'Critically overdue' %}
+                  ({{ task.severity | lower }})
+                {% else %}
+                  ({{ task.dueDate | daysUntil }})
                 {% endif %}
               {% endset %}
 
@@ -52,7 +64,7 @@
                       text: 'Due date'
                     },
                     value: {
-                      html: (task.dueDate | isoDateString | govukDateTime)
+                      html: dueDateValue
                     }
                   },
                   {

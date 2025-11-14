@@ -608,6 +608,17 @@ async function main() {
       // 5% chance task is completed
       const completedDate = faker.datatype.boolean({ probability: 0.05 }) ? faker.date.recent({ days: 30 }) : null;
 
+      // 30% chance task is urgent
+      const isUrgent = faker.datatype.boolean({ probability: 0.30 });
+      const urgentNote = isUrgent ? faker.helpers.arrayElement([
+        'This task requires immediate attention due to upcoming court hearing.',
+        'Defendant is in custody and custody time limit is approaching.',
+        'Critical evidence needs to be reviewed urgently.',
+        'Urgent request from senior prosecutor.',
+        'Time-sensitive matter requiring immediate action.',
+        'Witness availability is limited and needs urgent contact.'
+      ]) : null;
+
       return {
         name,
         type: faker.helpers.arrayElement(taskTypes),
@@ -615,6 +626,8 @@ async function main() {
         dueDate: dates.dueDate,
         escalationDate: dates.escalationDate,
         completedDate,
+        isUrgent,
+        urgentNote,
         assignedToUserId,
         assignedToTeamId,
       };

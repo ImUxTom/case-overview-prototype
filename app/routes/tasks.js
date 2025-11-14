@@ -12,6 +12,7 @@ function resetFilters(req) {
   _.set(req, 'session.data.taskListFilters.units', null)
   _.set(req, 'session.data.taskListFilters.taskNames', null)
   _.set(req, 'session.data.taskListFilters.severities', null)
+  _.set(req, 'session.data.taskListFilters.urgent', null)
 }
 
 module.exports = router => {
@@ -65,6 +66,7 @@ module.exports = router => {
     let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'units', [])
     let selectedTaskNameFilters = _.get(req.session.data.taskListFilters, 'taskNames', [])
     let selectedSeverityFilters = _.get(req.session.data.taskListFilters, 'severities', [])
+    let selectedUrgentFilters = _.get(req.session.data.taskListFilters, 'urgent', [])
 
     let selectedFilters = { categories: [] }
 
@@ -73,6 +75,7 @@ module.exports = router => {
     let selectedTaskTypeItems = []
     let selectedTaskNameItems = []
     let selectedSeverityItems = []
+    let selectedUrgentItems = []
 
     // Owner filter display
     if (selectedOwnerFilters?.length) {
@@ -182,6 +185,18 @@ module.exports = router => {
       })
     }
 
+    // Urgent filter display
+    if (selectedUrgentFilters?.length) {
+      selectedUrgentItems = selectedUrgentFilters.map(function(urgent) {
+        return { text: urgent, href: '/tasks/remove-urgent/' + encodeURIComponent(urgent) }
+      })
+
+      selectedFilters.categories.push({
+        heading: { text: 'Urgent' },
+        items: selectedUrgentItems
+      })
+    }
+
     // Build Prisma where clause
     let where = { AND: [] }
 
@@ -230,6 +245,20 @@ module.exports = router => {
 
     if (selectedTaskNameFilters?.length) {
       where.AND.push({ name: { in: selectedTaskNameFilters } })
+    }
+
+    // Urgent filter
+    if (selectedUrgentFilters?.length) {
+      const urgentConditions = []
+      if (selectedUrgentFilters.includes('Urgent')) {
+        urgentConditions.push({ isUrgent: true })
+      }
+      if (selectedUrgentFilters.includes('Not urgent')) {
+        urgentConditions.push({ isUrgent: false })
+      }
+      if (urgentConditions.length) {
+        where.AND.push({ OR: urgentConditions })
+      }
     }
 
     if (where.AND.length === 0) {
@@ -370,6 +399,12 @@ module.exports = router => {
       { text: 'Critically overdue', value: 'Critically overdue' }
     ]
 
+    // Urgent items
+    let urgentItems = [
+      { text: 'Urgent', value: 'Urgent' },
+      { text: 'Not urgent', value: 'Not urgent' }
+    ]
+
     // Handle sorting
     const sortBy = _.get(req.session.data, 'taskSort', 'Due date')
 
@@ -430,6 +465,9 @@ module.exports = router => {
       severityItems,
       selectedSeverityFilters,
       selectedSeverityItems,
+      urgentItems,
+      selectedUrgentFilters,
+      selectedUrgentItems,
       taskTypeItems,
       selectedTaskTypeFilters,
       selectedTaskTypeItems,
@@ -469,6 +507,23 @@ module.exports = router => {
     const currentFilters = _.get(req, 'session.data.taskListFilters.severities', [])
     const severity = decodeURIComponent(req.params.severity)
     _.set(req, 'session.data.taskListFilters.severities', _.pull(currentFilters, severity))
+    res.redirect('/tasks')
+  })
+
+  router.get('/tasks/add-urgent/:urgent', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.taskListFilters.urgent', [])
+    const urgent = decodeURIComponent(req.params.urgent)
+    if (!currentFilters.includes(urgent)) {
+      currentFilters.push(urgent)
+    }
+    _.set(req, 'session.data.taskListFilters.urgent', currentFilters)
+    res.redirect('/tasks')
+  })
+
+  router.get('/tasks/remove-urgent/:urgent', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.taskListFilters.urgent', [])
+    const urgent = decodeURIComponent(req.params.urgent)
+    _.set(req, 'session.data.taskListFilters.urgent', _.pull(currentFilters, urgent))
     res.redirect('/tasks')
   })
 
