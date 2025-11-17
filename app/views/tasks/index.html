@@ -29,8 +29,16 @@
               <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-0">{{task.groupHeading}}</h2>
             {% endif %}
             <div class="app-list__item">
+                {% set taskNameDisplay %}
+                  {% if task.name.length > 125 %}
+                    {{ task.name | truncate(125) }}
+                  {% else %}
+                    {{ task.name }}
+                  {% endif %}
+                {% endset %}
+
                 <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
-                  <a href="/cases/{{task.case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
+                  <a href="/cases/{{task.case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{ taskNameDisplay | trim }}</a>
 
                   <div class="app-list__tag">
                     {# {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}} #}

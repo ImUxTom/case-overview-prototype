@@ -20,8 +20,16 @@
         <div class="app-list">
           {% for task in _case.tasks %}
           <div class="app-list__item">
+              {% set taskNameDisplay %}
+                {% if task.name.length > 100 %}
+                  {{ task.name | truncate(100) }}
+                {% else %}
+                  {{ task.name }}
+                {% endif %}
+              {% endset %}
+
               <h3 class="govuk-heading-s govuk-!-margin-bottom-1">
-                <a href="/cases/{{_case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{task.name}}</a>
+                <a href="/cases/{{_case.id}}/tasks/{{task.id}}" class="govuk-link--no-visited-state">{{ taskNameDisplay | trim }}</a>
 
                 <div class="app-list__tag">
                   {# {{ govukTag({ text: task.severity, classes: task.severity | severityTagClass })}} #}
@@ -51,6 +59,14 @@
               {{ govukSummaryList({
                 classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
                 rows: [
+                  {
+                    key: {
+                      text: 'Task'
+                    },
+                    value: {
+                      text: task.name
+                    }
+                  } if task.name.length > 100,
                   {
                     key: {
                       text: 'Reminder date'

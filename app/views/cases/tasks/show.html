@@ -23,8 +23,16 @@
 
     <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      {% set taskNameDisplay %}
+        {% if task.name.length > 100 %}
+          {{ task.name | truncate(100) }}
+        {% else %}
+          {{ task.name }}
+        {% endif %}
+      {% endset %}
+
       <h1 class="govuk-heading-l">
-        {{task.name}}
+        {{ taskNameDisplay | trim }}
         {% if task.isUrgent %}
           {{govukTag({ text: 'Urgent', classes: 'govuk-tag--red' })}}
         {% endif %}
@@ -32,11 +40,7 @@
       </h1>
 
       <div class="govuk-button-group">
-        {% if task.type == 'Reminder' %}
-          <a href="/cases/{{_case.id}}/tasks/{{task.id}}/complete" class="govuk-button">Complete task</a>
-        {% else %}
-          <a href="#" class="govuk-button">Start task</a>
-        {% endif %}
+        <a href="/cases/{{_case.id}}/tasks/{{task.id}}/complete" class="govuk-button">Complete task</a>
         {{ govukButton({
           text: "Defer",
           classes: 'govuk-button--secondary'
@@ -72,6 +76,14 @@
 
       {{ govukSummaryList({
         rows: [
+          {
+            key: {
+              text: 'Details'
+            },
+            value: {
+              text: task.name
+            }
+          } if task.name.length > 100,
           {
             key: {
               text: 'Severity'

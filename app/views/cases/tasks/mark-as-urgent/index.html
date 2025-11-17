@@ -14,13 +14,17 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <span class="govuk-caption-l">{{_case.reference}} - {{task.name}}</span>
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {% set taskHtml %}
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-1">Task</h2>
+        <p>{{task.name}}</p>
+      {% endset %}
+      {{ govukInsetText({
+        html: taskHtml
+      }) }}
+
       <form method="post">
-        {% if errorList %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: errorList
-          }) }}
-        {% endif %}
 
         {{ govukCharacterCount({
           name: "urgentNote",
@@ -28,8 +32,7 @@
           maxlength: 5000,
           label: {
             text: pageName,
-            isPageHeading: true,
-            classes: "govuk-label--l"
+            classes: "govuk-label--m"
           },
           value: urgentNote,
           errorMessage: errors[0] if errors else undefined

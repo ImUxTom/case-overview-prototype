@@ -13,8 +13,17 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{_case.reference}} - {{task.name}}</span>
+      <span class="govuk-caption-l">{{_case.reference}}</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {% set taskHtml %}
+        <h2 class="govuk-heading-s govuk-!-margin-bottom-1">Task</h2>
+        <p>{{task.name}}</p>
+      {% endset %}
+      {{ govukInsetText({
+        html: taskHtml
+      }) }}
+
 
       <form method="post">
         {{ govukButton({

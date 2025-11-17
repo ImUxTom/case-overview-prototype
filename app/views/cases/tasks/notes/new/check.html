@@ -14,11 +14,19 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
 
-      <span class="govuk-caption-l">{{_case.reference}} - {{task.name}}</span>
+      <span class="govuk-caption-l">{{_case.reference}}</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
       {{ govukSummaryList({
         rows: [
+          {
+            key: {
+              text: "Task"
+            },
+            value: {
+              text: task.name
+            }
+          },
           {
             key: {
               text: "Note"

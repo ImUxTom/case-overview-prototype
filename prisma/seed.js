@@ -5,7 +5,6 @@ const complexities = require("../app/data/complexities.js");
 const firstNames = require("../app/data/first-names.js");
 const lastNames = require("../app/data/last-names.js");
 const types = require("../app/data/types.js");
-const taskTypes = require("../app/data/task-types.js");
 const taskNames = require("../app/data/task-names.js");
 const documentTypes = require("../app/data/document-types.js");
 const specialisms = require("../app/data/specialisms.js");
@@ -232,6 +231,32 @@ const taskNoteDescriptions = [
   "Timeline needs updating",
   "Case file being prepared",
   "Custody time limit noted"
+];
+
+const manualTaskNamesShort = [
+  "Follow up with witness",
+  "Review new evidence",
+  "Contact defence solicitor",
+  "Check court availability",
+  "Update case file",
+  "Prepare hearing bundle",
+  "Consult with senior prosecutor",
+  "Review forensic report",
+  "Schedule case conference",
+  "Update victim on progress",
+  "Check disclosure obligations",
+  "Prepare cross examination",
+  "Review CCTV footage",
+  "Contact expert witness",
+  "Draft legal submissions"
+];
+
+const manualTaskNamesLong = [
+  "Review and analyze all witness statements to identify any inconsistencies or gaps in evidence that need to be addressed before the next hearing",
+  "Coordinate with the investigating officer to obtain additional forensic evidence and ensure all exhibits are properly catalogued and available for court",
+  "Prepare comprehensive legal submissions addressing the admissibility of the disputed evidence and research relevant case law to support the prosecution position",
+  "Conduct a full review of all disclosure material to ensure compliance with CPIA requirements and identify any material that may undermine the case or assist the defence",
+  "Arrange and prepare for a case conference with counsel to discuss trial strategy, potential witnesses, and any legal issues that may arise during proceedings"
 ];
 
 async function main() {
@@ -579,11 +604,27 @@ async function main() {
 
     const caseUnitId = faker.number.int({ min: 1, max: 18 });
 
-    // Pick between 0 and 5 unique task names
-    const numTasks = faker.number.int({ min: 0, max: 5 });
-    const chosenTaskNames = faker.helpers.arrayElements(taskNames, numTasks);
+    // Pick between 0 and 5 unique standard task names
+    const numStandardTasks = faker.number.int({ min: 0, max: 5 });
+    const chosenTaskNames = faker.helpers.arrayElements(taskNames, numStandardTasks);
 
-    const tasksData = chosenTaskNames.map((name) => {
+    // Add 0 to 3 manual tasks
+    const numManualTasks = faker.number.int({ min: 0, max: 3 });
+    const manualTasks = [];
+    for (let m = 0; m < numManualTasks; m++) {
+      // 25% chance of long name, 75% chance of short name
+      const useLongName = faker.datatype.boolean({ probability: 0.25 });
+      const manualTaskName = useLongName
+        ? faker.helpers.arrayElement(manualTaskNamesLong)
+        : faker.helpers.arrayElement(manualTaskNamesShort);
+      manualTasks.push(manualTaskName);
+    }
+
+    const allTaskNames = [...chosenTaskNames, ...manualTasks];
+
+    const tasksData = allTaskNames.map((name, index) => {
+      const isManual = index >= chosenTaskNames.length;
+
       // 75% assigned to users, 25% assigned to teams
       const assignmentType = faker.helpers.weightedArrayElement([
         { weight: 75, value: 'user' },
@@ -644,7 +685,7 @@ async function main() {
 
       return {
         name,
-        type: faker.helpers.arrayElement(taskTypes),
+        isManual,
         reminderDate: dates.reminderDate,
         dueDate: dates.dueDate,
         escalationDate: dates.escalationDate,
@@ -1066,7 +1107,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     const guaranteedTasks = [
       {
         name: faker.helpers.arrayElement(taskNames),
-        type: faker.helpers.arrayElement(taskTypes),
+        isManual: false,
         reminderDate: pendingDates.reminderDate,
         dueDate: pendingDates.dueDate,
         escalationDate: pendingDates.escalationDate,
@@ -1077,7 +1118,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       },
       {
         name: faker.helpers.arrayElement(taskNames),
-        type: faker.helpers.arrayElement(taskTypes),
+        isManual: false,
         reminderDate: dueDates.reminderDate,
         dueDate: dueDates.dueDate,
         escalationDate: dueDates.escalationDate,
@@ -1088,7 +1129,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       },
       {
         name: faker.helpers.arrayElement(taskNames),
-        type: faker.helpers.arrayElement(taskTypes),
+        isManual: false,
         reminderDate: overdueDates.reminderDate,
         dueDate: overdueDates.dueDate,
         escalationDate: overdueDates.escalationDate,
@@ -1099,7 +1140,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       },
       {
         name: faker.helpers.arrayElement(taskNames),
-        type: faker.helpers.arrayElement(taskTypes),
+        isManual: false,
         reminderDate: escalatedDates.reminderDate,
         dueDate: escalatedDates.dueDate,
         escalationDate: escalatedDates.escalationDate,
@@ -1195,7 +1236,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     await prisma.task.create({
       data: {
         name: "CTL expiry imminent",
-        type: "Reminder",
+        isManual: false,
         reminderDate: todayCtlReminderDate,
         dueDate: todayCtlDueDate,
         escalationDate: todayCtlEscalationDate,
@@ -1255,7 +1296,7 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     await prisma.task.create({
       data: {
         name: "CTL expiry imminent",
-        type: "Reminder",
+        isManual: false,
         reminderDate: tomorrowCtlReminderDate,
         dueDate: tomorrowCtlDueDate,
         escalationDate: tomorrowCtlEscalationDate,

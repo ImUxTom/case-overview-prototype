@@ -3,11 +3,9 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const Pagination = require('../helpers/pagination')
 const { groupTasks } = require('../helpers/taskGrouping')
-const taskTypes = require('../data/task-types')
 const taskNames = require('../data/task-names')
 
 function resetFilters(req) {
-  _.set(req, 'session.data.taskListFilters.taskTypes', null)
   _.set(req, 'session.data.taskListFilters.owner', null)
   _.set(req, 'session.data.taskListFilters.units', null)
   _.set(req, 'session.data.taskListFilters.taskNames', null)
@@ -68,7 +66,6 @@ module.exports = router => {
     }
 
     let selectedOwnerFilters = _.get(req.session.data.taskListFilters, 'owner', [])
-    let selectedTaskTypeFilters = _.get(req.session.data.taskListFilters, 'taskTypes', [])
     let selectedUnitFilters = _.get(req.session.data.taskListFilters, 'units', [])
     let selectedTaskNameFilters = _.get(req.session.data.taskListFilters, 'taskNames', [])
     let selectedSeverityFilters = _.get(req.session.data.taskListFilters, 'severities', [])
@@ -78,7 +75,6 @@ module.exports = router => {
 
     let selectedOwnerItems = []
     let selectedUnitItems = []
-    let selectedTaskTypeItems = []
     let selectedTaskNameItems = []
     let selectedSeverityItems = []
     let selectedUrgentItems = []
@@ -155,18 +151,6 @@ module.exports = router => {
       selectedFilters.categories.push({ heading: { text: 'Unit' }, items: selectedUnitItems })
     }
 
-    // Task type filter display
-    if (selectedTaskTypeFilters?.length) {
-      selectedTaskTypeItems = selectedTaskTypeFilters.map(function(label) {
-        return { text: label, href: '/tasks/remove-type/' + label }
-      })
-
-      selectedFilters.categories.push({
-        heading: { text: 'Task type' },
-        items: selectedTaskTypeItems
-      })
-    }
-
     // Task name filter display
     if (selectedTaskNameFilters?.length) {
       selectedTaskNameItems = selectedTaskNameFilters.map(function(taskName) {
@@ -238,10 +222,6 @@ module.exports = router => {
       if (ownerConditions.length) {
         where.AND.push({ OR: ownerConditions })
       }
-    }
-
-    if (selectedTaskTypeFilters?.length) {
-      where.AND.push({ type: { in: selectedTaskTypeFilters } })
     }
 
     if (selectedUnitFilters?.length) {
@@ -393,11 +373,6 @@ module.exports = router => {
       value: `${unit.id}`
     }))
 
-    let taskTypeItems = taskTypes.map(taskType => ({
-      text: taskType,
-      value: taskType
-    }))
-
     let taskNameItems = taskNames.map(taskName => ({
       text: taskName,
       value: taskName
@@ -480,9 +455,6 @@ module.exports = router => {
       urgentItems,
       selectedUrgentFilters,
       selectedUrgentItems,
-      taskTypeItems,
-      selectedTaskTypeFilters,
-      selectedTaskTypeItems,
       taskNameItems,
       selectedTaskNameFilters,
       selectedTaskNameItems,
@@ -493,12 +465,6 @@ module.exports = router => {
   router.get('/tasks/remove-owner/:filter', (req, res) => {
     const currentFilters = _.get(req, 'session.data.taskListFilters.owner', [])
     _.set(req, 'session.data.taskListFilters.owner', _.pull(currentFilters, req.params.filter))
-    res.redirect('/tasks')
-  })
-
-  router.get('/tasks/remove-type/:type', (req, res) => {
-    const currentFilters = _.get(req, 'session.data.taskListFilters.taskTypes', [])
-    _.set(req, 'session.data.taskListFilters.taskTypes', _.pull(currentFilters, req.params.type))
     res.redirect('/tasks')
   })
 
