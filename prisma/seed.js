@@ -410,6 +410,16 @@ async function main() {
   }
   console.log(`✅ Users assigned to units`);
 
+  // Refetch users with their units included for later use
+  const usersWithUnits = await prisma.user.findMany({
+    include: {
+      units: true
+    }
+  });
+  // Replace users array with the one that includes units
+  users.length = 0;
+  users.push(...usersWithUnits);
+
   // -------------------- Specialisms --------------------
   await prisma.specialism.createMany({
     data: specialisms.map((name) => ({ name })),
@@ -575,6 +585,9 @@ async function main() {
 
   const createdCases = [];
 
+  // Fetch all teams for direction assignment
+  const teams = await prisma.team.findMany();
+
   // Define a pool of possible document names
   const documentNames = [
     "Police report",
@@ -713,6 +726,82 @@ async function main() {
       });
     }
 
+    // Generate 0-5 directions per case
+    const numDirections = faker.number.int({ min: 0, max: 5 });
+    const directionsData = [];
+    for (let dir = 0; dir < numDirections; dir++) {
+      const directionDescriptions = [
+        'Provide witness statement by',
+        'Submit evidence review by',
+        'File application for extension by',
+        'Complete disclosure exercise by',
+        'Serve notice on defendant by',
+        'Obtain expert report by',
+        'File response to defence case statement by',
+        'Arrange conference with counsel by',
+        'Update victim on case progress by',
+        'Submit Bad Character application by',
+        'Comply with court order by',
+        'Serve additional evidence by'
+      ];
+
+      const description = faker.helpers.arrayElement(directionDescriptions);
+
+      // Generate due date: 60% overdue, 20% today/tomorrow, 20% future
+      const dateChoice = faker.number.float({ min: 0, max: 1 });
+      let dueDate;
+
+      if (dateChoice < 0.6) {
+        // Overdue - 1 to 90 days in the past
+        dueDate = faker.date.past({ days: 90 });
+      } else if (dateChoice < 0.7) {
+        // Due today
+        dueDate = new Date();
+        dueDate.setHours(23, 59, 59, 999);
+      } else if (dateChoice < 0.8) {
+        // Due tomorrow
+        dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 1);
+        dueDate.setHours(23, 59, 59, 999);
+      } else {
+        // Future - 2 to 60 days ahead
+        dueDate = faker.date.soon({ days: 60 });
+      }
+
+      // 5% chance direction is already completed
+      const completedDate = faker.datatype.boolean({ probability: 0.05 }) ? faker.date.recent({ days: 30 }) : null;
+
+      // Assign to user or team (40% user, 30% team, 30% unassigned)
+      let assignedToUserId = null;
+      let assignedToTeamId = null;
+      const assignmentChoice = faker.number.float({ min: 0, max: 1 });
+
+      if (assignmentChoice < 0.4) {
+        // Assign to a user from this case's unit
+        const unitUsers = users.filter(u =>
+          u.units.some(uu => uu.unitId === caseUnitId)
+        );
+        if (unitUsers.length > 0) {
+          assignedToUserId = faker.helpers.arrayElement(unitUsers).id;
+        }
+      } else if (assignmentChoice < 0.7) {
+        // Assign to a team from this case's unit
+        const unitTeams = teams.filter(t => t.unitId === caseUnitId);
+        if (unitTeams.length > 0) {
+          assignedToTeamId = faker.helpers.arrayElement(unitTeams).id;
+        }
+      }
+      // else: leave unassigned
+
+      directionsData.push({
+        description,
+        dueDate,
+        completedDate,
+        assignedToUserId,
+        assignedToTeamId
+      });
+    }
+
     const createdCase = await prisma.case.create({
       data: {
         reference: generateCaseReference(),
@@ -738,6 +827,11 @@ async function main() {
         tasks: {
           createMany: {
             data: tasksData, // now unique per case
+          },
+        },
+        directions: {
+          createMany: {
+            data: directionsData,
           },
         },
         documents: {

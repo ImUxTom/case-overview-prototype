@@ -78,6 +78,41 @@ module.exports = router => {
       }
     })
 
+    // Fetch directions assigned to current user and categorize by due date
+    let directions = await prisma.direction.findMany({
+      where: {
+        AND: [
+          { completedDate: null },
+          { assignedToUserId: currentUser.id },
+          { case: { unitId: { in: userUnitIds } } }
+        ]
+      }
+    })
+
+    // Categorize directions by due date
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    let dueTodayDirectionCount = 0
+    let dueTomorrowDirectionCount = 0
+    let overdueDirectionCount = 0
+
+    directions.forEach(direction => {
+      const dueDate = new Date(direction.dueDate)
+      dueDate.setHours(0, 0, 0, 0)
+
+      if (dueDate < today) {
+        overdueDirectionCount++
+      } else if (dueDate.getTime() === today.getTime()) {
+        dueTodayDirectionCount++
+      } else if (dueDate.getTime() === tomorrow.getTime()) {
+        dueTomorrowDirectionCount++
+      }
+    })
+
     res.render('overview/index', {
       unassignedCaseCount,
       incompleteProfileCount,
@@ -86,7 +121,10 @@ module.exports = router => {
       criticallyOverdueTaskCount: tasksBySeverity['Critically overdue'].length,
       overdueTaskCount: tasksBySeverity['Overdue'].length,
       dueSoonTaskCount: tasksBySeverity['Due soon'].length,
-      notDueYetTaskCount: tasksBySeverity['Not due yet'].length
+      notDueYetTaskCount: tasksBySeverity['Not due yet'].length,
+      dueTodayDirectionCount,
+      dueTomorrowDirectionCount,
+      overdueDirectionCount
     })
   })
 

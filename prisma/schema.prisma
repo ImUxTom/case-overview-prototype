@@ -18,6 +18,7 @@ model User {
   notes        Note[]
   activityLogs ActivityLog[]
   tasks        Task[]
+  directions   Direction[]
   units        UserUnit[]
 }
 
@@ -131,6 +132,7 @@ model Case {
   hearings    Hearing[]
   location    Location?
   tasks       Task[]
+  directions  Direction[]
   documents   Document[]
   dga         DGA?
   notes       Note[]
@@ -226,12 +228,13 @@ model Unit {
 }
 
 model Team {
-  id          Int     @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   unitId      Int
-  unit        Unit    @relation(fields: [unitId], references: [id])
-  isStandard  Boolean @default(true)
+  unit        Unit         @relation(fields: [unitId], references: [id])
+  isStandard  Boolean      @default(true)
   tasks       Task[]
+  directions  Direction[]
 }
 
 model UserUnit {
@@ -342,6 +345,21 @@ model TaskNote {
   task        Task     @relation(fields: [taskId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Direction {
+  id               Int       @id @default(autoincrement())
+  description      String
+  dueDate          DateTime
+  completedDate    DateTime?
+  case             Case      @relation(fields: [caseId], references: [id])
+  caseId           Int
+  assignedToUser   User?     @relation(fields: [assignedToUserId], references: [id])
+  assignedToUserId Int?
+  assignedToTeam   Team?     @relation(fields: [assignedToTeamId], references: [id])
+  assignedToTeamId Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model Document {
