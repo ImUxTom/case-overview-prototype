@@ -74,7 +74,10 @@ module.exports = router => {
     // Add severity information to the task
     task.severity = getTaskSeverity(task)
 
-    res.render("cases/tasks/show", { _case, task })
+    // Get the next hearing (already fetched in _case.hearings)
+    const hearing = _case.hearings && _case.hearings.length > 0 ? _case.hearings[0] : null
+
+    res.render("cases/tasks/show", { _case, task, hearing })
   })
 
   router.get("/cases/:caseId/tasks/:taskId/complete", async (req, res) => {

@@ -124,17 +124,42 @@
             value: {
               html: direction.case.unit.name
             }
-          },
-          {
-            key: {
-              html: 'Hearing'
-            },
-            value: {
-              html: (_case.hearings[0].startDate | isoDateString | govukDateTime) + ' - ' + _case.hearings[0].type
-            }
-          } if _case.hearings and _case.hearings.length > 0
+          }
         ]
       })}}
+
+      {% if _case.hearings and _case.hearings.length > 0 %}
+        <h2 class="govuk-heading-m">Hearing</h2>
+
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: {
+                text: 'Date and time'
+              },
+              value: {
+                html: _case.hearings[0].startDate | isoDateString | govukDateTime
+              }
+            },
+            {
+              key: {
+                text: 'Type'
+              },
+              value: {
+                text: _case.hearings[0].type
+              }
+            },
+            {
+              key: {
+                text: 'Venue'
+              },
+              value: {
+                text: _case.hearings[0].venue
+              }
+            }
+          ]
+        })}}
+      {% endif %}
 
     </div>
   </div>
