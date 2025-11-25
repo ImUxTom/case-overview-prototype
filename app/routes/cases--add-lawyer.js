@@ -113,6 +113,7 @@ module.exports = router => {
       if (lawyer.firstName === 'Michael' && lawyer.lastName === 'Chen') {
         return {
           ...lawyer,
+          _count: { cases: 10 },          // Override the real count
           level1Cases: Array(3).fill({}), // 3 level 1 cases
           level2Cases: Array(3).fill({}), // 3 level 2 cases
           level3Cases: Array(2).fill({}), // 2 level 3 cases
@@ -160,10 +161,17 @@ module.exports = router => {
       // Move Michael Chen to the top of the list
       const michaelChen = lawyers.splice(michaelChenIndex, 1)[0]
       lawyers.unshift(michaelChen)
+
+      // Limit to 4 prosecutors total: Michael Chen + 3 others with more cases
+      // Get the next 3 prosecutors who have more cases than Michael
+      const otherLawyers = lawyers.slice(1).filter(l => l.totalCases > 10)
+      lawyers = [michaelChen, ...otherLawyers.slice(0, 3)]
     } else {
       // Fallback to first lawyer if Michael Chen not found
       lawyers[0].didInitialReview = true
       lawyers[0].recommended = true
+      // Limit to 5 prosecutors
+      lawyers = lawyers.slice(0, 5)
     }
 
     let lawyerItems = lawyers.map(lawyer => {
@@ -179,6 +187,12 @@ module.exports = router => {
           html: getLawyerHintText(lawyer)
         }
       }
+    })
+
+    // Add "Show other prosecutors" as the 5th option
+    lawyerItems.push({
+      text: "Show other prosecutors",
+      value: "show-more"
     })
 
     res.render("cases/add-lawyer/index", { 
