@@ -8,7 +8,7 @@ function getLawyerHintText(lawyer) {
 
   if(lawyer.didInitialReview) {
     hintParts.push(
-      `<li>Did the initial review</li>`
+      `<li>Ground work lawyer</li>`
     )
   }
 
@@ -23,8 +23,6 @@ function getLawyerHintText(lawyer) {
   if (total === 0) {
     caseLoadBreakdown = "No cases"
   } else {
-    // caseLoadBreakdown = ``
-
     if (lawyer.ctlCases && lawyer.ctlCases.length > 0) {
       hintParts.push(`<li>${total} case${total > 1 ? "s" : ""}</li>`)
     }
@@ -36,28 +34,30 @@ function getLawyerHintText(lawyer) {
       breakdown.push(`${lawyer.ctlCases.length} CTL`)
     }
 
-    if (lawyer.level1Cases.length > 0) {
-      breakdown.push(`${lawyer.level1Cases.length}  level one`)
-    }
-    if (lawyer.level2Cases.length > 0) {
-      breakdown.push(`${lawyer.level2Cases.length} level two`)
-    }
-    if (lawyer.level3Cases.length > 0) {
-      breakdown.push(`${lawyer.level3Cases.length} level three`)
-    }
-    if (lawyer.level4Cases.length > 0) {
-      breakdown.push(`${lawyer.level4Cases.length} level four`)
-    }
-    if (lawyer.level5Cases.length > 0) {
-      breakdown.push(`${lawyer.level5Cases.length} level five`)
+    if (lawyer.stlCases && lawyer.stlCases.length > 0) {
+      breakdown.push(`${lawyer.stlCases.length} STL`)
     }
 
-    
+    if (lawyer.level1Cases && lawyer.level1Cases.length > 0) {
+      breakdown.push(`${lawyer.level1Cases.length} level one`)
+    }
+    if (lawyer.level2Cases && lawyer.level2Cases.length > 0) {
+      breakdown.push(`${lawyer.level2Cases.length} level two`)
+    }
+    if (lawyer.level3Cases && lawyer.level3Cases.length > 0) {
+      breakdown.push(`${lawyer.level3Cases.length} level three`)
+    }
+    if (lawyer.level4Cases && lawyer.level4Cases.length > 0) {
+      breakdown.push(`${lawyer.level4Cases.length} level four`)
+    }
+    if (lawyer.level5Cases && lawyer.level5Cases.length > 0) {
+      breakdown.push(`${lawyer.level5Cases.length} level five`)
+    }
 
     if (breakdown.length) {
       caseLoadBreakdown += `${breakdown.join(", ")}`
     }
-    
+
   }
 
   hintParts.push(`<li>${caseLoadBreakdown}</li>`)
@@ -77,9 +77,6 @@ module.exports = router => {
     const assignedLawyers = _.get(req.session.data, 'editLawyers.lawyers') || _case.lawyers.map(lawyer => `${lawyer.id}`)
 
     let lawyers = await prisma.lawyer.findMany({
-      where: {
-        unit: _case.unit
-      },
       select: {
         id: true,
         firstName: true,
@@ -112,6 +109,23 @@ module.exports = router => {
     })
 
     lawyers = lawyers.map((lawyer, index) => {
+      // Hard-code Michael Chen's caseload data
+      if (lawyer.firstName === 'Michael' && lawyer.lastName === 'Chen') {
+        return {
+          ...lawyer,
+          level1Cases: Array(3).fill({}), // 3 level 1 cases
+          level2Cases: Array(3).fill({}), // 3 level 2 cases
+          level3Cases: Array(2).fill({}), // 2 level 3 cases
+          level4Cases: Array(1).fill({}), // 1 level 4 case
+          level5Cases: Array(1).fill({}), // 1 level 5 case
+          ctlCases: Array(2).fill({}),    // 2 CTL cases
+          stlCases: Array(2).fill({}),    // 2 STL cases
+          totalCases: 10,
+          ctlCaseCount: 2,
+          stlCaseCount: 2
+        }
+      }
+
       const ctlCases = lawyer.cases?.filter(c => {
         return c.defendants.some(d => d.charges.some(ch => ch.custodyTimeLimit !== null))
       }) || []
@@ -121,7 +135,7 @@ module.exports = router => {
       const level3Cases = lawyer.cases?.filter(c => c.complexity === "Level 3") || []
       const level4Cases = lawyer.cases?.filter(c => c.complexity === "Level 4") || []
       const level5Cases = lawyer.cases?.filter(c => c.complexity === "Level 5") || []
-      
+
       let newLawyer = {
         ...lawyer,
         level1Cases,
@@ -138,14 +152,24 @@ module.exports = router => {
 
     lawyers.sort((a, b) => a.totalCases - b.totalCases || a.ctlCaseCount - b.ctlCaseCount)
 
-    // hack it so the first one has a note about how they did an initial review  
-    lawyers[0].didInitialReview = true
-    lawyers[0].recommended = true
+    // Find Michael Chen and make him the recommended prosecutor
+    const michaelChenIndex = lawyers.findIndex(l => l.firstName === 'Michael' && l.lastName === 'Chen')
+    if (michaelChenIndex !== -1) {
+      lawyers[michaelChenIndex].didInitialReview = true
+      lawyers[michaelChenIndex].recommended = true
+      // Move Michael Chen to the top of the list
+      const michaelChen = lawyers.splice(michaelChenIndex, 1)[0]
+      lawyers.unshift(michaelChen)
+    } else {
+      // Fallback to first lawyer if Michael Chen not found
+      lawyers[0].didInitialReview = true
+      lawyers[0].recommended = true
+    }
 
     let lawyerItems = lawyers.map(lawyer => {
       let text = `${lawyer.firstName} ${lawyer.lastName}`
       if(lawyer.recommended) {
-        text += ` (recommended)`
+        text += ` (most suitable)`
       }
 
       return {

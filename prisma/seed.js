@@ -463,6 +463,23 @@ async function main() {
   });
   lawyers.push(tony);
 
+  // Michael Chen - specialist in Hate crime with exclusions for all youth specialisms
+  const michaelChen = await prisma.lawyer.create({
+    data: {
+      firstName: "Michael",
+      lastName: "Chen",
+      unit: { connect: { id: faker.number.int({ min: 1, max: 18 }) } },
+      specialistAreas: { connect: [{ name: 'Hate crime' }] },
+      preferredAreas: { connect: [] },
+      restrictedAreas: { connect: [
+        { name: 'Youth justice' },
+        { name: 'Youth RASSO' },
+        { name: 'Youth specialist' }
+      ] },
+    },
+  });
+  lawyers.push(michaelChen);
+
   for (let i = 0; i < 150; i++) {
     const specialistAreas = faker.helpers.arrayElements(
       specialisms,
