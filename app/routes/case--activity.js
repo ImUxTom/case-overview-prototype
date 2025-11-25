@@ -28,7 +28,7 @@ module.exports = router => {
     }
 
     // Fetch case
-    const _case = await prisma.case.findUnique({
+    let _case = await prisma.case.findUnique({
       where: { id: caseId },
       include: {
         user: true,

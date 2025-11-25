@@ -5,7 +5,7 @@ const { addTimeLimitDates } = require('../helpers/timeLimit')
 
 module.exports = router => {
   router.get("/cases/:caseId/defendants", async (req, res) => {
-    const _case = await prisma.case.findUnique({
+    let _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
       include: {
         user: true,

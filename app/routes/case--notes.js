@@ -9,7 +9,7 @@ module.exports = router => {
     const caseId = parseInt(req.params.caseId)
 
     // Fetch case
-    const _case = await prisma.case.findUnique({
+    let _case = await prisma.case.findUnique({
       where: { id: caseId },
       include: {
         defendants: {
@@ -56,7 +56,7 @@ module.exports = router => {
   })
 
   router.get("/cases/:caseId/notes/new", async (req, res) => {
-    const _case = await prisma.case.findUnique({
+    let _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
       include: {
         defendants: {
@@ -78,7 +78,7 @@ module.exports = router => {
   })
 
   router.get("/cases/:caseId/notes/new/check", async (req, res) => {
-    const _case = await prisma.case.findUnique({
+    let _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
       include: {
         defendants: {
