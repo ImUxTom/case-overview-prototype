@@ -6,7 +6,8 @@ const { groupDirections } = require('../helpers/directionGrouping')
 const { getDirectionStatus } = require('../helpers/directionState')
 
 function resetFilters(req) {
-  _.set(req, 'session.data.directionListFilters.owner', null)
+  _.set(req, 'session.data.directionListFilters.prosecutor', null)
+  _.set(req, 'session.data.directionListFilters.paralegalOfficer', null)
   _.set(req, 'session.data.directionListFilters.units', null)
   _.set(req, 'session.data.directionListFilters.dateStatus', null)
 }
@@ -16,19 +17,31 @@ module.exports = router => {
   router.get('/directions/shortcut/overdue', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/directions?directionListFilters[owner][]=user-${currentUser.id}&directionListFilters[dateStatus][]=Overdue`)
+    if (currentUser.role === 'Prosecutor') {
+      res.redirect(`/directions?directionListFilters[prosecutor][]=${currentUser.id}&directionListFilters[dateStatus][]=Overdue`)
+    } else {
+      res.redirect(`/directions?directionListFilters[dateStatus][]=Overdue`)
+    }
   })
 
   router.get('/directions/shortcut/due-today', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/directions?directionListFilters[owner][]=user-${currentUser.id}&directionListFilters[dateStatus][]=Due today`)
+    if (currentUser.role === 'Prosecutor') {
+      res.redirect(`/directions?directionListFilters[prosecutor][]=${currentUser.id}&directionListFilters[dateStatus][]=Due today`)
+    } else {
+      res.redirect(`/directions?directionListFilters[dateStatus][]=Due today`)
+    }
   })
 
   router.get('/directions/shortcut/due-tomorrow', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/directions?directionListFilters[owner][]=user-${currentUser.id}&directionListFilters[dateStatus][]=Due tomorrow`)
+    if (currentUser.role === 'Prosecutor') {
+      res.redirect(`/directions?directionListFilters[prosecutor][]=${currentUser.id}&directionListFilters[dateStatus][]=Due tomorrow`)
+    } else {
+      res.redirect(`/directions?directionListFilters[dateStatus][]=Due tomorrow`)
+    }
   })
 
   router.get("/directions", async (req, res) => {
@@ -45,72 +58,67 @@ module.exports = router => {
       req.session.data.directionListFilters = {}
     }
 
-    // Only set default owner to current user on first visit
-    if (isFirstVisit) {
-      _.set(req.session.data.directionListFilters, 'owner', [`user-${currentUser.id}`])
+    // Only set default prosecutor to current user on first visit if they're a prosecutor
+    if (isFirstVisit && currentUser.role === 'Prosecutor') {
+      _.set(req.session.data.directionListFilters, 'prosecutor', [currentUser.id])
     }
 
-    let selectedOwnerFilters = _.get(req.session.data.directionListFilters, 'owner', [])
+    let selectedProsecutorFilters = _.get(req.session.data.directionListFilters, 'prosecutor', [])
+    let selectedParalegalOfficerFilters = _.get(req.session.data.directionListFilters, 'paralegalOfficer', [])
     let selectedUnitFilters = _.get(req.session.data.directionListFilters, 'units', [])
     let selectedDateStatusFilters = _.get(req.session.data.directionListFilters, 'dateStatus', [])
 
     let selectedFilters = { categories: [] }
 
-    let selectedOwnerItems = []
     let selectedUnitItems = []
     let selectedDateStatusItems = []
 
-    // Owner filter display
-    if (selectedOwnerFilters?.length) {
-      const userIds = []
-      const teamIds = []
+    // Prosecutor filter display
+    if (selectedProsecutorFilters?.length) {
+      const prosecutorIds = selectedProsecutorFilters.map(Number)
 
-      selectedOwnerFilters.forEach(filter => {
-        if (filter.startsWith('user-')) {
-          userIds.push(Number(filter.replace('user-', '')))
-        } else if (filter.startsWith('team-')) {
-          teamIds.push(Number(filter.replace('team-', '')))
-        }
+      let fetchedProsecutors = await prisma.user.findMany({
+        where: {
+          id: { in: prosecutorIds },
+          role: 'Prosecutor'
+        },
+        select: { id: true, firstName: true, lastName: true }
       })
 
-      let fetchedUsers = []
-      let fetchedTeams = []
+      let selectedProsecutorItems = selectedProsecutorFilters.map(function(prosecutorId) {
+        const prosecutor = fetchedProsecutors.find(p => p.id === Number(prosecutorId))
+        let displayText = prosecutor ? `${prosecutor.firstName} ${prosecutor.lastName}` : prosecutorId
 
-      if (userIds.length) {
-        fetchedUsers = await prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, firstName: true, lastName: true }
-        })
-      }
-
-      if (teamIds.length) {
-        fetchedTeams = await prisma.team.findMany({
-          where: { id: { in: teamIds } },
-          include: { unit: true }
-        })
-      }
-
-      selectedOwnerItems = selectedOwnerFilters.map(function(filter) {
-        if (filter.startsWith('user-')) {
-          const userId = Number(filter.replace('user-', ''))
-          const user = fetchedUsers.find(u => u.id === userId)
-          let displayText = user ? `${user.firstName} ${user.lastName}` : filter
-
-          if (currentUser && user && user.id === currentUser.id) {
-            displayText += " (you)"
-          }
-
-          return { text: displayText, href: '/directions/remove-owner/' + filter }
-        } else if (filter.startsWith('team-')) {
-          const teamId = Number(filter.replace('team-', ''))
-          const team = fetchedTeams.find(t => t.id === teamId)
-          const displayText = team ? `${team.name} (${team.unit.name})` : filter
-
-          return { text: displayText, href: '/directions/remove-owner/' + filter }
+        if (currentUser && prosecutor && prosecutor.id === currentUser.id) {
+          displayText += " (you)"
         }
+
+        return { text: displayText, href: '/directions/remove-prosecutor/' + prosecutorId }
       })
 
-      selectedFilters.categories.push({ heading: { text: 'Owner' }, items: selectedOwnerItems })
+      selectedFilters.categories.push({ heading: { text: 'Prosecutor' }, items: selectedProsecutorItems })
+    }
+
+    // Paralegal officer filter display
+    if (selectedParalegalOfficerFilters?.length) {
+      const paralegalOfficerIds = selectedParalegalOfficerFilters.map(Number)
+
+      let fetchedParalegalOfficers = await prisma.user.findMany({
+        where: {
+          id: { in: paralegalOfficerIds },
+          role: 'Paralegal officer'
+        },
+        select: { id: true, firstName: true, lastName: true }
+      })
+
+      let selectedParalegalOfficerItems = selectedParalegalOfficerFilters.map(function(paralegalOfficerId) {
+        const paralegalOfficer = fetchedParalegalOfficers.find(po => po.id === Number(paralegalOfficerId))
+        let displayText = paralegalOfficer ? `${paralegalOfficer.firstName} ${paralegalOfficer.lastName}` : paralegalOfficerId
+
+        return { text: displayText, href: '/directions/remove-paralegal-officer/' + paralegalOfficerId }
+      })
+
+      selectedFilters.categories.push({ heading: { text: 'Paralegal officer' }, items: selectedParalegalOfficerItems })
     }
 
     // Unit filter display
@@ -152,30 +160,32 @@ module.exports = router => {
       where.AND.push({ case: { unitId: { in: userUnitIds } } })
     }
 
-    // Owner filter (users and teams)
-    if (selectedOwnerFilters?.length) {
-      const userIds = []
-      const teamIds = []
-
-      selectedOwnerFilters.forEach(filter => {
-        if (filter.startsWith('user-')) {
-          userIds.push(Number(filter.replace('user-', '')))
-        } else if (filter.startsWith('team-')) {
-          teamIds.push(Number(filter.replace('team-', '')))
+    // Prosecutor filter
+    if (selectedProsecutorFilters?.length) {
+      const prosecutorIds = selectedProsecutorFilters.map(Number)
+      where.AND.push({
+        case: {
+          prosecutors: {
+            some: {
+              userId: { in: prosecutorIds }
+            }
+          }
         }
       })
+    }
 
-      const ownerConditions = []
-      if (userIds.length) {
-        ownerConditions.push({ assignedToUserId: { in: userIds } })
-      }
-      if (teamIds.length) {
-        ownerConditions.push({ assignedToTeamId: { in: teamIds } })
-      }
-
-      if (ownerConditions.length) {
-        where.AND.push({ OR: ownerConditions })
-      }
+    // Paralegal officer filter
+    if (selectedParalegalOfficerFilters?.length) {
+      const paralegalOfficerIds = selectedParalegalOfficerFilters.map(Number)
+      where.AND.push({
+        case: {
+          paralegalOfficers: {
+            some: {
+              userId: { in: paralegalOfficerIds }
+            }
+          }
+        }
+      })
     }
 
     if (selectedUnitFilters?.length) {
@@ -202,18 +212,22 @@ module.exports = router => {
               }
             },
             unit: true,
+            prosecutors: {
+              include: {
+                user: true
+              }
+            },
+            paralegalOfficers: {
+              include: {
+                user: true
+              }
+            },
             hearings: {
               orderBy: {
                 startDate: 'asc'
               },
               take: 1
             }
-          }
-        },
-        assignedToUser: true,
-        assignedToTeam: {
-          include: {
-            unit: true
           }
         }
       }
@@ -252,52 +266,60 @@ module.exports = router => {
       })
     }
 
-    // Fetch users and teams from user's units for the owner filter
-    let users = await prisma.user.findMany({
+    // Fetch prosecutors from user's units for the filter
+    let prosecutors = await prisma.user.findMany({
       where: {
+        role: 'Prosecutor',
         units: {
           some: {
             unitId: { in: userUnitIds }
           }
         }
+      },
+      orderBy: [
+        { firstName: 'asc' },
+        { lastName: 'asc' }
+      ]
+    })
+
+    let prosecutorItems = prosecutors.map(prosecutor => {
+      let text = `${prosecutor.firstName} ${prosecutor.lastName}`
+      if (currentUser && prosecutor.id === currentUser.id) {
+        text += ' (you)'
       }
-    })
-
-    let teams = await prisma.team.findMany({
-      where: { unitId: { in: userUnitIds } },
-      include: { unit: true }
-    })
-
-    // Build owner items with prefixed values
-    let ownerItems = []
-
-    users.forEach(user => {
-      if (currentUser && user.id === currentUser.id) {
-        ownerItems.push({
-          text: `${user.firstName} ${user.lastName} (you)`,
-          value: `user-${user.id}`
-        })
-      } else {
-        ownerItems.push({
-          text: `${user.firstName} ${user.lastName}`,
-          value: `user-${user.id}`
-        })
+      return {
+        text: text,
+        value: `${prosecutor.id}`
       }
-    })
-
-    teams.forEach(team => {
-      ownerItems.push({
-        text: `${team.name} (${team.unit.name})`,
-        value: `team-${team.id}`
-      })
     })
 
     // Put current user (you) first
-    ownerItems.sort((a, b) => {
+    prosecutorItems.sort((a, b) => {
       if (a.text.includes('(you)')) return -1
       if (b.text.includes('(you)')) return 1
       return 0
     })
+
+    // Fetch paralegal officers from user's units for the filter
+    let paralegalOfficers = await prisma.user.findMany({
+      where: {
+        role: 'Paralegal officer',
+        units: {
+          some: {
+            unitId: { in: userUnitIds }
+          }
+        }
+      },
+      orderBy: [
+        { firstName: 'asc' },
+        { lastName: 'asc' }
+      ]
+    })
+
+    let paralegalOfficerItems = paralegalOfficers.map(po => ({
+      text: `${po.firstName} ${po.lastName}`,
+      value: `${po.id}`
+    }))
 
     // Fetch only user's units for the filter
     let units = await prisma.unit.findMany({
@@ -309,7 +331,7 @@ module.exports = router => {
       value: `${unit.id}`
     }))
 
-    // Date status items (based on Due date sort - default)
+    // Date status items
     let dateStatusItems = [
       { text: 'Overdue', value: 'Overdue' },
       { text: 'Due today', value: 'Due today' },
@@ -317,11 +339,8 @@ module.exports = router => {
       { text: 'Due later', value: 'Due later' }
     ]
 
-    // Handle sorting
-    const sortBy = _.get(req.session.data, 'directionSort', 'Due date')
-
-    // Add grouping metadata to directions based on sort type
-    directions = groupDirections(directions, sortBy)
+    // Add grouping metadata to directions based on due date
+    directions = groupDirections(directions)
 
     // Filter by date status (after grouping)
     if (selectedDateStatusFilters?.length) {
@@ -330,23 +349,12 @@ module.exports = router => {
       })
     }
 
-    // Sort by date group, then by the appropriate date field
+    // Sort by date group, then by due date
     directions.sort((a, b) => {
       if (a.sortOrder !== b.sortOrder) {
         return a.sortOrder - b.sortOrder
       }
-      // Secondary sort based on sort type
-      if (sortBy === 'Custody time limit') {
-        const dateA = a.case?.soonestCTL ? new Date(a.case.soonestCTL) : new Date(9999, 11, 31)
-        const dateB = b.case?.soonestCTL ? new Date(b.case.soonestCTL) : new Date(9999, 11, 31)
-        return dateA - dateB
-      } else if (sortBy === 'Hearing date') {
-        const dateA = a.case?.hearings?.[0]?.startDate ? new Date(a.case.hearings[0].startDate) : new Date(9999, 11, 31)
-        const dateB = b.case?.hearings?.[0]?.startDate ? new Date(b.case.hearings[0].startDate) : new Date(9999, 11, 31)
-        return dateA - dateB
-      } else {
-        return new Date(a.dueDate) - new Date(b.dueDate)
-      }
+      return new Date(a.dueDate) - new Date(b.dueDate)
     })
 
     let totalDirections = directions.length
@@ -358,9 +366,10 @@ module.exports = router => {
       directions,
       pagination,
       totalDirections,
-      ownerItems,
-      selectedOwnerFilters,
-      selectedOwnerItems,
+      prosecutorItems,
+      selectedProsecutorFilters,
+      paralegalOfficerItems,
+      selectedParalegalOfficerFilters,
       unitItems,
       selectedUnitFilters,
       selectedUnitItems,
@@ -371,9 +380,15 @@ module.exports = router => {
     })
   })
 
-  router.get('/directions/remove-owner/:filter', (req, res) => {
-    const currentFilters = _.get(req, 'session.data.directionListFilters.owner', [])
-    _.set(req, 'session.data.directionListFilters.owner', _.pull(currentFilters, req.params.filter))
+  router.get('/directions/remove-prosecutor/:prosecutorId', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.directionListFilters.prosecutor', [])
+    _.set(req, 'session.data.directionListFilters.prosecutor', _.pull(currentFilters, req.params.prosecutorId))
+    res.redirect('/directions')
+  })
+
+  router.get('/directions/remove-paralegal-officer/:paralegalOfficerId', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.directionListFilters.paralegalOfficer', [])
+    _.set(req, 'session.data.directionListFilters.paralegalOfficer', _.pull(currentFilters, req.params.paralegalOfficerId))
     res.redirect('/directions')
   })
 

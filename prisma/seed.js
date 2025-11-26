@@ -452,23 +452,43 @@ async function main() {
   });
   console.log("✅ Specialisms seeded");
 
-  // -------------------- Lawyers --------------------
-  const lawyers = [];
-  const tony = await prisma.lawyer.create({
+  // -------------------- Prosecutors (Users with role="Prosecutor") --------------------
+  const prosecutors = [];
+
+  const tonyUnitId = faker.number.int({ min: 1, max: 18 });
+  const tony = await prisma.user.create({
     data: {
       firstName: "Tony",
       lastName: "Stark",
-      unit: { connect: { id: faker.number.int({ min: 1, max: 18 }) } },
+      email: "tony.stark@cps.gov.uk",
+      password: bcrypt.hashSync("password123", 10),
+      role: "Prosecutor",
+      units: {
+        create: {
+          unitId: tonyUnitId
+        }
+      }
     },
+    include: {
+      units: true
+    }
   });
-  lawyers.push(tony);
+  prosecutors.push(tony);
 
   // Michael Chen - specialist in Hate crime with exclusions for all youth specialisms
-  const michaelChen = await prisma.lawyer.create({
+  const michaelUnitId = faker.number.int({ min: 1, max: 18 });
+  const michaelChen = await prisma.user.create({
     data: {
       firstName: "Michael",
       lastName: "Chen",
-      unit: { connect: { id: faker.number.int({ min: 1, max: 18 }) } },
+      email: "michael.chen@cps.gov.uk",
+      password: bcrypt.hashSync("password123", 10),
+      role: "Prosecutor",
+      units: {
+        create: {
+          unitId: michaelUnitId
+        }
+      },
       specialistAreas: { connect: [{ name: 'Hate crime' }] },
       preferredAreas: { connect: [] },
       restrictedAreas: { connect: [
@@ -477,8 +497,11 @@ async function main() {
         { name: 'Youth specialist' }
       ] },
     },
+    include: {
+      units: true
+    }
   });
-  lawyers.push(michaelChen);
+  prosecutors.push(michaelChen);
 
   for (let i = 0; i < 150; i++) {
     const specialistAreas = faker.helpers.arrayElements(
@@ -500,19 +523,38 @@ async function main() {
       faker.number.int({ min: 0, max: 2 })
     );
 
-    const lawyer = await prisma.lawyer.create({
+    const prosecutorUnitId = faker.number.int({ min: 1, max: 18 });
+    const prosecutor = await prisma.user.create({
       data: {
         firstName: faker.helpers.arrayElement(firstNames),
         lastName: faker.helpers.arrayElement(lastNames),
-        unit: { connect: { id: faker.number.int({ min: 1, max: 18 }) } },
+        email: `prosecutor.${faker.string.alphanumeric(8).toLowerCase()}@cps.gov.uk`,
+        password: bcrypt.hashSync("password123", 10),
+        role: "Prosecutor",
+        units: {
+          create: {
+            unitId: prosecutorUnitId
+          }
+        },
         specialistAreas: { connect: specialistAreas.map((name) => ({ name })) },
         preferredAreas: { connect: preferredAreas.map((name) => ({ name })) },
         restrictedAreas: { connect: restrictedAreas.map((name) => ({ name })) },
       },
+      include: {
+        units: true
+      }
     });
-    lawyers.push(lawyer);
+    prosecutors.push(prosecutor);
   }
-  console.log("✅ Lawyers seeded");
+  console.log("✅ Prosecutors seeded");
+
+  // Re-fetch all prosecutors with units included to ensure we have complete data
+  const allProsecutors = await prisma.user.findMany({
+    where: { role: 'Prosecutor' },
+    include: { units: true }
+  });
+  prosecutors.length = 0;
+  prosecutors.push(...allProsecutors);
 
   // -------------------- Defence Lawyers --------------------
   const defenceLawyerData = Array.from({ length: 100 }, () => ({
@@ -807,22 +849,39 @@ async function main() {
     const numDirections = faker.number.int({ min: 0, max: 5 });
     const directionsData = [];
     for (let dir = 0; dir < numDirections; dir++) {
-      const directionDescriptions = [
-        'Provide witness statement by',
-        'Submit evidence review by',
-        'File application for extension by',
-        'Complete disclosure exercise by',
-        'Serve notice on defendant by',
-        'Obtain expert report by',
-        'File response to defence case statement by',
-        'Arrange conference with counsel by',
-        'Update victim on case progress by',
-        'Submit Bad Character application by',
-        'Comply with court order by',
-        'Serve additional evidence by'
+      const directionTitles = [
+        'Witness statement required',
+        'Evidence review needed',
+        'Extension application',
+        'Disclosure exercise',
+        'Notice to be served',
+        'Expert report request',
+        'Defence case statement response',
+        'Counsel conference',
+        'Victim update required',
+        'Bad Character application',
+        'Court order compliance',
+        'Additional evidence service'
       ];
 
-      const description = faker.helpers.arrayElement(directionDescriptions);
+      const directionDescriptions = [
+        'Provide witness statement by the specified date',
+        'Submit evidence review by the specified date',
+        'File application for extension by the specified date',
+        'Complete disclosure exercise by the specified date',
+        'Serve notice on defendant by the specified date',
+        'Obtain expert report by the specified date',
+        'File response to defence case statement by the specified date',
+        'Arrange conference with counsel by the specified date',
+        'Update victim on case progress by the specified date',
+        'Submit Bad Character application by the specified date',
+        'Comply with court order by the specified date',
+        'Serve additional evidence by the specified date'
+      ];
+
+      const directionIndex = faker.number.int({ min: 0, max: directionTitles.length - 1 });
+      const title = directionTitles[directionIndex];
+      const description = directionDescriptions[directionIndex];
 
       // Generate due date: 60% overdue, 20% today/tomorrow, 20% future
       const dateChoice = faker.number.float({ min: 0, max: 1 });
@@ -848,34 +907,21 @@ async function main() {
       // 5% chance direction is already completed
       const completedDate = faker.datatype.boolean({ probability: 0.05 }) ? faker.date.recent({ days: 30 }) : null;
 
-      // Assign to user or team (60% user, 40% team) - always assigned
-      let assignedToUserId = null;
-      let assignedToTeamId = null;
+      // Assignee: Prosecution or Defence
+      const assignee = faker.helpers.arrayElement(['Prosecution', 'Defence']);
 
-      const unitUsers = users.filter(u =>
-        u.units.some(uu => uu.unitId === caseUnitId)
-      );
-      const unitTeams = teams.filter(t => t.unitId === caseUnitId);
-
-      const assignmentChoice = faker.number.float({ min: 0, max: 1 });
-
-      if (assignmentChoice < 0.6 && unitUsers.length > 0) {
-        // Assign to a user from this case's unit
-        assignedToUserId = faker.helpers.arrayElement(unitUsers).id;
-      } else if (unitTeams.length > 0) {
-        // Assign to a team from this case's unit
-        assignedToTeamId = faker.helpers.arrayElement(unitTeams).id;
-      } else if (unitUsers.length > 0) {
-        // Fallback: assign to user if no teams available
-        assignedToUserId = faker.helpers.arrayElement(unitUsers).id;
-      }
+      // 50% chance to assign to a specific defendant from this case
+      const defendantId = faker.datatype.boolean() && assignedDefendants.length > 0
+        ? faker.helpers.arrayElement(assignedDefendants).id
+        : null;
 
       directionsData.push({
+        title,
         description,
         dueDate,
         completedDate,
-        assignedToUserId,
-        assignedToTeamId
+        assignee,
+        defendantId
       });
     }
 
@@ -883,11 +929,6 @@ async function main() {
       data: {
         reference: generateCaseReference(),
         type: faker.helpers.arrayElement(types),
-        user: {
-          connect: {
-            id: faker.helpers.arrayElement(users).id,
-          },
-        },
         complexity: faker.helpers.arrayElement(complexities),
         unit: { connect: { id: caseUnitId } },
         defendants: { connect: assignedDefendants.map((d) => ({ id: d.id })) },
@@ -918,6 +959,55 @@ async function main() {
         },
       },
     });
+
+    // Assign prosecutors to case
+    // Use UNASSIGNED_TARGET to determine how many cases should remain unassigned
+    const unassignedProbability = UNASSIGNED_TARGET / TOTAL_CASES;
+    const shouldAssignProsecutor = faker.number.float({ min: 0, max: 1 }) >= unassignedProbability;
+
+    if (shouldAssignProsecutor) {
+      // 99% get 1 prosecutor, 1% get 2-3
+      const prosecutorAssignmentChoice = faker.number.float({ min: 0, max: 1 });
+      const numProsecutors = prosecutorAssignmentChoice < 0.99 ? 1 : faker.number.int({ min: 2, max: 3 });
+
+      // Get prosecutors from this case's unit
+      const unitProsecutors = prosecutors.filter(p =>
+        p.units.some(uu => uu.unitId === caseUnitId)
+      );
+
+      if (unitProsecutors.length > 0) {
+        const assignedProsecutors = faker.helpers.arrayElements(unitProsecutors, Math.min(numProsecutors, unitProsecutors.length));
+        for (const prosecutor of assignedProsecutors) {
+          await prisma.caseProsecutor.create({
+            data: {
+              caseId: createdCase.id,
+              userId: prosecutor.id
+            }
+          });
+        }
+      }
+    }
+
+    // Assign paralegal officers to case (99% get 1, 1% get 2)
+    const paralegalAssignmentChoice = faker.number.float({ min: 0, max: 1 });
+    const numParalegals = paralegalAssignmentChoice < 0.99 ? 1 : 2;
+
+    // Get paralegal officers from this case's unit
+    const unitParalegals = users.filter(u =>
+      u.role === 'Paralegal officer' && u.units.some(uu => uu.unitId === caseUnitId)
+    );
+
+    if (unitParalegals.length > 0) {
+      const assignedParalegals = faker.helpers.arrayElements(unitParalegals, Math.min(numParalegals, unitParalegals.length));
+      for (const paralegal of assignedParalegals) {
+        await prisma.caseParalegalOfficer.create({
+          data: {
+            caseId: createdCase.id,
+            userId: paralegal.id
+          }
+        });
+      }
+    }
 
     // -------------------- Hearings --------------------
     // 50% of cases have 1 hearing, 50% have none
@@ -1258,33 +1348,6 @@ for (const c of createdCases) {
 
 console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure reasons`);
 
-  // -------------------- Assign cases --------------------
-  const unassignedCount = Math.min(UNASSIGNED_TARGET, createdCases.length);
-  const unassignedIds = new Set(
-    faker.helpers.arrayElements(createdCases, unassignedCount).map((c) => c.id)
-  );
-  const assignableCases = createdCases.filter(
-    (c) => !unassignedIds.has(c.id)
-  );
-
-  for (const c of assignableCases) {
-    const chosenLawyer = faker.helpers.arrayElement(lawyers);
-
-    await prisma.case.update({
-      where: { id: c.id },
-      data: {
-        unitId: chosenLawyer.unitId,
-        lawyers: {
-          set: [{ id: chosenLawyer.id }],
-        },
-      },
-    });
-  }
-
-  console.log(
-    `✅ Assigned ${assignableCases.length} cases to exactly one lawyer, left ${unassignedCount} unassigned`
-  );
-
   // -------------------- Create Guaranteed Tasks for Testing --------------------
   // Ensure each user (except Tony Stark) has tasks that are overdue, due today, and due tomorrow
   const usersExcludingTony = users.filter(u => u.email !== 'tony@cps.gov.uk');
@@ -1299,11 +1362,26 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     });
     const userUnitIds = userWithUnits.units.map(uu => uu.unitId);
 
-    // Find all cases assigned to this user that are in their units
+    // Find all cases where this user is a prosecutor or paralegal officer in their units
     const userCases = await prisma.case.findMany({
       where: {
-        userId: user.id,
-        unitId: { in: userUnitIds }
+        unitId: { in: userUnitIds },
+        OR: [
+          {
+            prosecutors: {
+              some: {
+                userId: user.id
+              }
+            }
+          },
+          {
+            paralegalOfficers: {
+              some: {
+                userId: user.id
+              }
+            }
+          }
+        ]
       }
     });
 
@@ -1388,11 +1466,26 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     });
     const userUnitIds = userWithUnits.units.map(uu => uu.unitId);
 
-    // Find all cases assigned to this user that are in their units
+    // Find all cases where this user is a prosecutor or paralegal officer in their units
     const userCases = await prisma.case.findMany({
       where: {
-        userId: user.id,
-        unitId: { in: userUnitIds }
+        unitId: { in: userUnitIds },
+        OR: [
+          {
+            prosecutors: {
+              some: {
+                userId: user.id
+              }
+            }
+          },
+          {
+            paralegalOfficers: {
+              some: {
+                userId: user.id
+              }
+            }
+          }
+        ]
       },
       include: { defendants: true }
     });
@@ -1569,7 +1662,9 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
     const fullCase = await prisma.case.findUnique({
       where: { id: caseRef.id },
       include: {
-        lawyers: true,
+        prosecutors: {
+          include: { user: true }
+        },
         dga: true,
         witnesses: {
           include: {
@@ -1598,8 +1693,8 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       // Decide which event type to create based on what exists
       const possibleEvents = [];
 
-      // Prosecutor assigned - if case has lawyers
-      if (fullCase.lawyers && fullCase.lawyers.length > 0) {
+      // Prosecutor assigned - if case has prosecutors
+      if (fullCase.prosecutors && fullCase.prosecutors.length > 0) {
         possibleEvents.push('Prosecutor assigned');
       }
 
@@ -1636,14 +1731,15 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
       // Add specific metadata based on event type
       switch (eventType) {
         case 'Prosecutor assigned':
-          const lawyer = faker.helpers.arrayElement(fullCase.lawyers);
+          const prosecutorAssignment = faker.helpers.arrayElement(fullCase.prosecutors);
+          const prosecutor = prosecutorAssignment.user;
           activityData.model = 'Case';
           activityData.recordId = fullCase.id;
           activityData.meta = {
-            lawyer: {
-              id: lawyer.id,
-              firstName: lawyer.firstName,
-              lastName: lawyer.lastName
+            prosecutor: {
+              id: prosecutor.id,
+              firstName: prosecutor.firstName,
+              lastName: prosecutor.lastName
             }
           };
           break;

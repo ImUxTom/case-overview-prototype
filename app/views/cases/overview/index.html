@@ -16,11 +16,23 @@
       
       <h1 class="govuk-heading-l">Overview</h1>
       
-      {% set lawyerValue %}
-        {% if _case.lawyers.length %}
+      {% set prosecutorValue %}
+        {% if _case.prosecutors.length %}
           <ul class="govuk-list govuk-list--bullet">
-            {% for lawyer in _case.lawyers %}
-              <li>{{lawyer.firstName}} {{lawyer.lastName}}</li>
+            {% for cp in _case.prosecutors %}
+              <li>{{cp.user.firstName}} {{cp.user.lastName}}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          Unassigned
+        {% endif %}
+      {% endset %}
+
+      {% set paralegalOfficerValue %}
+        {% if _case.paralegalOfficers.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for cpo in _case.paralegalOfficers %}
+              <li>{{cpo.user.firstName}} {{cpo.user.lastName}}</li>
             {% endfor %}
           </ul>
         {% else %}
@@ -48,24 +60,46 @@
       {% endset %}
 
 
-      {% set lawyerActions = [
+      {% set prosecutorActions = [
         {
-          href: "/cases/:caseId/add-lawyer" | replace(':caseId', _case.id),
+          href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
           text: "Add",
-          visuallyHiddenText: "Lawyer"
+          visuallyHiddenText: "Prosecutor"
         }
       ] %}
-      {% if _case.lawyers.length %}
-        {% set lawyerActions = [
+      {% if _case.prosecutors.length %}
+        {% set prosecutorActions = [
           {
-            href: "/cases/:caseId/add-lawyer" | replace(':caseId', _case.id),
+            href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
             text: "Add",
-            visuallyHiddenText: "Lawyer"
+            visuallyHiddenText: "Prosecutor"
           },
           {
             href: "#" | replace(':caseId', _case.id),
             text: "Change",
-            visuallyHiddenText: "Lawyer"
+            visuallyHiddenText: "Prosecutor"
+          }
+        ] %}
+      {% endif %}
+
+      {% set paralegalOfficerActions = [
+        {
+          href: "/cases/:caseId/add-paralegal-officer" | replace(':caseId', _case.id),
+          text: "Add",
+          visuallyHiddenText: "Paralegal officer"
+        }
+      ] %}
+      {% if _case.paralegalOfficers.length %}
+        {% set paralegalOfficerActions = [
+          {
+            href: "/cases/:caseId/add-paralegal-officer" | replace(':caseId', _case.id),
+            text: "Add",
+            visuallyHiddenText: "Paralegal officer"
+          },
+          {
+            href: "#" | replace(':caseId', _case.id),
+            text: "Change",
+            visuallyHiddenText: "Paralegal officer"
           }
         ] %}
       {% endif %}
@@ -149,14 +183,14 @@
             }
           },
           {
-            key: { 
-              text: "Prosecutors" 
+            key: {
+              text: "Prosecutors"
             },
-            value: { 
-              html: lawyerValue
+            value: {
+              html: prosecutorValue
             },
             actions: {
-              items: lawyerActions
+              items: prosecutorActions
             }
           },
           {
@@ -164,16 +198,10 @@
               text: "Paralegal officers"
             },
             value: {
-              html: 'Unassigned'
+              html: paralegalOfficerValue
             },
             actions: {
-              items: [
-                {
-                  href: "#" | replace(':caseId', _case.id),
-                  text: "Add",
-                  visuallyHiddenText: "Paralegal officers"
-                }
-              ]
+              items: paralegalOfficerActions
             }
           },
           {

@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
-{% set navId = 'lawyers' %}
-{% set pageName = "Prosecutors (:total)" | replace(':total', totalLawyers | formatNumber) %}
+{% set navId = 'prosecutors' %}
+{% set pageName = "Prosecutors (:total)" | replace(':total', totalProsecutors | formatNumber) %}
 
 {% block content %}
 
@@ -9,27 +9,27 @@
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-l">{{pageName}}</h1>
 
-      {% include "_includes/lawyer-search-form.njk" %}
-      {% include "_includes/lawyer-sort-controls.njk" %}
+      {% include "_includes/prosecutor-search-form.njk" %}
+      {% include "_includes/prosecutor-sort-controls.njk" %}
 
-      {% if lawyers.length %}
+      {% if prosecutors.length %}
          <div class="app-list">
-          {% for lawyer in lawyers %}
+          {% for prosecutor in prosecutors %}
            <div class="app-list__item">
               <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-                <a href="/lawyers/{{lawyer.id}}" class="govuk-link--no-visited-state">{{lawyer.firstName}} {{lawyer.lastName}}</a>
+                <a href="/prosecutors/{{prosecutor.id}}" class="govuk-link--no-visited-state">{{prosecutor.firstName}} {{prosecutor.lastName}}</a>
               </h2>
 
               {% set specialistAreas %}
-                {{appValue({ attribute: lawyer.specialistAreas, emptyLabel: 'No specialist areas' })}}
+                {{appValue({ attribute: prosecutor.specialistAreas, emptyLabel: 'No specialist areas' })}}
               {% endset %}
 
               {% set preferredAreas %}
-                {{appValue({ attribute: lawyer.preferredAreas, emptyLabel: 'No preferred areas' })}}
+                {{appValue({ attribute: prosecutor.preferredAreas, emptyLabel: 'No preferred areas' })}}
               {% endset %}
 
               {% set restrictedAreas %}
-                {{appValue({ attribute: lawyer.restrictedAreas, emptyLabel: 'No restricted areas' })}}
+                {{appValue({ attribute: prosecutor.restrictedAreas, emptyLabel: 'No restricted areas' })}}
               {% endset %}
 
               {{ govukSummaryList({
@@ -40,7 +40,7 @@
                       html: 'Number of cases'
                     },
                     value: {
-                      html: lawyer._count.cases or 'None'
+                      html: prosecutor._count.cases or 'None'
                     }
                   } if 1==2,
                   {
@@ -48,7 +48,7 @@
                       html: 'Unit'
                     },
                     value: {
-                      html: lawyer.unit.name
+                      html: prosecutor.unit.name
                     }
                   },
                   {
@@ -74,7 +74,7 @@
                     value: {
                       html: restrictedAreas
                     }
-                  }                   
+                  }
                 ]
               })}}
             </div>

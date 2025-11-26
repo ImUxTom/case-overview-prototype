@@ -71,11 +71,11 @@
   }) }}
 
   {{ appCheckboxFilter({
-    idPrefix: "caseListFilters[lawyers]",
-    name: "caseListFilters[lawyers]",
-    classes: "govuk-checkboxes--small lawyer-filter" ,
+    idPrefix: "caseListFilters[prosecutors]",
+    name: "caseListFilters[prosecutors]",
+    classes: "govuk-checkboxes--small prosecutor-filter" ,
     attributes: {
-      id: 'lawyer-filter'
+      id: 'prosecutor-filter'
     },
     fieldset: {
       legend: {
@@ -84,9 +84,28 @@
       }
     },
     maxHeight: true,
-    items: lawyerItems,
-    values: data.caseListFilters.lawyers,
-    selectedItems: selectedLawyerItems
+    items: prosecutorItems,
+    values: data.caseListFilters.prosecutors,
+    selectedItems: selectedProsecutorItems
+  }) }}
+
+  {{ appCheckboxFilter({
+    idPrefix: "caseListFilters[paralegalOfficers]",
+    name: "caseListFilters[paralegalOfficers]",
+    classes: "govuk-checkboxes--small paralegal-officer-filter" ,
+    attributes: {
+      id: 'paralegal-officer-filter'
+    },
+    fieldset: {
+      legend: {
+        text: "Paralegal officer",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    maxHeight: true,
+    items: paralegalOfficerItems,
+    values: data.caseListFilters.paralegalOfficers,
+    selectedItems: selectedParalegalOfficerItems
   }) }}
 
 {% endset %}

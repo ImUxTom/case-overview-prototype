@@ -16,7 +16,7 @@
       <span class="govuk-caption-l">{{_case.reference}} - assign prosecutor</span>
       <form method="post">
         {{ govukRadios({
-          name: "assignLawyer[lawyer]",
+          name: "assignProsecutor[prosecutor]",
           fieldset: {
             legend: {
               text: pageName,
@@ -24,8 +24,8 @@
               classes: "govuk-fieldset__legend--l"
             }
           },
-          value: data.assignLawyer.lawyer,
-          items: lawyerItems
+          value: data.assignProsecutor.prosecutor,
+          items: prosecutorItems
         }) }}
 
         {{ govukButton({

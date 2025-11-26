@@ -1,6 +1,6 @@
 {% extends "layouts/main.html" %}
 
-{% set navId = 'cases' %}
+{% set navId = 'prosecutors' %}
 {% set pageName = "Check details and add specialist areas" %}
 
 {% block beforeContent %}
@@ -14,7 +14,7 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
 
-      <span class="govuk-caption-l">{{lawyer.firstName}} {{lawyer.lastName}}</span>
+      <span class="govuk-caption-l">{{prosecutor.firstName}} {{prosecutor.lastName}}</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
       {% set specialistAreasValue %}
@@ -71,7 +71,7 @@
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/specialist-areas/new" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/specialist-areas/new" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Specialist areas"
                 }
@@ -88,7 +88,7 @@
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/specialist-areas/new/preferred-areas" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/specialist-areas/new/preferred-areas" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Preferred areas"
                 }
@@ -105,7 +105,7 @@
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/specialist-areas/new/restricted-areas" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/specialist-areas/new/restricted-areas" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Restricted areas"
                 }

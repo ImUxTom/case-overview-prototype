@@ -12,14 +12,17 @@ module.exports = router => {
 
     const unassignedCaseCount = await prisma.case.count({
       where: {
-        lawyers: {
-          none: {}   // means no related lawyers
+        prosecutors: {
+          none: {}
         }
       }
     })
 
     // Count prosecutors with incomplete profiles (no specialist, preferred, or restricted areas)
-    const allLawyers = await prisma.lawyer.findMany({
+    const allProsecutors = await prisma.user.findMany({
+      where: {
+        role: 'Prosecutor'
+      },
       include: {
         specialistAreas: true,
         preferredAreas: true,
@@ -27,10 +30,10 @@ module.exports = router => {
       }
     })
 
-    const incompleteProfileCount = allLawyers.filter(lawyer =>
-      lawyer.specialistAreas.length === 0 &&
-      lawyer.preferredAreas.length === 0 &&
-      lawyer.restrictedAreas.length === 0
+    const incompleteProfileCount = allProsecutors.filter(prosecutor =>
+      prosecutor.specialistAreas.length === 0 &&
+      prosecutor.preferredAreas.length === 0 &&
+      prosecutor.restrictedAreas.length === 0
     ).length
 
     const needsDGAReviewCount = await prisma.case.count({
@@ -103,13 +106,20 @@ module.exports = router => {
       if (task.case.paceTimeLimit) paceTaskCount++
     })
 
-    // Fetch directions assigned to current user and categorize by due date
+    // Fetch directions for cases assigned to current user (as prosecutor or paralegal officer)
     let directions = await prisma.direction.findMany({
       where: {
         AND: [
           { completedDate: null },
-          { assignedToUserId: currentUser.id },
-          { case: { unitId: { in: userUnitIds } } }
+          {
+            case: {
+              unitId: { in: userUnitIds },
+              OR: [
+                { prosecutors: { some: { userId: currentUser.id } } },
+                { paralegalOfficers: { some: { userId: currentUser.id } } }
+              ]
+            }
+          }
         ]
       }
     })
@@ -138,6 +148,34 @@ module.exports = router => {
       }
     })
 
+    // Count cases assigned to current user as prosecutor
+    let prosecutorCaseCount = 0
+    if (currentUser.role === 'Prosecutor') {
+      prosecutorCaseCount = await prisma.case.count({
+        where: {
+          prosecutors: {
+            some: {
+              userId: currentUser.id
+            }
+          }
+        }
+      })
+    }
+
+    // Count cases assigned to current user as paralegal officer
+    let paralegalOfficerCaseCount = 0
+    if (currentUser.role === 'Paralegal officer') {
+      paralegalOfficerCaseCount = await prisma.case.count({
+        where: {
+          paralegalOfficers: {
+            some: {
+              userId: currentUser.id
+            }
+          }
+        }
+      })
+    }
+
     res.render('overview/index', {
       unassignedCaseCount,
       incompleteProfileCount,
@@ -152,7 +190,9 @@ module.exports = router => {
       notDueYetTaskCount: tasksBySeverity['Not due yet'].length,
       dueTodayDirectionCount,
       dueTomorrowDirectionCount,
-      overdueDirectionCount
+      overdueDirectionCount,
+      prosecutorCaseCount,
+      paralegalOfficerCaseCount
     })
   })
 

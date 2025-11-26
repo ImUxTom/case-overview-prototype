@@ -16,17 +16,20 @@ module.exports = router => {
             { dueDate: 'asc' }
           ],
           include: {
-            assignedToUser: true,
-            assignedToTeam: {
-              include: {
-                unit: true
-              }
-            }
+            defendant: true
           }
         },
-        user: true,
         unit: true,
-        lawyers: true,
+        prosecutors: {
+          include: {
+            user: true
+          }
+        },
+        paralegalOfficers: {
+          include: {
+            user: true
+          }
+        },
         defendants: {
           include: {
             charges: true,

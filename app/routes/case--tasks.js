@@ -30,9 +30,17 @@ module.exports = router => {
             }
           }
         },
-        user: true,
         unit: true,
-        lawyers: true,
+        prosecutors: {
+          include: {
+            user: true
+          }
+        },
+        paralegalOfficers: {
+          include: {
+            user: true
+          }
+        },
         defendants: {
           include: {
             charges: true,

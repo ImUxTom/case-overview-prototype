@@ -35,19 +35,35 @@
         }) }}
 
         {{ appCheckboxFilter({
-          idPrefix: "directionListFilters[owner]",
-          name: "directionListFilters[owner]",
-          classes: "govuk-checkboxes--small owner-filter",
+          idPrefix: "directionListFilters[prosecutors]",
+          name: "directionListFilters[prosecutors]",
+          classes: "govuk-checkboxes--small prosecutor-filter",
           fieldset: {
             legend: {
-              text: "Owner",
+              text: "Prosecutor",
               classes: "govuk-fieldset__legend--s"
             }
           },
           maxHeight: true,
-          items: ownerItems,
-          values: selectedOwnerFilters,
-          selectedItems: selectedOwnerItems
+          items: prosecutorItems,
+          values: selectedProsecutorFilters,
+          selectedItems: selectedProsecutorItems
+        }) }}
+
+        {{ appCheckboxFilter({
+          idPrefix: "directionListFilters[paralegalOfficers]",
+          name: "directionListFilters[paralegalOfficers]",
+          classes: "govuk-checkboxes--small paralegal-officer-filter",
+          fieldset: {
+            legend: {
+              text: "Paralegal officer",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          maxHeight: true,
+          items: paralegalOfficerItems,
+          values: selectedParalegalOfficerFilters,
+          selectedItems: selectedParalegalOfficerItems
         }) }}
 
         {{ govukCheckboxes({

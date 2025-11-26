@@ -55,12 +55,22 @@
                 </div>
               </h2>
 
-              {% set lawyerValue %}
-                {% if _case.lawyers.length %}
+              {% set prosecutorValue %}
+                {% if _case.prosecutors.length %}
+                  {{_case.prosecutors[0].user.firstName}} {{_case.prosecutors[0].user.lastName}}
+                  {% if _case.prosecutors.length > 1 %}
+                    and {{_case.prosecutors.length - 1}} more
+                  {% endif %}
+                {% else %}
+                  Unassigned
+                {% endif %}
+              {% endset %}
 
-                  {{_case.lawyers[0].firstName}} {{_case.lawyers[0].lastName}}
-                  {% if _case.lawyers.length > 1 %}
-                    and {{_case.lawyers.length - 1}} more
+              {% set paralegalOfficerValue %}
+                {% if _case.paralegalOfficers.length %}
+                  {{_case.paralegalOfficers[0].user.firstName}} {{_case.paralegalOfficers[0].user.lastName}}
+                  {% if _case.paralegalOfficers.length > 1 %}
+                    and {{_case.paralegalOfficers.length - 1}} more
                   {% endif %}
                 {% else %}
                   Unassigned
@@ -107,15 +117,15 @@
                       html: 'Prosecutor'
                     },
                     value: {
-                      html: lawyerValue
+                      html: prosecutorValue
                     }
                   },
                   {
                     key: {
-                    html: 'Paralegal officer'
+                      html: 'Paralegal officer'
                     },
                     value: {
-                      html: lawyerValue
+                      html: paralegalOfficerValue
                     }
                   },
                   {
@@ -178,7 +188,7 @@
     })
 
     new App.ListFilter({
-      container: $('.lawyer-filter'),
+      container: $('.prosecutor-filter'),
       textBox: {
         label: 'Find prosecutor'
       }

@@ -24,12 +24,12 @@
               text: "Prosecutor"
             },
             value: {
-              html: lawyer.firstName + ' ' + lawyer.lastName
+              html: prosecutor.firstName + ' ' + prosecutor.lastName
             },
             actions: {
               items: [
                 {
-                  href: "/cases/:caseId/add-lawyer" | replace(':caseId', _case.id),
+                  href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
                   text: "Change",
                   visuallyHiddenText: "Prosecutor"
                 }

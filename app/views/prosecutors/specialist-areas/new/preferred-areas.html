@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
-{% set navId = 'lawyers' %}
-{% set pageName = "Restricted areas" %}
+{% set navId = 'prosecutors' %}
+{% set pageName = "Preferred areas" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -14,10 +14,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
 
-      <span class="govuk-caption-l">{{lawyer.firstName}} {{lawyer.lastName}} - add specialist areas</span>
+      <span class="govuk-caption-l">{{prosecutor.firstName}} {{prosecutor.lastName}} - add specialist areas</span>
       <form method="post">
         {{ govukCheckboxes({
-          name: "addSpecialistArea[restrictedAreas]",
+          name: "addSpecialistArea[preferredAreas]",
           fieldset: {
             legend: {
               text: pageName,
@@ -25,7 +25,7 @@
               classes: "govuk-fieldset__legend--l"
             }
           },
-          values: data.addSpecialistArea.restrictedAreas,
+          values: data.addSpecialistArea.preferredAreas,
           items: specialismItems
         }) }}
 

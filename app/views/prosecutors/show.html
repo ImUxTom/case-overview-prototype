@@ -1,13 +1,13 @@
 {% extends "layouts/main.html" %}
-{% set navId = 'lawyers' %}
-{% set pageName = lawyer.firstName + ' ' + lawyer.lastName %}
+{% set navId = 'prosecutors' %}
+{% set pageName = prosecutor.firstName + ' ' + prosecutor.lastName %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
     items: [
       {
         text: "Prosecutors",
-        href: "/lawyers"
+        href: "/prosecutors"
       },
       {
         text: pageName
@@ -28,9 +28,9 @@
       </h1>
 
       {% set specialistAreas %}
-        {% if lawyer.specialistAreas.length %}
+        {% if prosecutor.specialistAreas.length %}
           <ul class="govuk-list govuk-list--bullet">
-            {% for item in lawyer.specialistAreas %}
+            {% for item in prosecutor.specialistAreas %}
               <li>
                 {{item.name}}
               </li>
@@ -42,9 +42,9 @@
       {% endset %}
 
       {% set preferredAreas %}
-        {% if lawyer.preferredAreas.length %}
+        {% if prosecutor.preferredAreas.length %}
           <ul class="govuk-list govuk-list--bullet">
-            {% for item in lawyer.preferredAreas %}
+            {% for item in prosecutor.preferredAreas %}
               <li>
                 {{item.name}}
               </li>
@@ -56,9 +56,9 @@
       {% endset %}
 
       {% set restrictedAreas %}
-        {% if lawyer.restrictedAreas.length %}
+        {% if prosecutor.restrictedAreas.length %}
           <ul class="govuk-list govuk-list--bullet">
-            {% for item in lawyer.restrictedAreas %}
+            {% for item in prosecutor.restrictedAreas %}
               <li>
                 {{item.name}}
               </li>
@@ -72,16 +72,16 @@
       {{ govukSummaryList({
         rows: [
           {
-            key: { 
-              text: "First name" 
+            key: {
+              text: "First name"
             },
-            value: { 
-              html: lawyer.firstName 
+            value: {
+              html: prosecutor.firstName
             },
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/edit-first-name" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/edit-first-name" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "First name"
                 }
@@ -89,16 +89,16 @@
             }
           },
           {
-            key: { 
-              text: "Last name" 
+            key: {
+              text: "Last name"
             },
-            value: { 
-              html: lawyer.lastName 
+            value: {
+              html: prosecutor.lastName
             },
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/edit-last-name" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/edit-last-name" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Last name"
                 }
@@ -106,16 +106,16 @@
             }
           },
           {
-            key: { 
-              text: "Unit" 
+            key: {
+              text: "Unit"
             },
-            value: { 
-              html: lawyer.unit.name 
+            value: {
+              html: prosecutor.unit.name
             },
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/edit-unit" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/edit-unit" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Unit"
                 }
@@ -132,37 +132,37 @@
             actions: {
               items: [
                 {
-                  href: "/lawyers/:lawyerId/edit-working-pattern" | replace(':lawyerId', lawyer.id),
+                  href: "/prosecutors/:prosecutorId/edit-working-pattern" | replace(':prosecutorId', prosecutor.id),
                   text: "Change",
                   visuallyHiddenText: "Working pattern"
                 }
               ]
             }
-          }         
+          }
         ]
       }) }}
 
       <h2 class="govuk-heading-m">Specialist areas</h2>
 
-      {% if lawyer.specialistAreas.length == 0 and lawyer.preferredAreas.length == 0 and lawyer.restrictedAreas.length == 0 %}
+      {% if prosecutor.specialistAreas.length == 0 and prosecutor.preferredAreas.length == 0 and prosecutor.restrictedAreas.length == 0 %}
         {{ govukButton({
           text: "Add specialist areas",
-          href: '/lawyers/:lawyerId/specialist-areas/new' | replace(':lawyerId', lawyer.id)
+          href: '/prosecutors/:prosecutorId/specialist-areas/new' | replace(':prosecutorId', prosecutor.id)
         }) }}
       {% else %}
         {{ govukSummaryList({
           rows: [
             {
-              key: { 
-                text: "Specialist areas" 
+              key: {
+                text: "Specialist areas"
               },
-              value: { 
+              value: {
                 html: specialistAreas
               },
               actions: {
                 items: [
                   {
-                    href: "/lawyers/:lawyerId/edit-preferences/specialist-areas" | replace(':lawyerId', lawyer.id),
+                    href: "/prosecutors/:prosecutorId/edit-preferences/specialist-areas" | replace(':prosecutorId', prosecutor.id),
                     text: "Change",
                     visuallyHiddenText: "Specialist areas"
                   }
@@ -170,16 +170,16 @@
               }
             },
             {
-              key: { 
-                text: "Preferred areas" 
+              key: {
+                text: "Preferred areas"
               },
-              value: { 
+              value: {
                 html: preferredAreas
               },
               actions: {
                 items: [
                   {
-                    href: "/lawyers/:lawyerId/edit-preferences/preferred-areas" | replace(':lawyerId', lawyer.id),
+                    href: "/prosecutors/:prosecutorId/edit-preferences/preferred-areas" | replace(':prosecutorId', prosecutor.id),
                     text: "Change",
                     visuallyHiddenText: "Preferred areas"
                   }
@@ -187,16 +187,16 @@
               }
             },
             {
-              key: { 
-                text: "Restriced areas" 
+              key: {
+                text: "Restriced areas"
               },
-              value: { 
+              value: {
                 html: restrictedAreas
               },
               actions: {
                 items: [
                   {
-                    href: "/lawyers/:lawyerId/edit-preferences/restricted-areas" | replace(':lawyerId', lawyer.id),
+                    href: "/prosecutors/:prosecutorId/edit-preferences/restricted-areas" | replace(':prosecutorId', prosecutor.id),
                     text: "Change",
                     visuallyHiddenText: "Restricted areas"
                   }

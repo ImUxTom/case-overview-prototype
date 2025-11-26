@@ -20,7 +20,6 @@
       </div>
 
       {% include "_includes/direction/search-form.njk" %}
-      {% include "_includes/direction/sort-controls.njk" %}
 
       {% if directions.length %}
         <div class="app-list">
@@ -171,9 +170,16 @@
     })
 
     new App.ListFilter({
-      container: $('.owner-filter'),
+      container: $('.prosecutor-filter'),
       textBox: {
-        label: 'Find owner'
+        label: 'Find prosecutor'
+      }
+    })
+
+    new App.ListFilter({
+      container: $('.paralegal-officer-filter'),
+      textBox: {
+        label: 'Find paralegal officer'
       }
     })
   </script>
