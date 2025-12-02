@@ -16,6 +16,11 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
+      {{ govukButton({
+        text: "Add task",
+        href: '/cases/:caseId/tasks/new' | replace(':caseId', _case.id)
+      }) }}
+
       {% if _case.tasks.length %}
         <div class="app-list">
           {% for task in _case.tasks %}
