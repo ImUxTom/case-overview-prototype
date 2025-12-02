@@ -51,6 +51,12 @@ module.exports = router => {
     res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[urgent][]=Urgent`)
   })
 
+  router.get('/tasks/shortcut/priority-charging', (req, res) => {
+    const currentUser = req.session.data.user
+    resetFilters(req)
+    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[taskNames][]=Priority PCD review&taskListFilters[taskNames][]=Priority resubmitted PCD case`)
+  })
+
   // Custody Time Limit shortcuts
   router.get('/tasks/shortcut/ctl-overdue', (req, res) => {
     const currentUser = req.session.data.user

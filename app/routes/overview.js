@@ -57,6 +57,23 @@ module.exports = router => {
       }
     })
 
+    // Count priority charging tasks assigned to current user
+    const priorityChargingTaskCount = await prisma.task.count({
+      where: {
+        AND: [
+          { completedDate: null },
+          { assignedToUserId: currentUser.id },
+          { case: { unitId: { in: userUnitIds } } },
+          {
+            OR: [
+              { name: 'Priority PCD review' },
+              { name: 'Priority resubmitted PCD case' }
+            ]
+          }
+        ]
+      }
+    })
+
     // Fetch tasks assigned to current user with case and defendant info for time limit calculation
     let tasks = await prisma.task.findMany({
       where: {
@@ -244,6 +261,7 @@ module.exports = router => {
       incompleteProfileCount,
       needsDGAReviewCount,
       urgentTaskCount,
+      priorityChargingTaskCount,
       ctlCountsByRange,
       stlCountsByRange,
       paceClockCountsByRange,
