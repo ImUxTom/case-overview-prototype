@@ -17,7 +17,7 @@
       {% endif %}
 
       {% if dueTodayDirectionCount > 0 %}
-        <a href="/directions/shortcut/due-today" class="app-overview-card app-overview-card--orange">
+        <a href="/directions/shortcut/due-today" class="app-overview-card app-overview-card--blue">
           <span class="app-overview-card__count">{{dueTodayDirectionCount}}</span>
           <span class="app-overview-card__status">
             {% if dueTodayDirectionCount == 1 %}
@@ -31,7 +31,7 @@
       {% endif %}
 
       {% if dueTomorrowDirectionCount > 0 %}
-        <a href="/directions/shortcut/due-tomorrow" class="app-overview-card app-overview-card--yellow">
+        <a href="/directions/shortcut/due-tomorrow" class="app-overview-card app-overview-card--purple">
           <span class="app-overview-card__count">{{dueTomorrowDirectionCount}}</span>
           <span class="app-overview-card__status">
             {% if dueTomorrowDirectionCount == 1 %}
