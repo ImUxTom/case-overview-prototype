@@ -5,13 +5,14 @@
 
 const govukPrototypeKit = require('govuk-prototype-kit')
 const addFilter = govukPrototypeKit.views.addFilter
+const { DateTime } = require('luxon')
 
 // Add your filters here
 addFilter('priorityTagClass', status => {
   switch(status) {
     case 'High priority':
       return 'govuk-tag--red'
-		case 'Medium priority':
+    case 'Medium priority':
       return 'govuk-tag--yellow'
     case 'Low priority':
       return 'govuk-tag--green'
@@ -44,11 +45,6 @@ addFilter('directionStatusTagClass', status => {
   }
 })
 
-addFilter('capitalize', str => {
-  if (!str) return str
-  return str.charAt(0).toUpperCase() + str.slice(1)
-})
-
 addFilter('isoDateString', date => {
   return date.toISOString()
 })
@@ -58,12 +54,9 @@ addFilter('formatNumber', number => {
 })
 
 addFilter('daysUntil', date => {
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const targetDate = new Date(date)
-  targetDate.setHours(0, 0, 0, 0)
-  const diffTime = targetDate - now
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const now = DateTime.now().startOf('day')
+  const targetDate = DateTime.fromJSDate(new Date(date)).startOf('day')
+  const diffDays = Math.ceil(targetDate.diff(now, 'days').days)
 
   if (diffDays < 0) {
     return 'overdue'
@@ -73,4 +66,24 @@ addFilter('daysUntil', date => {
     return 'tomorrow'
   }
   return `${diffDays} days`
+})
+
+addFilter('paceClockStatus', date => {
+  const now = DateTime.now()
+  const paceClock = DateTime.fromJSDate(new Date(date))
+  const hoursRemaining = paceClock.diff(now, 'hours').hours
+
+  if (hoursRemaining < 0) {
+    return 'expired'
+  }
+  if (hoursRemaining < 1) {
+    return 'ends in less than 1 hour'
+  }
+  if (hoursRemaining < 2) {
+    return 'ends in less than 2 hours'
+  }
+  if (hoursRemaining < 3) {
+    return 'ends in less than 3 hours'
+  }
+  return 'ends in more than 3 hours'
 })

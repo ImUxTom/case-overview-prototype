@@ -139,7 +139,7 @@
                         text: 'PACE clock'
                       },
                       value: {
-                        html: (task.case.paceClock | isoDateString | govukDateTime) + ' (' + (task.case.paceClock | daysUntil) + ')'
+                        html: (task.case.paceClock | isoDateString | govukDateTime) + ' (' + (task.case.paceClock | paceClockStatus) + ')'
                       }
                     } if task.case.paceClock,
                     {
