@@ -247,7 +247,7 @@ module.exports = router => {
     delete req.session.data.addTask
 
     // Flash message and redirect
-    req.flash('success', 'Task added')
+    req.flash('success', 'Reminder added')
     res.redirect(`/cases/${caseId}/tasks/${task.id}`)
   })
 }

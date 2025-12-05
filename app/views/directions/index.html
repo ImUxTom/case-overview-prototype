@@ -74,8 +74,9 @@
               {% endset %}
 
               {% if direction.case.hearings and direction.case.hearings.length > 0 %}
-                {% set hearingValue %}
-                  {{ direction.case.hearings[0].startDate | isoDateString | govukDateTime }} - {{ direction.case.hearings[0].type }}
+                {% set hearingDateValue %}
+                  {{ direction.case.hearings[0].startDate | isoDateString | govukDateTime }}
+                  <span>({{ direction.case.hearings[0].startDate | daysUntil }})</span>
                 {% endset %}
               {% endif %}
 
@@ -163,10 +164,18 @@
                   },
                   {
                     key: {
-                      html: 'Hearing'
+                      html: 'Hearing date'
                     },
                     value: {
-                      html: hearingValue
+                      html: hearingDateValue
+                    }
+                  } if direction.case.hearings and direction.case.hearings.length > 0,
+                  {
+                    key: {
+                      html: 'Hearing type'
+                    },
+                    value: {
+                      html: direction.case.hearings[0].type
                     }
                   } if direction.case.hearings and direction.case.hearings.length > 0
                 ]

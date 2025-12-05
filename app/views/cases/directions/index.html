@@ -130,10 +130,18 @@
                   } if _case.hasCTL,
                   {
                     key: {
-                      html: 'Hearing'
+                      html: 'Hearing date'
                     },
                     value: {
-                      html: (_case.hearings[0].startDate | isoDateString | govukDateTime) + ' - ' + _case.hearings[0].type
+                      html: (_case.hearings[0].startDate | isoDateString | govukDateTime) + ' <span>(' + (_case.hearings[0].startDate | daysUntil) + ')</span>'
+                    }
+                  } if _case.hearings and _case.hearings.length > 0,
+                  {
+                    key: {
+                      html: 'Hearing type'
+                    },
+                    value: {
+                      html: _case.hearings[0].type
                     }
                   } if _case.hearings and _case.hearings.length > 0
                 ]

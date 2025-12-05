@@ -184,10 +184,18 @@
                     } if task.notes and task.notes.length > 0,
                     {
                       key: {
-                        html: 'Hearing'
+                        html: 'Hearing date'
                       },
                       value: {
-                        html: (task.case.hearings[0].startDate | isoDateString | govukDateTime) + ' - ' + task.case.hearings[0].type
+                        html: (task.case.hearings[0].startDate | isoDateString | govukDateTime) + ' <span>(' + (task.case.hearings[0].startDate | daysUntil) + ')</span>'
+                      }
+                    } if task.case.hearings and task.case.hearings.length > 0,
+                    {
+                      key: {
+                        html: 'Hearing type'
+                      },
+                      value: {
+                        html: task.case.hearings[0].type
                       }
                     } if task.case.hearings and task.case.hearings.length > 0
                   ]

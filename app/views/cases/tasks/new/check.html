@@ -1,6 +1,6 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
-{% set pageName = "Check details and add task" %}
+{% set pageName = "Check details and add reminder" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -18,7 +18,7 @@
       {{ govukSummaryList({
         rows: [
           {
-            key: { text: "Task" },
+            key: { text: "Description" },
             value: { text: data.addTask.description },
             actions: {
               items: [{
@@ -29,7 +29,7 @@
             }
           },
           {
-            key: { text: "Asset recovery task" },
+            key: { text: "Is this reminder about asset recoveryAsset recovery task" },
             value: { text: 'Yes' if data.addTask.isAssetRecovery == 'yes' else 'No' },
             actions: {
               items: [{
@@ -87,7 +87,7 @@
       }) }}
 
       <form method="post">
-        {{ govukButton({ text: "Add task" }) }}
+        {{ govukButton({ text: "Add reminder" }) }}
       </form>
     </div>
   </div>
