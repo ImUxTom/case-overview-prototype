@@ -1,6 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 const { faker } = require("@faker-js/faker");
+const _ = require("lodash");
+
+// App data
 const complexities = require("../app/data/complexities.js");
 const firstNames = require("../app/data/first-names.js");
 const lastNames = require("../app/data/last-names.js");
@@ -8,460 +11,66 @@ const types = require("../app/data/types.js");
 const taskNames = require("../app/data/task-names.js");
 const documentTypes = require("../app/data/document-types.js");
 const specialisms = require("../app/data/specialisms.js");
-const hearingTypes = require("../app/data/hearing-types.js");
 const venues = require("../app/data/venues.js");
+const remandStatuses = require("../app/data/remand-statuses.js");
+const charges = require("../app/data/charges.js");
+const chargeStatuses = require("../app/data/charge-statuses.js");
+const pleas = require("../app/data/pleas.js");
+const defenceLawyerOrganisations = require("../app/data/defence-lawyer-organisations.js");
+const ukCities = require("../app/data/uk-cities.js");
+const religions = require("../app/data/religions.js");
+const occupations = require("../app/data/occupations.js");
+const taskNoteDescriptions = require("../app/data/task-note-descriptions.js");
+const manualTaskNamesShort = require("../app/data/manual-task-names-short.js");
+const manualTaskNamesLong = require("../app/data/manual-task-names-long.js");
+
+// Seed helper functions
+const { generateCaseReference } = require("./seed-helpers/identifiers");
+
+const {
+  generateUKMobileNumber,
+  generateUKLandlineNumber,
+  generateUKPhoneNumber
+} = require("./seed-helpers/phone-numbers");
+
+const {
+  futureDateAt10am,
+} = require("./seed-helpers/dates");
+
+const {
+  generatePendingTaskDates,
+  generateDueTaskDates,
+  generateOverdueTaskDates,
+  generateEscalatedTaskDates
+} = require("./seed-helpers/task-dates");
+
+const {
+  generateExpiredCTL,
+  generateTodayCTL,
+  generateTomorrowCTL,
+  generateThisWeekCTL,
+  generateNextWeekCTL,
+  generateLaterCTL
+} = require("./seed-helpers/ctl-generators");
+
+const {
+  generateExpiredSTL,
+  generateTodaySTL,
+  generateTomorrowSTL,
+  generateThisWeekSTL,
+  generateNextWeekSTL,
+  generateLaterSTL
+} = require("./seed-helpers/stl-generators");
+
+const {
+  generateExpiredPACE,
+  generateLessThan1HourPACE,
+  generateLessThan2HoursPACE,
+  generateLessThan3HoursPACE,
+  generateMoreThan3HoursPACE
+} = require("./seed-helpers/pace-generators");
 
 const prisma = new PrismaClient();
-
-const ukCities = [
-  "London", "Birmingham", "Manchester", "Leeds", "Glasgow", "Liverpool",
-  "Newcastle", "Sheffield", "Bristol", "Edinburgh", "Leicester", "Coventry",
-  "Bradford", "Cardiff", "Belfast", "Nottingham", "Kingston upon Hull",
-  "Plymouth", "Stoke-on-Trent", "Wolverhampton", "Derby", "Southampton",
-  "Portsmouth", "Brighton", "Reading", "Northampton", "Luton", "Bolton",
-  "Aberdeen", "Sunderland", "Dundee", "Norwich", "Ipswich", "York",
-  "Swansea", "Oxford", "Cambridge", "Peterborough", "Gloucester", "Chester"
-];
-
-const religions = [
-  "Christianity", "Islam", "Hinduism", "Sikhism", "Judaism", "Buddhism",
-  "No religion", "Not stated", "Other"
-];
-
-const occupations = [
-  "Unemployed", "Student", "Retail worker", "Construction worker", "Teacher",
-  "Healthcare worker", "Office worker", "Self-employed", "Driver", "Engineer",
-  "Hospitality worker", "Tradesperson", "IT professional", "Manager", "Retired"
-];
-
-const remandStatuses = [
-  "UNCONDITIONAL_BAIL", "CONDITIONAL_BAIL", "REMANDED_IN_CUSTODY", "REMANDED_IN_SECURE_UNIT"
-];
-
-const charges = [
-  { code: "B10", description: "THEFT, contrary to section 1(1) of the Theft Act 1968" },
-  { code: "A01", description: "ASSAULT BY BEATING, contrary to section 39 of the Criminal Justice Act 1988" },
-  { code: "C03", description: "CRIMINAL DAMAGE, contrary to section 1(1) of the Criminal Damage Act 1971" },
-  { code: "D05", description: "POSSESSION OF A CONTROLLED DRUG (Class B), contrary to section 5(2) of the Misuse of Drugs Act 1971" },
-  { code: "D06", description: "POSSESSION WITH INTENT TO SUPPLY A CONTROLLED DRUG (Class A), contrary to section 5(3) of the Misuse of Drugs Act 1971" },
-  { code: "F02", description: "FRAUD BY FALSE REPRESENTATION, contrary to section 1 of the Fraud Act 2006" },
-  { code: "H01", description: "HARASSMENT, contrary to section 2 of the Protection from Harassment Act 1997" },
-  { code: "M01", description: "COMMON ASSAULT, contrary to section 39 of the Criminal Justice Act 1988" },
-  { code: "R01", description: "ROBBERY, contrary to section 8(1) of the Theft Act 1968" },
-  { code: "V01", description: "DRIVING WHILST DISQUALIFIED, contrary to section 103(1)(b) of the Road Traffic Act 1988" },
-  { code: "W01", description: "POSSESSION OF AN OFFENSIVE WEAPON, contrary to section 1 of the Prevention of Crime Act 1953" },
-  { code: "B11", description: "BURGLARY, contrary to section 9(1)(a) of the Theft Act 1968" },
-  { code: "A02", description: "ACTUAL BODILY HARM, contrary to section 47 of the Offences Against the Person Act 1861" },
-  { code: "T01", description: "THREATENING BEHAVIOUR, contrary to section 4 of the Public Order Act 1986" }
-];
-
-const chargeStatuses = [
-  "Charged", "Under review", "Proceeded", "Discontinued", "Amended"
-];
-
-const pleas = ["NOT_GUILTY", "GUILTY", "NO_PLEA", "NOT_INDICATED"];
-
-const defenceLawyerOrganisations = [
-  "Smith & Co Solicitors", "Jones Legal LLP", "Brown Associates", "Wilson & Partners",
-  "Taylor Law Firm", "Davies Solicitors", "Evans Legal Services", "Thomas & Associates",
-  "Roberts Law", "Johnson Legal LLP", "Williams Solicitors", "Anderson & Co",
-  "White Legal Services", "Martin & Partners", "Thompson Law Firm", "Jackson Solicitors"
-];
-
-function generateUKMobileNumber() {
-  // UK mobile numbers: 07 + 9 digits (07XXXXXXXXX)
-  return `07${faker.string.numeric(9)}`;
-}
-
-function generateUKLandlineNumber() {
-  // Mix of geographic (01XXX XXXXXX) and major city (020 XXXX XXXX) numbers
-  const type = faker.helpers.arrayElement(['geographic', 'london', 'major']);
-
-  if (type === 'london') {
-    // London: 020 + 8 digits
-    return `020${faker.string.numeric(8)}`;
-  } else if (type === 'major') {
-    // Major cities (Manchester 0161, Birmingham 0121, etc.): 01XX + 7 digits
-    const areaCode = faker.helpers.arrayElement(['0161', '0121', '0131', '0141', '0113', '0114', '0117', '0151']);
-    return `${areaCode}${faker.string.numeric(7)}`;
-  } else {
-    // Geographic: 01XXX + 6 digits
-    return `01${faker.string.numeric(3)}${faker.string.numeric(6)}`;
-  }
-}
-
-function generateUKPhoneNumber() {
-  // Mix of mobile and landline for general phone numbers
-  return faker.helpers.arrayElement([generateUKMobileNumber(), generateUKLandlineNumber()]);
-}
-
-function futureDateAt10am() {
-  const d = faker.date.future();
-  d.setHours(10, 0, 0, 0);
-  return d;
-}
-
-function getOverdueDate() {
-  // Returns a date 2-7 days in the past at 23:59:59.999 UTC
-  const daysAgo = faker.number.int({ min: 2, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-function getTodayDate() {
-  // Returns today at 23:59:59.999 UTC
-  const d = new Date();
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-function getTomorrowDate() {
-  // Returns tomorrow at 23:59:59.999 UTC
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Helper functions for generating task dates in different states
-function generatePendingTaskDates() {
-  // Pending: all dates in the future
-  const reminderDate = faker.date.soon({ days: 14 }); // 0-14 days from now
-  const daysUntilDue = faker.number.int({ min: 3, max: 7 });
-  const dueDate = new Date(reminderDate);
-  dueDate.setDate(dueDate.getDate() + daysUntilDue);
-
-  const daysUntilEscalation = faker.number.int({ min: 3, max: 7 });
-  const escalationDate = new Date(dueDate);
-  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
-
-  reminderDate.setUTCHours(23, 59, 59, 999);
-  dueDate.setUTCHours(23, 59, 59, 999);
-  escalationDate.setUTCHours(23, 59, 59, 999);
-
-  return { reminderDate, dueDate, escalationDate };
-}
-
-function generateDueTaskDates() {
-  // Due: reminder date has passed, due date in future
-  const daysAgo = faker.number.int({ min: 1, max: 3 });
-  const reminderDate = new Date();
-  reminderDate.setDate(reminderDate.getDate() - daysAgo);
-
-  const daysUntilDue = faker.number.int({ min: 2, max: 5 });
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + daysUntilDue);
-
-  const daysUntilEscalation = faker.number.int({ min: 3, max: 7 });
-  const escalationDate = new Date(dueDate);
-  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
-
-  reminderDate.setUTCHours(23, 59, 59, 999);
-  dueDate.setUTCHours(23, 59, 59, 999);
-  escalationDate.setUTCHours(23, 59, 59, 999);
-
-  return { reminderDate, dueDate, escalationDate };
-}
-
-function generateOverdueTaskDates() {
-  // Overdue: due date has passed, escalation date in future
-  const daysAgo = faker.number.int({ min: 2, max: 7 });
-  const reminderDate = new Date();
-  reminderDate.setDate(reminderDate.getDate() - daysAgo - 5);
-
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() - daysAgo);
-
-  const daysUntilEscalation = faker.number.int({ min: 2, max: 5 });
-  const escalationDate = new Date();
-  escalationDate.setDate(escalationDate.getDate() + daysUntilEscalation);
-
-  reminderDate.setUTCHours(23, 59, 59, 999);
-  dueDate.setUTCHours(23, 59, 59, 999);
-  escalationDate.setUTCHours(23, 59, 59, 999);
-
-  return { reminderDate, dueDate, escalationDate };
-}
-
-function generateEscalatedTaskDates() {
-  // Escalated: all dates have passed
-  const daysAgo = faker.number.int({ min: 3, max: 10 });
-  const reminderDate = new Date();
-  reminderDate.setDate(reminderDate.getDate() - daysAgo - 7);
-
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() - daysAgo - 3);
-
-  const escalationDate = new Date();
-  escalationDate.setDate(escalationDate.getDate() - daysAgo);
-
-  reminderDate.setUTCHours(23, 59, 59, 999);
-  dueDate.setUTCHours(23, 59, 59, 999);
-  escalationDate.setUTCHours(23, 59, 59, 999);
-
-  return { reminderDate, dueDate, escalationDate };
-}
-
-function generateCaseReference() {
-  const twoDigits = faker.number.int({ min: 10, max: 99 });
-  const twoLetters = faker.string.alpha({ count: 2, casing: "upper" });
-  const sixDigits = faker.number.int({ min: 100000, max: 999999 });
-  const suffix = faker.number.int({ min: 1, max: 9 });
-  return `${twoDigits}${twoLetters}${sixDigits}/${suffix}`;
-}
-
-// Generate CTL between yesterday and 120 days from now
-function generateCTL() {
-  const daysFromNow = faker.number.int({ min: -1, max: 120 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expired 1-7 days ago
-function generateExpiredCTL() {
-  const daysAgo = faker.number.int({ min: 1, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expires today
-function generateTodayCTL() {
-  const d = new Date();
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expires tomorrow
-function generateTomorrowCTL() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expires this week (2-7 days from now)
-function generateThisWeekCTL() {
-  const daysFromNow = faker.number.int({ min: 2, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expires next week (8-14 days from now)
-function generateNextWeekCTL() {
-  const daysFromNow = faker.number.int({ min: 8, max: 14 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate CTL that expires later (15-120 days from now)
-function generateLaterCTL() {
-  const daysFromNow = faker.number.int({ min: 15, max: 120 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL between yesterday and 6 months (180 days) from now
-function generateSTL() {
-  const daysFromNow = faker.number.int({ min: -1, max: 180 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate PACE clock between yesterday and 24 hours from now
-function generatePACEClock() {
-  const hoursFromNow = faker.number.int({ min: -24, max: 24 });
-  const d = new Date();
-  d.setHours(d.getHours() + hoursFromNow);
-  return d;
-}
-
-// Generate PACE clock that expired 1-12 hours ago
-function getOverduePACEClock() {
-  const hoursAgo = faker.number.int({ min: 1, max: 12 });
-  const d = new Date();
-  d.setHours(d.getHours() - hoursAgo);
-  return d;
-}
-
-// Generate PACE clock expiring within next 6 hours
-function getTodayPACEClock() {
-  const hoursFromNow = faker.number.int({ min: 1, max: 6 });
-  const d = new Date();
-  d.setHours(d.getHours() + hoursFromNow);
-  return d;
-}
-
-// Generate STL that expired 1-7 days ago
-function getOverdueSTL() {
-  const daysAgo = faker.number.int({ min: 1, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL expiring within next 7 days
-function getUpcomingSTL() {
-  const daysFromNow = faker.number.int({ min: 1, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expired 1-7 days ago
-function generateExpiredSTL() {
-  const daysAgo = faker.number.int({ min: 1, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expires today
-function generateTodaySTL() {
-  const d = new Date();
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expires tomorrow
-function generateTomorrowSTL() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expires this week (2-7 days from now)
-function generateThisWeekSTL() {
-  const daysFromNow = faker.number.int({ min: 2, max: 7 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expires next week (8-14 days from now)
-function generateNextWeekSTL() {
-  const daysFromNow = faker.number.int({ min: 8, max: 14 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate STL that expires later (15-180 days from now)
-function generateLaterSTL() {
-  const daysFromNow = faker.number.int({ min: 15, max: 180 });
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  d.setUTCHours(23, 59, 59, 999);
-  return d;
-}
-
-// Generate PACE clock that expired 1-12 hours ago
-function generateExpiredPACE() {
-  const hoursAgo = faker.number.int({ min: 1, max: 12 });
-  const d = new Date();
-  d.setHours(d.getHours() - hoursAgo);
-  return d;
-}
-
-// Generate PACE clock expiring in less than 1 hour (10-59 minutes)
-function generateLessThan1HourPACE() {
-  const minutesFromNow = faker.number.int({ min: 10, max: 59 });
-  const d = new Date();
-  d.setMinutes(d.getMinutes() + minutesFromNow);
-  return d;
-}
-
-// Generate PACE clock expiring in 1-2 hours (60-119 minutes)
-function generateLessThan2HoursPACE() {
-  const minutesFromNow = faker.number.int({ min: 60, max: 119 });
-  const d = new Date();
-  d.setMinutes(d.getMinutes() + minutesFromNow);
-  return d;
-}
-
-// Generate PACE clock expiring in 2-3 hours (120-179 minutes)
-function generateLessThan3HoursPACE() {
-  const minutesFromNow = faker.number.int({ min: 120, max: 179 });
-  const d = new Date();
-  d.setMinutes(d.getMinutes() + minutesFromNow);
-  return d;
-}
-
-// Generate PACE clock expiring in more than 3 hours (3-24 hours)
-function generateMoreThan3HoursPACE() {
-  const hoursFromNow = faker.number.int({ min: 3, max: 24 });
-  const d = new Date();
-  d.setHours(d.getHours() + hoursFromNow);
-  return d;
-}
-
-const taskNoteDescriptions = [
-  "Awaiting response from witness",
-  "Documents requested from police",
-  "Need to schedule meeting with CPS",
-  "Awaiting lab results",
-  "Defence has requested extension",
-  "Victim contacted and updated",
-  "Court date confirmed",
-  "Evidence review in progress",
-  "Waiting for legal advice",
-  "Disclosure deadline approaching",
-  "Expert witness report received",
-  "Investigation officer contacted",
-  "File review completed",
-  "Additional evidence identified",
-  "Defendant solicitor contacted",
-  "Hearing preparation underway",
-  "Statement being reviewed",
-  "Timeline needs updating",
-  "Case file being prepared",
-  "Custody time limit noted"
-];
-
-const manualTaskNamesShort = [
-  "Follow up with witness",
-  "Review new evidence",
-  "Contact defence solicitor",
-  "Check court availability",
-  "Update case file",
-  "Prepare hearing bundle",
-  "Consult with senior prosecutor",
-  "Review forensic report",
-  "Schedule case conference",
-  "Update victim on progress",
-  "Check disclosure obligations",
-  "Prepare cross examination",
-  "Review CCTV footage",
-  "Contact expert witness",
-  "Draft legal submissions"
-];
-
-const manualTaskNamesLong = [
-  "Review and analyze all witness statements to identify any inconsistencies or gaps in evidence that need to be addressed before the next hearing",
-  "Coordinate with the investigating officer to obtain additional forensic evidence and ensure all exhibits are properly catalogued and available for court",
-  "Prepare comprehensive legal submissions addressing the admissibility of the disputed evidence and research relevant case law to support the prosecution position",
-  "Conduct a full review of all disclosure material to ensure compliance with CPIA requirements and identify any material that may undermine the case or assist the defence",
-  "Arrange and prepare for a case conference with counsel to discuss trial strategy, potential witnesses, and any legal issues that may arise during proceedings"
-];
 
 async function main() {
   console.log("🌱 Starting seed...");
@@ -897,9 +506,9 @@ async function main() {
   console.log("✅ Victims seeded");
 
   // -------------------- Cases --------------------
-  const TOTAL_CASES = 2465;
-  const UNASSIGNED_TARGET = 37;
-  const DGA_TARGET = 50; // set desired number of DGAs
+  const TOTAL_CASES = 1165;
+  const UNASSIGNED_TARGET = 7;
+  const DGA_TARGET = 10; // set desired number of DGAs
 
   const createdCases = [];
 
@@ -1876,6 +1485,165 @@ console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure re
         assignedToUserId: user.id
       }
     });
+
+    // -------------------- Witnesses --------------------
+    const numWitnesses = faker.number.int({ min: 1, max: 7 });
+    for (let w = 0; w < numWitnesses; w++) {
+      // Generate witness types with realistic distribution (most have 0-3 types)
+      const allTypes = [
+        "isVictim",
+        "isKeyWitness",
+        "isChild",
+        "isExpert",
+        "isInterpreter",
+        "isPolice",
+        "isProfessional",
+        "isPrisoner",
+        "isVulnerable",
+        "isIntimidated"
+      ];
+
+      // Weighted selection for number of types (most witnesses have 0-3)
+      const numTypesWeighted = faker.helpers.weightedArrayElement([
+        { weight: 30, value: 0 },
+        { weight: 30, value: 1 },
+        { weight: 25, value: 2 },
+        { weight: 10, value: 3 },
+        { weight: 4, value: 4 },
+        { weight: 1, value: 5 }
+      ]);
+
+      // Select random types
+      const selectedTypes = faker.helpers.arrayElements(allTypes, numTypesWeighted);
+
+      // Build witness type object (all false by default, then set selected to true)
+      const witnessTypes = {
+        isVictim: selectedTypes.includes("isVictim"),
+        isKeyWitness: selectedTypes.includes("isKeyWitness"),
+        isChild: selectedTypes.includes("isChild"),
+        isExpert: selectedTypes.includes("isExpert"),
+        isInterpreter: selectedTypes.includes("isInterpreter"),
+        isPolice: selectedTypes.includes("isPolice"),
+        isProfessional: selectedTypes.includes("isProfessional"),
+        isPrisoner: selectedTypes.includes("isPrisoner"),
+        isVulnerable: selectedTypes.includes("isVulnerable"),
+        isIntimidated: selectedTypes.includes("isIntimidated")
+      };
+
+      // Randomly assign dcf (50/50 split between new and old architecture)
+      const isDcf = faker.datatype.boolean();
+
+      const createdWitness = await prisma.witness.create({
+        data: {
+          title: faker.helpers.arrayElement([null, "Mr", "Mrs", "Ms", "Dr", "Prof"]),
+          firstName: faker.helpers.arrayElement(firstNames),
+          lastName: faker.helpers.arrayElement(lastNames),
+          dateOfBirth: faker.date.birthdate({ min: 18, max: 90, mode: "age" }),
+          gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
+          ethnicity: faker.helpers.arrayElement([
+            null,
+            "White",
+            "Asian_or_Asian_British",
+            "Black_or_Black_British",
+            "Mixed",
+            "Other",
+            "Prefer_not_to_say"
+          ]),
+          preferredLanguage: faker.helpers.arrayElement(["English", "Welsh"]),
+          isCpsContactAllowed: faker.datatype.boolean(),
+          addressLine1: faker.helpers.arrayElement([null, faker.location.streetAddress()]),
+          addressLine2: faker.helpers.arrayElement([null, faker.location.secondaryAddress()]),
+          addressTown: faker.helpers.arrayElement([null, faker.helpers.arrayElement(ukCities)]),
+          addressPostcode: faker.helpers.arrayElement([null, faker.location.zipCode("WD# #SF")]),
+          mobileNumber: faker.helpers.arrayElement([null, generateUKMobileNumber()]),
+          emailAddress: faker.helpers.arrayElement([null, faker.internet.email()]),
+          preferredContactMethod: faker.helpers.arrayElement([null, "Email", "Phone", "Post"]),
+          faxNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
+          homeNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
+          workNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
+          otherNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
+          ...witnessTypes,
+          isAppearingInCourt: faker.helpers.arrayElement([false, null]),
+          isRelevant: faker.datatype.boolean(),
+          attendanceIssues: faker.helpers.arrayElement([
+            null,
+            faker.lorem.sentence(),
+          ]),
+          previousTransgressions: faker.helpers.arrayElement([
+            null,
+            faker.lorem.sentence(),
+          ]),
+          wasWarned: faker.datatype.boolean(),
+          dcf: isDcf,
+          // Only set availability fields if dcf = true (new architecture)
+          courtAvailabilityStartDate: isDcf ? faker.date.future() : null,
+          courtAvailabilityEndDate: isDcf ? faker.date.future() : null,
+          // Only set victim fields if witness is a victim
+          victimCode: witnessTypes.isVictim ? "Learning disabilities" : null,
+          victimExplained: witnessTypes.isVictim ? faker.datatype.boolean() : null,
+          victimOfferResponse: witnessTypes.isVictim ? faker.helpers.arrayElement(["Not offered", "Declined", "Accepted"]) : null,
+          caseId: _case.id,
+        },
+      });
+
+      const numStatements = faker.number.int({ min: 1, max: 5 });
+      for (let s = 0; s < numStatements; s++) {
+        await prisma.witnessStatement.create({
+          data: {
+            witnessId: createdWitness.id,
+            number: s + 1,
+            receivedDate: faker.date.past(),
+            isUsedAsEvidence: faker.helpers.arrayElement([true, false, null]),
+            isMarkedAsSection9: faker.helpers.arrayElement([true, false, null]),
+          },
+        });
+      }
+
+      // Create special measures if dcf = true (65% get 1, 10% get 2, 25% get 0)
+      if (isDcf) {
+        const numSpecialMeasures = faker.helpers.weightedArrayElement([
+          { weight: 65, value: 1 },
+          { weight: 10, value: 2 },
+          { weight: 25, value: 0 }
+        ]);
+
+        const specialMeasureTypes = [
+          "Screen Witness",
+          "Pre-recorded Cross-examination (s.28)",
+          "Evidence by Live Link",
+          "Evidence in Private",
+          "Removal of Wigs and Gowns",
+          "Visually Recorded Interview",
+          "Intermediary",
+          "Communication Aids"
+        ];
+
+        const meetingUrls = [
+          "https://teams.microsoft.com/l/meetup-join/19%3ameeting_example123",
+          "https://zoom.us/j/1234567890",
+          "https://meet.google.com/abc-defg-hij"
+        ];
+
+        // Select unique types for this witness
+        const selectedTypes = faker.helpers.arrayElements(specialMeasureTypes, numSpecialMeasures);
+
+        for (let sm = 0; sm < numSpecialMeasures; sm++) {
+          const requiresMeeting = faker.datatype.boolean();
+
+          await prisma.specialMeasure.create({
+            data: {
+              witnessId: createdWitness.id,
+              type: selectedTypes[sm],
+              details: faker.lorem.sentence(),
+              needs: faker.lorem.sentence(),
+              requiresMeeting: requiresMeeting,
+              meetingUrl: requiresMeeting ? faker.helpers.arrayElement(meetingUrls) : null,
+              hasAppliedForReportingRestrictions: faker.datatype.boolean(),
+            },
+          });
+        }
+      }
+    }
 
     return _case;
   }
