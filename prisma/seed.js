@@ -72,6 +72,7 @@ const { seedTeams } = require("./seed-helpers/teams");
 const { seedUsers } = require("./seed-helpers/users");
 const { seedSpecialisms } = require("./seed-helpers/specialisms");
 const { seedProsecutors } = require("./seed-helpers/prosecutors");
+const { seedDefenceLawyers } = require("./seed-helpers/defence-lawyers");
 
 const prisma = new PrismaClient();
 
@@ -94,16 +95,7 @@ async function main() {
   const prosecutors = await seedProsecutors(prisma);
 
   // -------------------- Defence Lawyers --------------------
-  const defenceLawyerData = Array.from({ length: 100 }, () => ({
-    firstName: faker.helpers.arrayElement(firstNames),
-    lastName: faker.helpers.arrayElement(lastNames),
-    organisation: faker.helpers.arrayElement(defenceLawyerOrganisations),
-  }));
-
-  const defenceLawyers = await prisma.defenceLawyer.createManyAndReturn({
-    data: defenceLawyerData,
-  });
-  console.log("✅ Defence lawyers seeded");
+  const defenceLawyers = await seedDefenceLawyers(prisma);
 
   // -------------------- Defendants with Charges --------------------
   // Step 1: Batch create all defendants with time limit type distribution
