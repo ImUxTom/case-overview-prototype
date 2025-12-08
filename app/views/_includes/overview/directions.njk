@@ -1,6 +1,23 @@
-{% if overdueDirectionCount > 0 or dueTodayDirectionCount > 0 or dueTomorrowDirectionCount > 0 %}
+<div class="app-overview-section">
+  <h2 class="govuk-heading-m">Urgent directions that belong to your cases</h2>
+  <ul class="govuk-list govuk-list--bullet">
+    <li>
+      <a href="" class="govuk-link--no-visited-state">3 directions overdue</a>
+    </li>
+    <li>
+      <a href="" class="govuk-link--no-visited-state">6 directions due today</a>
+    </li>
+    <li>
+      <a href="" class="govuk-link--no-visited-state">3 directions due tomorrow</a>
+    </li>
+  </ul>
+</div>
+
+
+{# 
+{% if 1 == 2 and overdueDirectionCount > 0 or dueTodayDirectionCount > 0 or dueTomorrowDirectionCount > 0 %}
   <div class="app-overview-section">
-    <h2 class="govuk-heading-m">Directions</h2>
+    <h2 class="govuk-heading-m">Urgent directions that belong to your cases</h2>
     <div class="app-overview-cards govuk-!-margin-bottom-9">
       {% if overdueDirectionCount > 0 %}
         <a href="/directions/shortcut/overdue" class="app-overview-card app-overview-card--red">
@@ -45,4 +62,4 @@
       {% endif %}
     </div>
   </div>
-{% endif %}
+{% endif %} #}

@@ -231,3 +231,7 @@ $statuses: (
 .app-overview-section {
   margin-bottom: govuk-spacing(9);
 }
+
+.govuk-header__product-name {
+  display: none; // Temp
+}
