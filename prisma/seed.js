@@ -19,6 +19,7 @@ const occupations = require("../app/data/occupations.js");
 const taskNoteDescriptions = require("../app/data/task-note-descriptions.js");
 const manualTaskNamesShort = require("../app/data/manual-task-names-short.js");
 const manualTaskNamesLong = require("../app/data/manual-task-names-long.js");
+const documentNames = require("../app/data/document-names.js");
 
 // Helpers
 const { generateCaseReference } = require("./seed-helpers/identifiers");
@@ -78,28 +79,6 @@ async function main() {
   const DGA_TARGET = 10; // set desired number of DGAs
 
   const createdCases = [];
-
-  // Fetch all teams for direction assignment
-  const teams = await prisma.team.findMany();
-
-  // Define a pool of possible document names
-  const documentNames = [
-    "Police report",
-    "Witness statement",
-    "Evidence photo",
-    "Forensic analysis",
-    "Medical records",
-    "Phone records",
-    "Bank statements",
-    "CCTV footage",
-    "Interview transcript",
-    "Expert report",
-    "Scene photographs",
-    "Custody record",
-    "Chain of custody",
-    "Lab results",
-    "Search warrant",
-  ];
 
   // Group defendants by their actual assigned time limit type
   const ctlDefendants = defendants.filter((_, index) => defendantTimeLimitTypes[index] === 'CTL');
