@@ -1,6 +1,6 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
-{% set pageName = 'How we calculated the case to be low complexity' %}
+{% set pageName = 'Why this is a simple case' %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -27,7 +27,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
       
-      <p>The case is low complexity because it has:</p>
+      <p>The case is simple because it has:</p>
 
       <ul class="govuk-list govuk-list--bullet">
         <li>
@@ -42,51 +42,102 @@
 
       {% set complexityExplanation %}
 
-        <p>A case with very low complexity has:</p>
+        <h2 class="govuk-heading-s">Very simple</h2>
+
+
+        <p>A very simple case has:</p>
 
         <ul class="govuk-list govuk-list--bullet">
           <li>
             between 1 to 3 defendants
           </li>
           <li>
-            Low complexity
+            X
           </li>
           <li>
-            Standard complexity
-          </li>
-          <li>
-            High complexity
-          </li>
-          <li>
-            Very high complexity
+            Y
           </li>
         </ul>
 
-        <h2 class="govuk-heading-s">Low complexity</h2>
+        <h2 class="govuk-heading-s">Simple</h2>
 
-        <p>Stuff</p>
+        <p>A simple case has:</p>
 
         <ul class="govuk-list govuk-list--bullet">
           <li>
-            Very low complexity
+            Between 4 and 5 defendants
           </li>
           <li>
-            Low complexity
+            X
           </li>
           <li>
-            Standard complexity
+            Y
           </li>
           <li>
-            High complexity
+            Z
+          </li>
+        </ul>
+
+        <h2 class="govuk-heading-s">Moderate</h2>
+
+        <p>A moderate case has:</p>
+
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            Between 6 and 7 defendants
           </li>
           <li>
-            Very high complexity
+            X
+          </li>
+          <li>
+            Y
+          </li>
+          <li>
+            Z
+          </li>
+        </ul>
+
+        <h2 class="govuk-heading-s">Complex</h2>
+
+        <p>A complex case has:</p>
+
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            Between 8 and 9 defendants
+          </li>
+          <li>
+            X
+          </li>
+          <li>
+            Y
+          </li>
+          <li>
+            Z
+          </li>
+        </ul>
+
+        <h2 class="govuk-heading-s">Highly complex</h2>
+
+        <p>A highly complex case has:</p>
+
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            10 or more defendants
+          </li>
+          <li>
+            X
+          </li>
+          <li>
+            Y
+          </li>
+          <li>
+            Z
           </li>
         </ul>
       {% endset %}
 
       {{ govukDetails({
-        summaryText: "Understand the difference between the different levels",
+        summaryText: "Explanation the different levels of case complexity",
         html: complexityExplanation
       }) }}
 
