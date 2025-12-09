@@ -40,6 +40,10 @@ const { seedDefenceLawyers } = require("./seed-helpers/defence-lawyers");
 const { seedDefendants } = require("./seed-helpers/defendants");
 const { seedVictims } = require("./seed-helpers/victims");
 const { getDefendantTimeLimitTypes } = require("./seed-helpers/defendant-time-limit-types");
+const { seedUserSpecificTestCases } = require("./seed-helpers/user-specific-test-cases");
+const { seedPriorityTasks } = require("./seed-helpers/priority-tasks");
+const { seedGuaranteedTasks } = require("./seed-helpers/guaranteed-tasks");
+const { seedDGAAssignments } = require("./seed-helpers/dga-assignments");
 
 const prisma = new PrismaClient();
 
@@ -674,563 +678,50 @@ async function main() {
 
   console.log(`✅ Created ${createdCases.length} cases`);
 
-// NEW DGA SEEDING LOGIC
-
-// -------------------- Assign DGAs with Failure Reasons --------------------
-const dgaIds = new Set(
-  faker.helpers.arrayElements(createdCases, DGA_TARGET).map((c) => c.id)
-);
-
-const failureReasonsList = [
-  "Breach failure - Charged by Police in breach of the Director's Guidance",
-  "Disclosure failure - Disclosable unused material not provided",
-  "Disclosure failure - Information about reasonable lines of inquiry insufficient",
-  "Disclosure failure - Information about reasonable lines of inquiry not provided",
-  "Disclosure failure - Rebuttable presumption material not provided",
-  "Disclosure failure - Schedules of unused material not completed correctly",
-  "Disclosure failure - Schedules of unused material not provided",
-  "Evidential failure - Exhibit",
-  "Evidential failure - Forensic",
-  "Evidential failure - Medical evidence",
-  "Evidential failure - Multi-media BWV not clipped",
-  "Evidential failure - Multi-media BWV not in playable format",
-  "Evidential failure - Multi-media BWV not provided",
-  "Evidential failure - Multi-media CCTV not clipped",
-  "Evidential failure - Multi-media CCTV not in playable format",
-  "Evidential failure - Multi-media CCTV not provided",
-  "Evidential failure - Multi-media Other not clipped",
-  "Evidential failure - Multi-media Other not in playable format",
-  "Evidential failure - Relevant orders/applications, details not provided",
-  "Evidential failure - Statement(s)",
-  "Victim and witness failure - Needs of the victim/witness special measures have not been considered or are inadequate",
-  "Victim and witness failure - Victim and witness needs (not special measures related)",
-  "Victim and witness failure - VPS - no information on whether VPS offered/not provided"
-];
-
-for (const c of createdCases) {
-  if (dgaIds.has(c.id)) {
-    // Create DGA
-    const dga = await prisma.dGA.create({
-      data: {
-        caseId: c.id,
-        reason: faker.lorem.sentence(),
-        // outcome omitted → will be NULL
-      },
-    });
-
-    // Create 1-5 failure reasons for this DGA
-    const numFailureReasons = faker.number.int({ min: 1, max: 5 });
-    const selectedReasons = faker.helpers.arrayElements(failureReasonsList, numFailureReasons);
-
-    for (const reason of selectedReasons) {
-      await prisma.dGAFailureReason.create({
-        data: {
-          dgaId: dga.id,
-          reason: reason,
-          outcome: null // All start as "Not started"
-        }
-      });
-    }
-  }
-}
-
-console.log(`✅ Assigned ${DGA_TARGET} cases needing DGA review with failure reasons`);
-
-  // -------------------- Create Guaranteed Tasks for Testing --------------------
-  // Ensure each user (except Tony Stark) has tasks that are overdue, due today, and due tomorrow
-  const usersExcludingTony = users.filter(u => u.email !== 'tony@cps.gov.uk');
-
-  let guaranteedTasksCreated = 0;
-
-  for (const user of usersExcludingTony) {
-    // Get user's unit IDs
-    const userWithUnits = await prisma.user.findUnique({
-      where: { id: user.id },
-      include: { units: true }
-    });
-    const userUnitIds = userWithUnits.units.map(uu => uu.unitId);
-
-    // Find all cases where this user is a prosecutor or paralegal officer in their units
-    const userCases = await prisma.case.findMany({
-      where: {
-        unitId: { in: userUnitIds },
-        OR: [
-          {
-            prosecutors: {
-              some: {
-                userId: user.id
-              }
-            }
-          },
-          {
-            paralegalOfficers: {
-              some: {
-                userId: user.id
-              }
-            }
-          }
-        ]
-      }
-    });
-
-    // Skip if user has no cases in their units
-    if (userCases.length === 0) continue;
-
-    // Pick a random case for these guaranteed tasks
-    const targetCase = faker.helpers.arrayElement(userCases);
-
-    // Create 4 guaranteed tasks in each state: pending, due, overdue, escalated
-    const pendingDates = generatePendingTaskDates();
-    const dueDates = generateDueTaskDates();
-    const overdueDates = generateOverdueTaskDates();
-    const escalatedDates = generateEscalatedTaskDates();
-
-    const guaranteedTasks = [
-      {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: pendingDates.reminderDate,
-        dueDate: pendingDates.dueDate,
-        escalationDate: pendingDates.escalationDate,
-        completedDate: null,
-        caseId: targetCase.id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      },
-      {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: dueDates.reminderDate,
-        dueDate: dueDates.dueDate,
-        escalationDate: dueDates.escalationDate,
-        completedDate: null,
-        caseId: targetCase.id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      },
-      {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: overdueDates.reminderDate,
-        dueDate: overdueDates.dueDate,
-        escalationDate: overdueDates.escalationDate,
-        completedDate: null,
-        caseId: targetCase.id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      },
-      {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: escalatedDates.reminderDate,
-        dueDate: escalatedDates.dueDate,
-        escalationDate: escalatedDates.escalationDate,
-        completedDate: null,
-        caseId: targetCase.id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      }
-    ];
-
-    await prisma.task.createMany({
-      data: guaranteedTasks
-    });
-
-    guaranteedTasksCreated += guaranteedTasks.length;
-  }
-
-  console.log(`✅ Created ${guaranteedTasksCreated} guaranteed tasks (pending, due, overdue, escalated) for ${usersExcludingTony.length} users`);
-
-  // -------------------- Create Guaranteed Priority PCD and Urgent Tasks --------------------
-  // Ensure Rachael Harvey, Simon Whatley, and Tony Stark have:
-  // - Priority PCD review task
-  // - Priority resubmitted PCD case task
-  // - At least one urgent task
-  const targetUsers = await prisma.user.findMany({
-    where: {
-      OR: [
-        { firstName: "Rachael", lastName: "Harvey" },
-        { firstName: "Simon", lastName: "Whatley" },
-        { firstName: "Tony", lastName: "Stark" }
-      ]
-    },
-    include: { units: true }
-  });
-
-  let priorityTasksCreated = 0;
-
-  for (const user of targetUsers) {
-    const userUnitIds = user.units.map(uu => uu.unitId);
-
-    // Find cases where this user is assigned in their units
-    const userCases = await prisma.case.findMany({
-      where: {
-        unitId: { in: userUnitIds },
-        OR: [
-          {
-            prosecutors: {
-              some: {
-                userId: user.id
-              }
-            }
-          },
-          {
-            paralegalOfficers: {
-              some: {
-                userId: user.id
-              }
-            }
-          }
-        ]
-      }
-    });
-
-    // Skip if user has no cases
-    if (userCases.length === 0) continue;
-
-    // Pick random cases for these tasks
-    const targetCases = faker.helpers.arrayElements(userCases, Math.min(3, userCases.length));
-
-    // Create Priority PCD review task
-    const pcdReviewDates = generateDueTaskDates();
-    await prisma.task.create({
-      data: {
-        name: 'Priority PCD review',
-        reminderType: null,
-        reminderDate: pcdReviewDates.reminderDate,
-        dueDate: pcdReviewDates.dueDate,
-        escalationDate: pcdReviewDates.escalationDate,
-        completedDate: null,
-        isUrgent: false,
-        urgentNote: null,
-        caseId: targetCases[0].id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      }
-    });
-    priorityTasksCreated++;
-
-    // Create Priority resubmitted PCD case task
-    const resubmittedDates = generateOverdueTaskDates();
-    await prisma.task.create({
-      data: {
-        name: 'Priority resubmitted PCD case',
-        reminderType: null,
-        reminderDate: resubmittedDates.reminderDate,
-        dueDate: resubmittedDates.dueDate,
-        escalationDate: resubmittedDates.escalationDate,
-        completedDate: null,
-        isUrgent: false,
-        urgentNote: null,
-        caseId: targetCases.length > 1 ? targetCases[1].id : targetCases[0].id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      }
-    });
-    priorityTasksCreated++;
-
-    // Create an urgent task
-    const urgentDates = generateEscalatedTaskDates();
-    await prisma.task.create({
-      data: {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: urgentDates.reminderDate,
-        dueDate: urgentDates.dueDate,
-        escalationDate: urgentDates.escalationDate,
-        completedDate: null,
-        isUrgent: true,
-        urgentNote: 'This task requires immediate attention due to upcoming court hearing.',
-        caseId: targetCases.length > 2 ? targetCases[2].id : targetCases[0].id,
-        assignedToUserId: user.id,
-        assignedToTeamId: null,
-      }
-    });
-    priorityTasksCreated++;
-  }
-
-  console.log(`✅ Created ${priorityTasksCreated} priority PCD and urgent tasks for ${targetUsers.length} users`);
-
-  // -------------------- Create Guaranteed Test Cases for Rachael Harvey and Simon Whatley --------------------
-  const rachaelHarvey = await prisma.user.findFirst({
-    where: { firstName: "Rachael", lastName: "Harvey" }
-  });
-
-  const simonWhatley = await prisma.user.findFirst({
-    where: { firstName: "Simon", lastName: "Whatley" }
-  });
-
-  // Helper function to create a test case with defendant, charge, and task
-  async function createTestCase(user, unitId, timeLimitType, rangeKey, generateFn, defenceLawyers, charges, firstNames, lastNames, pleas, victims) {
-    const defendant = await prisma.defendant.create({
-      data: {
-        firstName: faker.helpers.arrayElement(firstNames),
-        lastName: faker.helpers.arrayElement(lastNames),
-        gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
-        dateOfBirth: faker.date.birthdate({ min: 18, max: 75, mode: "age" }),
-        remandStatus: "REMANDED_IN_CUSTODY",
-        paceClock: timeLimitType === 'PACE' ? generateFn() : null,
-        defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
-        charges: {
-          create: {
-            chargeCode: faker.helpers.arrayElement(charges).code,
-            description: faker.helpers.arrayElement(charges).description,
-            status: "Charged",
-            offenceDate: faker.date.past(),
-            plea: faker.helpers.arrayElement(pleas),
-            particulars: faker.lorem.sentence(),
-            custodyTimeLimit: timeLimitType === 'CTL' ? generateFn() : null,
-            statutoryTimeLimit: timeLimitType === 'STL' ? generateFn() : null,
-            isCount: false
-          }
-        }
-      }
-    });
-
-    const victimIds = faker.helpers.arrayElements(victims, faker.number.int({ min: 1, max: 2 })).map(v => ({ id: v.id }));
-
-    const _case = await prisma.case.create({
-      data: {
-        reference: `${faker.string.alphanumeric(4).toUpperCase()}-${faker.string.alphanumeric(8).toUpperCase()}`,
-        type: faker.helpers.arrayElement(types),
-        complexity: faker.helpers.arrayElement(complexities),
-        unit: { connect: { id: unitId } },
-        defendants: { connect: { id: defendant.id } },
-        victims: { connect: victimIds }
-      }
-    });
-
-    // Assign prosecutor or paralegal officer based on user role
-    if (user.firstName === "Rachael") {
-      await prisma.caseParalegalOfficer.create({
-        data: {
-          caseId: _case.id,
-          userId: user.id
-        }
-      });
-    } else if (user.firstName === "Simon") {
-      await prisma.caseProsecutor.create({
-        data: {
-          caseId: _case.id,
-          userId: user.id
-        }
-      });
-    }
-
-    // Create task for visibility
-    const timeLimit = generateFn();
-    await prisma.task.create({
-      data: {
-        name: faker.helpers.arrayElement(taskNames),
-        reminderType: null,
-        reminderDate: new Date(timeLimit.getTime() - 3 * 24 * 60 * 60 * 1000),
-        dueDate: timeLimit,
-        escalationDate: new Date(timeLimit.getTime() + 2 * 24 * 60 * 60 * 1000),
-        completedDate: null,
-        caseId: _case.id,
-        assignedToUserId: user.id
-      }
-    });
-
-    // -------------------- Witnesses --------------------
-    const numWitnesses = faker.number.int({ min: 1, max: 7 });
-    for (let w = 0; w < numWitnesses; w++) {
-      // Generate witness types with realistic distribution (most have 0-3 types)
-      const allTypes = [
-        "isVictim",
-        "isKeyWitness",
-        "isChild",
-        "isExpert",
-        "isInterpreter",
-        "isPolice",
-        "isProfessional",
-        "isPrisoner",
-        "isVulnerable",
-        "isIntimidated"
-      ];
-
-      // Weighted selection for number of types (most witnesses have 0-3)
-      const numTypesWeighted = faker.helpers.weightedArrayElement([
-        { weight: 30, value: 0 },
-        { weight: 30, value: 1 },
-        { weight: 25, value: 2 },
-        { weight: 10, value: 3 },
-        { weight: 4, value: 4 },
-        { weight: 1, value: 5 }
-      ]);
-
-      // Select random types
-      const selectedTypes = faker.helpers.arrayElements(allTypes, numTypesWeighted);
-
-      // Build witness type object (all false by default, then set selected to true)
-      const witnessTypes = {
-        isVictim: selectedTypes.includes("isVictim"),
-        isKeyWitness: selectedTypes.includes("isKeyWitness"),
-        isChild: selectedTypes.includes("isChild"),
-        isExpert: selectedTypes.includes("isExpert"),
-        isInterpreter: selectedTypes.includes("isInterpreter"),
-        isPolice: selectedTypes.includes("isPolice"),
-        isProfessional: selectedTypes.includes("isProfessional"),
-        isPrisoner: selectedTypes.includes("isPrisoner"),
-        isVulnerable: selectedTypes.includes("isVulnerable"),
-        isIntimidated: selectedTypes.includes("isIntimidated")
-      };
-
-      // Randomly assign dcf (50/50 split between new and old architecture)
-      const isDcf = faker.datatype.boolean();
-
-      const createdWitness = await prisma.witness.create({
-        data: {
-          title: faker.helpers.arrayElement([null, "Mr", "Mrs", "Ms", "Dr", "Prof"]),
-          firstName: faker.helpers.arrayElement(firstNames),
-          lastName: faker.helpers.arrayElement(lastNames),
-          dateOfBirth: faker.date.birthdate({ min: 18, max: 90, mode: "age" }),
-          gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
-          ethnicity: faker.helpers.arrayElement([
-            null,
-            "White",
-            "Asian_or_Asian_British",
-            "Black_or_Black_British",
-            "Mixed",
-            "Other",
-            "Prefer_not_to_say"
-          ]),
-          preferredLanguage: faker.helpers.arrayElement(["English", "Welsh"]),
-          isCpsContactAllowed: faker.datatype.boolean(),
-          addressLine1: faker.helpers.arrayElement([null, faker.location.streetAddress()]),
-          addressLine2: faker.helpers.arrayElement([null, faker.location.secondaryAddress()]),
-          addressTown: faker.helpers.arrayElement([null, faker.helpers.arrayElement(ukCities)]),
-          addressPostcode: faker.helpers.arrayElement([null, faker.location.zipCode("WD# #SF")]),
-          mobileNumber: faker.helpers.arrayElement([null, generateUKMobileNumber()]),
-          emailAddress: faker.helpers.arrayElement([null, faker.internet.email()]),
-          preferredContactMethod: faker.helpers.arrayElement([null, "Email", "Phone", "Post"]),
-          faxNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
-          homeNumber: faker.helpers.arrayElement([null, generateUKLandlineNumber()]),
-          workNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
-          otherNumber: faker.helpers.arrayElement([null, generateUKPhoneNumber()]),
-          ...witnessTypes,
-          isAppearingInCourt: faker.helpers.arrayElement([false, null]),
-          isRelevant: faker.datatype.boolean(),
-          attendanceIssues: faker.helpers.arrayElement([
-            null,
-            faker.lorem.sentence(),
-          ]),
-          previousTransgressions: faker.helpers.arrayElement([
-            null,
-            faker.lorem.sentence(),
-          ]),
-          wasWarned: faker.datatype.boolean(),
-          dcf: isDcf,
-          // Only set availability fields if dcf = true (new architecture)
-          courtAvailabilityStartDate: isDcf ? faker.date.future() : null,
-          courtAvailabilityEndDate: isDcf ? faker.date.future() : null,
-          // Only set victim fields if witness is a victim
-          victimCode: witnessTypes.isVictim ? "Learning disabilities" : null,
-          victimExplained: witnessTypes.isVictim ? faker.datatype.boolean() : null,
-          victimOfferResponse: witnessTypes.isVictim ? faker.helpers.arrayElement(["Not offered", "Declined", "Accepted"]) : null,
-          caseId: _case.id,
-        },
-      });
-
-      const numStatements = faker.number.int({ min: 1, max: 5 });
-      for (let s = 0; s < numStatements; s++) {
-        await prisma.witnessStatement.create({
-          data: {
-            witnessId: createdWitness.id,
-            number: s + 1,
-            receivedDate: faker.date.past(),
-            isUsedAsEvidence: faker.helpers.arrayElement([true, false, null]),
-            isMarkedAsSection9: faker.helpers.arrayElement([true, false, null]),
-          },
-        });
-      }
-
-      // Create special measures if dcf = true (65% get 1, 10% get 2, 25% get 0)
-      if (isDcf) {
-        const numSpecialMeasures = faker.helpers.weightedArrayElement([
-          { weight: 65, value: 1 },
-          { weight: 10, value: 2 },
-          { weight: 25, value: 0 }
-        ]);
-
-        const specialMeasureTypes = [
-          "Screen Witness",
-          "Pre-recorded Cross-examination (s.28)",
-          "Evidence by Live Link",
-          "Evidence in Private",
-          "Removal of Wigs and Gowns",
-          "Visually Recorded Interview",
-          "Intermediary",
-          "Communication Aids"
-        ];
-
-        const meetingUrls = [
-          "https://teams.microsoft.com/l/meetup-join/19%3ameeting_example123",
-          "https://zoom.us/j/1234567890",
-          "https://meet.google.com/abc-defg-hij"
-        ];
-
-        // Select unique types for this witness
-        const selectedTypes = faker.helpers.arrayElements(specialMeasureTypes, numSpecialMeasures);
-
-        for (let sm = 0; sm < numSpecialMeasures; sm++) {
-          const requiresMeeting = faker.datatype.boolean();
-
-          await prisma.specialMeasure.create({
-            data: {
-              witnessId: createdWitness.id,
-              type: selectedTypes[sm],
-              details: faker.lorem.sentence(),
-              needs: faker.lorem.sentence(),
-              requiresMeeting: requiresMeeting,
-              meetingUrl: requiresMeeting ? faker.helpers.arrayElement(meetingUrls) : null,
-              hasAppliedForReportingRestrictions: faker.datatype.boolean(),
-            },
-          });
-        }
-      }
-    }
-
-    return _case;
-  }
-
-  const testUsers = [
-    { user: rachaelHarvey, units: [3, 4] },
-    { user: simonWhatley, units: [9, 11, 13, 18] }
+  // -------------------- DGA Assignments --------------------
+  const failureReasonsList = [
+    "Breach failure - Charged by Police in breach of the Director's Guidance",
+    "Disclosure failure - Disclosable unused material not provided",
+    "Disclosure failure - Information about reasonable lines of inquiry insufficient",
+    "Disclosure failure - Information about reasonable lines of inquiry not provided",
+    "Disclosure failure - Rebuttable presumption material not provided",
+    "Disclosure failure - Schedules of unused material not completed correctly",
+    "Disclosure failure - Schedules of unused material not provided",
+    "Evidential failure - Exhibit",
+    "Evidential failure - Forensic",
+    "Evidential failure - Medical evidence",
+    "Evidential failure - Multi-media BWV not clipped",
+    "Evidential failure - Multi-media BWV not in playable format",
+    "Evidential failure - Multi-media BWV not provided",
+    "Evidential failure - Multi-media CCTV not clipped",
+    "Evidential failure - Multi-media CCTV not in playable format",
+    "Evidential failure - Multi-media CCTV not provided",
+    "Evidential failure - Multi-media Other not clipped",
+    "Evidential failure - Multi-media Other not in playable format",
+    "Evidential failure - Relevant orders/applications, details not provided",
+    "Evidential failure - Statement(s)",
+    "Victim and witness failure - Needs of the victim/witness special measures have not been considered or are inadequate",
+    "Victim and witness failure - Victim and witness needs (not special measures related)",
+    "Victim and witness failure - VPS - no information on whether VPS offered/not provided"
   ];
 
-  const testCases = [
-    // CTL
-    { type: 'CTL', range: 'Expired', fn: generateExpiredCTL },
-    { type: 'CTL', range: 'Today', fn: generateTodayCTL },
-    { type: 'CTL', range: 'Tomorrow', fn: generateTomorrowCTL },
-    { type: 'CTL', range: 'ThisWeek', fn: generateThisWeekCTL },
-    { type: 'CTL', range: 'NextWeek', fn: generateNextWeekCTL },
-    { type: 'CTL', range: 'Later', fn: generateLaterCTL },
-    // STL
-    { type: 'STL', range: 'Expired', fn: generateExpiredSTL },
-    { type: 'STL', range: 'Today', fn: generateTodaySTL },
-    { type: 'STL', range: 'Tomorrow', fn: generateTomorrowSTL },
-    { type: 'STL', range: 'ThisWeek', fn: generateThisWeekSTL },
-    { type: 'STL', range: 'NextWeek', fn: generateNextWeekSTL },
-    { type: 'STL', range: 'Later', fn: generateLaterSTL },
-    // PACE
-    { type: 'PACE', range: 'Expired', fn: generateExpiredPACE },
-    { type: 'PACE', range: '<1hr', fn: generateLessThan1HourPACE },
-    { type: 'PACE', range: '<2hrs', fn: generateLessThan2HoursPACE },
-    { type: 'PACE', range: '<3hrs', fn: generateLessThan3HoursPACE },
-    { type: 'PACE', range: '>3hrs', fn: generateMoreThan3HoursPACE }
-  ];
+  await seedDGAAssignments(prisma, createdCases, {
+    dgaTarget: DGA_TARGET,
+    failureReasonsList
+  });
 
-  for (const { user, units } of testUsers) {
-    for (let i = 0; i < testCases.length; i++) {
-      const { type, range, fn } = testCases[i];
-      const unitId = units[i % units.length];
+  // -------------------- Guaranteed Tasks --------------------
+  await seedGuaranteedTasks(prisma, users, taskNames);
 
-      await createTestCase(user, unitId, type, range, fn, defenceLawyers, charges, firstNames, lastNames, pleas, victims);
-    }
-    console.log(`✅ Created 17 guaranteed test cases for ${user.firstName} ${user.lastName}`);
-  }
+  // Seed: Priority tasks to make sure each persona has priority tasks
+  await seedPriorityTasks(prisma, taskNames);
+
+  // -------------------- User-Specific Test Cases --------------------
+  await seedUserSpecificTestCases(
+    prisma,
+    { defenceLawyers, victims },
+    { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }
+  );
 
   // -------------------- Seed Case Notes --------------------
   // Fetch all cases and add notes to 30% of them

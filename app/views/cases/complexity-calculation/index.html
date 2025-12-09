@@ -1,6 +1,6 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
-{% set pageName = 'How we calculated complexity :level' | replace(':level', _case.complexity | lower) %}
+{% set pageName = 'How we calculated the case to be low complexity' %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -27,7 +27,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
       
-      <p>We assigned the complexity as {{_case.complexity | lower}} because it has:</p>
+      <p>The case is low complexity because it has:</p>
 
       <ul class="govuk-list govuk-list--bullet">
         <li>
@@ -36,15 +36,61 @@
         <li>
           5 victims
         </li>
-        <li>
-          100 documents
-        </li>
-        <li>
-          Etc
-        </li>
       </ul>
+      
+      {# <p>You can <a href="/cases/{{_case.id}}/edit-complexity">change the complexity level</a>.</p> #}
 
-      <p>You can <a href="/cases/{{_case.id}}/edit-complexity">change the complexity level</a>.</p>
+      {% set complexityExplanation %}
+
+        <p>A case with very low complexity has:</p>
+
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            between 1 to 3 defendants
+          </li>
+          <li>
+            Low complexity
+          </li>
+          <li>
+            Standard complexity
+          </li>
+          <li>
+            High complexity
+          </li>
+          <li>
+            Very high complexity
+          </li>
+        </ul>
+
+        <h2 class="govuk-heading-s">Low complexity</h2>
+
+        <p>Stuff</p>
+
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            Very low complexity
+          </li>
+          <li>
+            Low complexity
+          </li>
+          <li>
+            Standard complexity
+          </li>
+          <li>
+            High complexity
+          </li>
+          <li>
+            Very high complexity
+          </li>
+        </ul>
+      {% endset %}
+
+      {{ govukDetails({
+        summaryText: "Understand the difference between the different levels",
+        html: complexityExplanation
+      }) }}
+
+
 
     </div>
   </div>
