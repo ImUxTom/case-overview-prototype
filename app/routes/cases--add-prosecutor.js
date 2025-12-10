@@ -38,20 +38,20 @@ function getProsecutorHintText(prosecutor) {
       breakdown.push(`${prosecutor.stlCases.length} STL`)
     }
 
-    if (prosecutor.level1Cases && prosecutor.level1Cases.length > 0) {
-      breakdown.push(`${prosecutor.level1Cases.length} level one`)
+    if (prosecutor.basicCases && prosecutor.basicCases.length > 0) {
+      breakdown.push(`${prosecutor.basicCases.length} basic`)
     }
-    if (prosecutor.level2Cases && prosecutor.level2Cases.length > 0) {
-      breakdown.push(`${prosecutor.level2Cases.length} level two`)
+    if (prosecutor.basicPlusCases && prosecutor.basicPlusCases.length > 0) {
+      breakdown.push(`${prosecutor.basicPlusCases.length} basic plus`)
     }
-    if (prosecutor.level3Cases && prosecutor.level3Cases.length > 0) {
-      breakdown.push(`${prosecutor.level3Cases.length} level three`)
+    if (prosecutor.standardCases && prosecutor.standardCases.length > 0) {
+      breakdown.push(`${prosecutor.standardCases.length} standard`)
     }
-    if (prosecutor.level4Cases && prosecutor.level4Cases.length > 0) {
-      breakdown.push(`${prosecutor.level4Cases.length} level four`)
+    if (prosecutor.highCases && prosecutor.highCases.length > 0) {
+      breakdown.push(`${prosecutor.highCases.length} high`)
     }
-    if (prosecutor.level5Cases && prosecutor.level5Cases.length > 0) {
-      breakdown.push(`${prosecutor.level5Cases.length} level five`)
+    if (prosecutor.complexCases && prosecutor.complexCases.length > 0) {
+      breakdown.push(`${prosecutor.complexCases.length} complex`)
     }
 
     if (breakdown.length) {
@@ -130,11 +130,11 @@ module.exports = router => {
         return {
           ...prosecutor,
           _count: { caseProsecutors: 10 },          // Override the real count
-          level1Cases: Array(3).fill({}), // 3 level 1 cases
-          level2Cases: Array(3).fill({}), // 3 level 2 cases
-          level3Cases: Array(2).fill({}), // 2 level 3 cases
-          level4Cases: Array(1).fill({}), // 1 level 4 case
-          level5Cases: Array(1).fill({}), // 1 level 5 case
+          basicCases: Array(3).fill({}), // 3 basic cases
+          basicPlusCases: Array(3).fill({}), // 3 basic plus cases
+          standardCases: Array(2).fill({}), // 2 standard cases
+          highCases: Array(1).fill({}), // 1 high case
+          complexCases: Array(1).fill({}), // 1 complex case
           ctlCases: Array(2).fill({}),    // 2 CTL cases
           stlCases: Array(2).fill({}),    // 2 STL cases
           totalCases: 10,
@@ -149,19 +149,19 @@ module.exports = router => {
         return c.defendants.some(d => d.charges.some(ch => ch.custodyTimeLimit !== null))
       })
 
-      const level1Cases = cases.filter(c => c.complexity === "Level 1")
-      const level2Cases = cases.filter(c => c.complexity === "Level 2")
-      const level3Cases = cases.filter(c => c.complexity === "Level 3")
-      const level4Cases = cases.filter(c => c.complexity === "Level 4")
-      const level5Cases = cases.filter(c => c.complexity === "Level 5")
+      const basicCases = cases.filter(c => c.complexity === "Basic")
+      const basicPlusCases = cases.filter(c => c.complexity === "BasicPlus")
+      const standardCases = cases.filter(c => c.complexity === "Standard")
+      const highCases = cases.filter(c => c.complexity === "High")
+      const complexCases = cases.filter(c => c.complexity === "Complex")
 
       let newProsecutor = {
         ...prosecutor,
-        level1Cases,
-        level2Cases,
-        level3Cases,
-        level4Cases,
-        level5Cases,
+        basicCases,
+        basicPlusCases,
+        standardCases,
+        highCases,
+        complexCases,
         ctlCases,
         totalCases: prosecutor._count.caseProsecutors,
         ctlCaseCount: ctlCases.length
