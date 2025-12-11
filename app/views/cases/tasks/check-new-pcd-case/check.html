@@ -1,6 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
 {% set pageName = "Check details and complete task" %}
 
 {% block beforeContent %}
@@ -14,16 +15,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
 
-      <span class="govuk-caption-l">{{_case.reference}}</span>
+      <span class="govuk-caption-l">{{caption}}</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
 
       {% set summaryRows = [] %}
-
-      {# Task name (always shown) #}
-      {% set summaryRows = (summaryRows.push({
-        key: { text: "Task" },
-        value: { text: task.name }
-      }), summaryRows) %}
 
       {# Decision (always shown) #}
       {% set summaryRows = (summaryRows.push({
@@ -79,7 +74,7 @@
               items: [{
                 href: "/cases/" + _case.id + "/tasks/" + task.id + "/check-new-pcd-case/police-response-date",
                 text: "Change",
-                visuallyHiddenText: "police response date"
+                visuallyHiddenText: "Date the police should respond"
               }]
             }
           }), summaryRows) %}
@@ -87,13 +82,13 @@
 
         {# Create reminder task #}
         {% set summaryRows = (summaryRows.push({
-          key: { text: "Create a reminder task" },
+          key: { text: "Do you want to create a task to remind you about when the police should respond back to you?" },
           value: { text: "Yes" if data.createReminderTask == "yes" else "No" },
           actions: {
             items: [{
               href: "/cases/" + _case.id + "/tasks/" + task.id + "/check-new-pcd-case/create-reminder-task",
               text: "Change",
-              visuallyHiddenText: "create reminder task"
+              visuallyHiddenText: "if you want to create a task to remind you about when the police should respond back to you"
             }]
           }
         }), summaryRows) %}
@@ -101,13 +96,13 @@
         {# Reminder due date (only if yes) #}
         {% if data.createReminderTask == "yes" and data.reminderDueDate and data.reminderDueDate.day and data.reminderDueDate.month and data.reminderDueDate.year %}
           {% set summaryRows = (summaryRows.push({
-            key: { text: "Reminder due date" },
+            key: { text: "Task due date" },
             value: { text: data.reminderDueDate | isoDateFromDateInput | govukDateTime },
             actions: {
               items: [{
                 href: "/cases/" + _case.id + "/tasks/" + task.id + "/check-new-pcd-case/create-reminder-task",
                 text: "Change",
-                visuallyHiddenText: "reminder due date"
+                visuallyHiddenText: "Task due date"
               }]
             }
           }), summaryRows) %}

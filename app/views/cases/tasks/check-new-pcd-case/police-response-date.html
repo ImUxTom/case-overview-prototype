@@ -1,6 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
 {% set pageName = "Date the police should respond" %}
 
 {% block beforeContent %}
@@ -13,25 +14,16 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{_case.reference}}</span>
-      <h1 class="govuk-heading-l">{{pageName}}</h1>
-
-      {% set taskHtml %}
-        <h2 class="govuk-heading-s govuk-!-margin-bottom-1">Task</h2>
-        <p>{{task.name}}</p>
-      {% endset %}
-      {{ govukInsetText({
-        html: taskHtml
-      }) }}
+      <span class="govuk-caption-l">{{caption}}</span>
 
       <form method="post">
         {{ govukDateInput({
           id: "policeResponseDate",
           fieldset: {
             legend: {
-              text: "When should the police respond?",
-              isPageHeading: false,
-              classes: "govuk-fieldset__legend--m"
+              text: pageName,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
             }
           },
           hint: {
