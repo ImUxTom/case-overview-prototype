@@ -1,0 +1,48 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{caption}}</span>
+      <form method="post">
+        {{ govukRadios({
+          name: "completeCheckNewPcdCase[assignTo]",
+          value: data.completeCheckNewPcdCase.assignTo,
+          fieldset: {
+            legend: {
+              text: "Do you want to assign the \"Early advice manager triage\" task to an individual or team?",
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          items: [
+            {
+              value: "Individual",
+              text: "Individual"
+            },
+            {
+              value: "Team",
+              text: "Team"
+            }
+          ]
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+      </form>
+
+      <p><a href="/cases/{{_case.id}}/tasks/{{task.id}}">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}

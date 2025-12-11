@@ -1,0 +1,61 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{caption}}</span>
+      <form method="post">
+        {% set lastNameSelectHtml %}
+          {{ govukSelect({
+            name: "completeCheckNewPcdCase[personLastName]",
+            label: {
+              text: "Last name"
+            },
+            items: lastNameItems
+          }) }}
+        {% endset %}
+
+        {{ govukRadios({
+          name: "completeCheckNewPcdCase[knowPersonName]",
+          value: data.completeCheckNewPcdCase.knowPersonName,
+          fieldset: {
+            legend: {
+              text: "Do you know the name of the person you want to assign the \"Early advice manager triage\" task to?",
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          items: [
+            {
+              value: "Yes",
+              text: "Yes",
+              conditional: {
+                html: lastNameSelectHtml
+              }
+            },
+            {
+              value: "No",
+              text: "No"
+            }
+          ]
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+      </form>
+
+      <p><a href="/cases/{{_case.id}}/tasks/{{task.id}}">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}

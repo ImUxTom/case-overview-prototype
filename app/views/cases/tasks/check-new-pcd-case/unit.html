@@ -1,0 +1,42 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
+{% set pageName = "Unit" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{caption}}</span>
+      <h1 class="govuk-heading-l">{{pageName}}</h1>
+
+      {{ govukInsetText({
+        html: "<p class=\"govuk-body\"><strong>Unit</strong></p><p class=\"govuk-body\">" + _case.unit.name + "</p>"
+      }) }}
+
+      <form method="post">
+        {{ govukSelect({
+          name: "completeCheckNewPcdCase[unitId]",
+          label: {
+            text: "Unit",
+            classes: "govuk-label--m"
+          },
+          items: unitItems
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+      </form>
+
+      <p><a href="/cases/{{_case.id}}/tasks/{{task.id}}">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}

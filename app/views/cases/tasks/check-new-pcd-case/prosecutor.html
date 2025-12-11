@@ -1,0 +1,48 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set caption %} {{_case.reference}} - Check new PCD case {% endset %}
+{% set pageName = "Prosecutor" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{caption}}</span>
+      <form method="post">
+        {% set prosecutorItems = [] %}
+        {% for prosecutor in prosecutors %}
+          {% set prosecutorItems = (prosecutorItems.push({
+            value: prosecutor.id,
+            text: prosecutor.firstName + " " + prosecutor.lastName,
+            checked: data.completeCheckNewPcdCase.prosecutorId == prosecutor.id
+          }), prosecutorItems) %}
+        {% endfor %}
+
+        {{ govukRadios({
+          name: "completeCheckNewPcdCase[prosecutorId]",
+          fieldset: {
+            legend: {
+              text: pageName,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          items: prosecutorItems
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+      </form>
+
+      <p><a href="/cases/{{_case.id}}/tasks/{{task.id}}">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}
