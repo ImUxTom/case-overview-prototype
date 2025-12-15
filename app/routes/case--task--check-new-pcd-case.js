@@ -285,23 +285,53 @@ module.exports = router => {
       }
     })
 
-    // TODO: show only teams or only users
+    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
 
-    const users = await prisma.user.findMany({
-      orderBy: [
-        { firstName: 'asc' },
-        { lastName: 'asc' }
-      ]
-    })
+    // Determine unit ID to filter by
+    const unitId = data.transferCase === "Yes" && data.unitId
+      ? parseInt(data.unitId)
+      : task.case.unitId
 
-    const teams = await prisma.team.findMany({
-      include: {
-        unit: true
-      },
-      orderBy: { name: 'asc' }
-    })
+    let ownerItems = []
 
-    res.render("cases/tasks/check-new-pcd-case/task-owner", { task, users, teams })
+    if (data.assignTo === "Individual") {
+      const users = await prisma.user.findMany({
+        where: {
+          units: {
+            some: { unitId: unitId }
+          }
+        },
+        include: {
+          units: {
+            include: { unit: true }
+          }
+        },
+        orderBy: [
+          { firstName: 'asc' },
+          { lastName: 'asc' }
+        ]
+      })
+
+      ownerItems = users.map(user => ({
+        value: `user-${user.id}`,
+        text: `${user.firstName} ${user.lastName}`
+      }))
+    } else {
+      const teams = await prisma.team.findMany({
+        where: { unitId: unitId },
+        include: {
+          unit: true
+        },
+        orderBy: { name: 'asc' }
+      })
+
+      ownerItems = teams.map(team => ({
+        value: `team-${team.id}`,
+        text: `${team.name} (${team.unit.name})`
+      }))
+    }
+
+    res.render("cases/tasks/check-new-pcd-case/task-owner", { task, ownerItems })
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner", (req, res) => {

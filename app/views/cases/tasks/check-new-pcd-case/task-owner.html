@@ -16,26 +16,6 @@
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <span class="govuk-caption-l">{{caption}}</span>
       <form method="post">
-        {% set ownerItems = [] %}
-
-        {# Add individuals #}
-        {% for user in users %}
-          {% set ownerItems = (ownerItems.push({
-            value: "user-" + user.id,
-            text: user.firstName + " " + user.lastName,
-            checked: data.completeCheckNewPcdCase.taskOwner == ("user-" + user.id)
-          }), ownerItems) %}
-        {% endfor %}
-
-        {# Add teams #}
-        {% for team in teams %}
-          {% set ownerItems = (ownerItems.push({
-            value: "team-" + team.id,
-            text: team.name,
-            checked: data.completeCheckNewPcdCase.taskOwner == ("team-" + team.id)
-          }), ownerItems) %}
-        {% endfor %}
-
         {{ govukRadios({
           name: "completeCheckNewPcdCase[taskOwner]",
           fieldset: {
@@ -45,6 +25,7 @@
               classes: "govuk-fieldset__legend--l"
             }
           },
+          value: data.completeCheckNewPcdCase.taskOwner,
           items: ownerItems
         }) }}
 
