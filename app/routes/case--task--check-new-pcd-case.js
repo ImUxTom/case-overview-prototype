@@ -17,9 +17,6 @@ module.exports = router => {
       where: { id: parseInt(req.params.taskId) }
     })
 
-    // Initialize session data for this flow
-    //_.set(req, 'session.data.completeCheckNewPcdCase', {})
-
     res.render("cases/tasks/check-new-pcd-case/index", { _case, task })
   })
 
@@ -27,19 +24,20 @@ module.exports = router => {
     const caseId = req.params.caseId
     const taskId = req.params.taskId
     
-    // Conditional redirect based on decision
     if (req.session.data.completeCheckNewPcdCase.decision === "Accept") {
-      // Start accept flow with review task type
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/review-task-type`)
     } else {
-      // Start rejection flow with reasons page
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/reasons-for-rejection`)
     }
   })
 
-  // Accept flow steps
+  // 
+  //
+  // Accept flow
+  //
+  //
 
-  // Review task type (only shown if Accept) CHECK ADAM?
+  // TODO: should this be shown regardless?
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/review-task-type", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -56,9 +54,7 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/review-task-type", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/transfer-case`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/transfer-case`)
   })
 
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/transfer-case", async (req, res) => {
@@ -82,10 +78,12 @@ module.exports = router => {
     const taskId = req.params.taskId
     const data = _.get(req, 'session.data.completeCheckNewPcdCase')
 
+    // If transferring then go to area
     if (data.transferCase === "Yes") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/area`)
     } else {
-      // Not transferring
+      
+      // If task type is Early Advice go to prosecutor
       if (data.reviewTaskType === "Early advice") {
         res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/know-prosecutor-name`)
       } else {
@@ -94,7 +92,6 @@ module.exports = router => {
     }
   })
 
-  // Step 4A: Area (only shown if transferring)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/area", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -108,7 +105,7 @@ module.exports = router => {
       where: { id: parseInt(req.params.taskId) }
     })
 
-    // Extract area from unit name (simplified for prototype)
+    // TODO: add areas to schema/seed data and then pull from that
     let area = "Unknown"
     if (_case.unit.name.includes("Wessex")) {
       area = "Wessex"
@@ -120,12 +117,9 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/area", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/unit`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/unit`)
   })
 
-  // Step 5A: Unit (only shown if transferring)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/unit", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -143,37 +137,24 @@ module.exports = router => {
       orderBy: { name: 'asc' }
     })
 
-    // Get selected unitId from session
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // Build unitItems array for select box
     const unitItems = [
       {
         value: "",
-        text: "Select a unit"
-      }
-    ]
-
-    // Add all units as options
-    units.forEach(unit => {
-      unitItems.push({
+        text: "Select unit"
+      },
+      ...units.map(unit => ({
         value: unit.id,
         text: unit.name
-      })
-    })
+      }))
+    ]
 
-    res.render("cases/tasks/check-new-pcd-case/unit", { _case, task, units, unitItems })
+    res.render("cases/tasks/check-new-pcd-case/unit", { _case, task, unitItems })
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/unit", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // unitId is automatically stored in session via form name
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/case-type`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/case-type`)
   })
 
-  // Step 6A: Case type (only shown if transferring)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/case-type", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -194,27 +175,24 @@ module.exports = router => {
     const taskId = req.params.taskId
     const data = _.get(req, 'session.data.completeCheckNewPcdCase')
 
-    // caseType is automatically stored in session via form name
-
-    // If this is the reject flow, go to check answers
+    // Reject => check answers
     if (data.decision === "Reject") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/check`)
     }
-    // Accept flow - Early advice + RASSO
+    // Accept + Early advice + RASSO => user type
     else if (data.reviewTaskType === "Early advice" && data.caseType === "RASSO") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/user-type`)
     }
-    // Accept flow - Early advice + NOT RASSO
+    // Accept + Early advice + NOT RASSO => prosecutor
     else if (data.reviewTaskType === "Early advice") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/know-prosecutor-name`)
     }
-    // Accept flow - NOT Early advice (Within 5/28 calendar days)
+    // Accesspt + NOT Early advice (within 5/28 calendar days)
     else {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/check`)
     }
   })
 
-  // Step 7A: User type (only shown if transferring AND early advice AND RASSO)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/user-type", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -231,19 +209,13 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/user-type", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // assignTo is automatically stored in session via form name
     if (data.assignTo === "Individual") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/person-name`)
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/person-name`)
     } else {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/task-owner`)
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/task-owner`)
     }
   })
 
-  // Step 8A: Person name (only shown if individual)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -258,40 +230,19 @@ module.exports = router => {
 
     const lastNames = require('../data/last-names')
 
-    // Get selected personLastName from session
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
+    const lastNameItems = lastNames.map(lastName => ({
+      value: lastName,
+      text: lastName
+    }))
 
-    // Build lastNameItems array for select box
-    const lastNameItems = [
-
-    ]
-
-    //  {
-    //   value: "",
-    //   text: "Select a last name",
-    //   selected: !data?.personLastName
-    // }
-
-    // Add all last names as options
-    lastNames.forEach(lastName => {
-      lastNameItems.push({
-        value: lastName,
-        text: lastName
-      })
-    })
-
-    res.render("cases/tasks/check-new-pcd-case/person-name", { _case, task, lastNames, lastNameItems })
+    res.render("cases/tasks/check-new-pcd-case/person-name", { _case, task, lastNameItems })
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // knowPersonName and personLastName (if Yes) are automatically stored in session via form names
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/role`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/role`)
   })
 
-  // Step 9A: Role (only shown if individual)
+  // Role (only shown if individual)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/role", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -308,14 +259,10 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/role", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // chooseSpecificRole and specificRole (if Yes) are automatically stored in session via form names
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/task-owner`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/task-owner`)
   })
 
-  // Step 10A: Task owner (shown for both individual and team in RASSO flow)
+  // Task owner (shown for both individual and team in RASSO flow)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -327,6 +274,8 @@ module.exports = router => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) }
     })
+
+    // TODO: show only teams or only users
 
     const users = await prisma.user.findMany({
       orderBy: [
@@ -346,14 +295,10 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // taskOwner is automatically stored in session via form name
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/check`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
   })
 
-  // Step 11A: Know prosecutor name (shown for early advice if not transferring OR if transferring but not RASSO)
+  // Know prosecutor name (shown for early advice if not transferring OR if transferring but not RASSO)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -366,6 +311,7 @@ module.exports = router => {
       where: { id: parseInt(req.params.taskId) }
     })
 
+    // TODO: only show prosecutors within the unit - either current unit or selected unit if transferring
     const prosecutors = await prisma.user.findMany({
       where: { role: 'Prosecutor' },
       orderBy: [
@@ -374,31 +320,26 @@ module.exports = router => {
       ]
     })
 
-    const prosecutorItems = []
-    prosecutors.forEach(prosecutor => {
-      prosecutorItems.push({
-        value: prosecutor.id,
-        text: `${prosecutor.firstName} ${prosecutor.lastName}`
-      })
-    })
+    const prosecutorItems = prosecutors.map(prosecutor => ({
+      value: prosecutor.id,
+      text: `${prosecutor.firstName} ${prosecutor.lastName}`
+    }))
 
-    res.render("cases/tasks/check-new-pcd-case/know-prosecutor-name", { _case, task, prosecutors, prosecutorItems })
+    res.render("cases/tasks/check-new-pcd-case/know-prosecutor-name", { _case, task, prosecutorItems })
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
     const data = _.get(req, 'session.data.completeCheckNewPcdCase')
 
-    // knowProsecutorName and prosecutorId (if Yes) are automatically stored in session via form names
+    // TODO: check because this is filter, not actually selecting the user?
     if (data.knowProsecutorName === "Yes") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/check`)
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
     } else {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/prosecutor`)
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/prosecutor`)
     }
   })
 
-  // Step 12A: Prosecutor (only shown if they don't know the prosecutor name)
+  // Prosecutor (only shown if they don't know the prosecutor name)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/prosecutor", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -410,6 +351,8 @@ module.exports = router => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) }
     })
+
+    // TODO: only show prosecutors within the unit - either current unit or selected unit if transferring
 
     const prosecutors = await prisma.user.findMany({
       where: { role: 'Prosecutor' },
@@ -423,14 +366,15 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/prosecutor", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/check`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
   })
 
-  // Reject flow steps
+  //
+  // 
+  // Reject flow
+  //
+  //
 
-  // Step 2: Reasons for rejection (only shown if Reject)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/reasons-for-rejection", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -450,7 +394,6 @@ module.exports = router => {
     res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/police-response-date`)
   })
 
-  // Step 3: Police response date (always shown for reject flow)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/police-response-date", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -467,15 +410,9 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/police-response-date", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // Date is automatically stored in session via form names
-    // Navigate to reminder task creation
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/create-reminder-task`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/create-reminder-task`)
   })
 
-  // Step 4: Create reminder task (only shown for reject flow)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/create-reminder-task", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
@@ -492,15 +429,15 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/create-reminder-task", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-
-    // createReminderTask and reminderDueDate are automatically stored in session
-    // Navigate to case type for reject flow
-    res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/case-type`)
+    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/case-type`)
   })
 
-  // Step 5: Check answers
+  //
+  //
+  // All routes lead to here
+  //
+  //
+
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/check", async (req, res) => {
     const _case = await prisma.case.findUnique({
       where: { id: parseInt(req.params.caseId) },
