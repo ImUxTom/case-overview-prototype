@@ -69,8 +69,8 @@
       {% endif %}
 
       {# Know prosecutor value (Accept + Early advice flow) #}
-      {% set prosecutorValue = data.knowProsecutorName %}
-      
+      {% set prosecutorValue = "" %}
+
       {% set prosecutorId = data.prosecutorId | int %}
       {% for prosecutor in prosecutors %}
         {% if prosecutor.id == prosecutorId %}
@@ -189,17 +189,6 @@
             }
           } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName,
           {
-            key: { text: "Prosecutor" },
-            value: { text: knowPersonValue },
-            actions: {
-              items: [{
-                href: "/cases/" + task.case.id + "/tasks/" + task.id + "/check-new-pcd-case/person-name",
-                text: "Change",
-                visuallyHiddenText: "if you know the name of the person"
-              }]
-            }
-          } if data.prosecutorId,
-          {
             key: { text: "Do you want to choose a specific role?" },
             value: { text: chooseRoleValue },
             actions: {
@@ -242,7 +231,7 @@
                 visuallyHiddenText: "prosecutor"
               }]
             }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and (data.transferCase == "No" or (data.transferCase == "Yes" and data.caseType != "RASSO")) and data.knowProsecutorName,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and (data.transferCase == "No" or (data.transferCase == "Yes" and data.caseType != "RASSO")) and data.prosecutorId,
           {
             key: { text: "Reasons for rejection" },
             value: { html: reasonsHtml },
@@ -278,7 +267,7 @@
           } if data.decision == "Reject" and data.policeResponseDate and data.policeResponseDate.day and data.policeResponseDate.month and data.policeResponseDate.year,
           {
             key: { text: "Do you want to create a task to remind you about when the police should respond back to you?" },
-            value: { text: "Yes" if data.createReminderTask == "yes" else "No" },
+            value: { text: "Yes" if data.createReminderTask == "Yes" else "No" },
             actions: {
               items: [{
                 href: "/cases/" + task.case.id + "/tasks/" + task.id + "/check-new-pcd-case/create-reminder-task",
@@ -297,7 +286,7 @@
                 visuallyHiddenText: "Task due date"
               }]
             }
-          } if data.decision == "Reject" and data.createReminderTask == "yes" and data.reminderDueDate and data.reminderDueDate.day and data.reminderDueDate.month and data.reminderDueDate.year,
+          } if data.decision == "Reject" and data.createReminderTask == "Yes" and data.reminderDueDate and data.reminderDueDate.day and data.reminderDueDate.month and data.reminderDueDate.year,
           {
             key: { text: "Case type" },
             value: { text: data.caseType },

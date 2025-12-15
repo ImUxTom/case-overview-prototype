@@ -651,10 +651,10 @@ module.exports = router => {
         }).toISO()
       }
 
-      activityLogMeta.createReminderTask = data.createReminderTask || 'no'
+      activityLogMeta.createReminderTask = data.createReminderTask || 'No'
 
       // Convert reminder due date to ISO string if exists
-      if (data.createReminderTask === 'yes' && data.reminderDueDate?.day && data.reminderDueDate?.month && data.reminderDueDate?.year) {
+      if (data.createReminderTask === 'Yes' && data.reminderDueDate?.day && data.reminderDueDate?.month && data.reminderDueDate?.year) {
         activityLogMeta.reminderDueDate = DateTime.fromObject({
           day: data.reminderDueDate.day,
           month: data.reminderDueDate.month,
