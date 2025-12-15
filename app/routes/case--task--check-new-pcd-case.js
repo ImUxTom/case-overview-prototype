@@ -2,6 +2,7 @@ const _ = require('lodash')
 const { DateTime } = require('luxon')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { getAreaForUnit, filterUnitsByArea } = require('../helpers/unitAreaMapping')
 
 module.exports = router => {
   
@@ -108,13 +109,7 @@ module.exports = router => {
       }
     })
 
-    // TODO: add areas to schema/seed data and then pull from that
-    let area = "Unknown"
-    if (task.case.unit.name.includes("Wessex")) {
-      area = "Wessex"
-    } else if (task.case.unit.name.includes("Yorkshire") || task.case.unit.name.includes("Humberside")) {
-      area = "Yorkshire and Humberside"
-    }
+    const area = getAreaForUnit(task.case.unit.name)
 
     res.render("cases/tasks/check-new-pcd-case/area", { task, area })
   })
@@ -136,9 +131,24 @@ module.exports = router => {
       }
     })
 
-    const units = await prisma.unit.findMany({
+    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
+
+    // Determine which area to use for filtering
+    let areaToFilterBy
+    if (data.changeArea === "Yes" && data.selectedArea) {
+      // User changed the area - use the selected area
+      areaToFilterBy = data.selectedArea
+    } else {
+      // User didn't change the area - use the current case's unit's area
+      areaToFilterBy = getAreaForUnit(task.case.unit.name)
+    }
+
+    // Get all units and filter by area
+    let units = await prisma.unit.findMany({
       orderBy: { name: 'asc' }
     })
+
+    units = filterUnitsByArea(units, areaToFilterBy)
 
     const unitItems = [
       {
@@ -212,7 +222,7 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/user-type", (req, res) => {
-    if (data.assignTo === "Individual") {
+    if (req.session.data.completeCheckNewPcdCase.assignTo === "Individual") {
       res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/person-name`)
     } else {
       res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/task-owner`)

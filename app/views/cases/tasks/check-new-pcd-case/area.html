@@ -35,21 +35,39 @@
             label: {
               text: "Area"
             },
+            value: data.completeCheckNewPcdCase.selectedArea,
             items: [
               {
                 value: "",
-                text: "Select an area",
-                selected: not data.completeCheckNewPcdCase.selectedArea
+                text: "Select an area"
               },
               {
-                value: "Wessex",
-                text: "Wessex",
-                selected: data.completeCheckNewPcdCase.selectedArea == "Wessex"
+                value: "Dorset",
+                text: "Dorset"
               },
               {
-                value: "Yorkshire and Humberside",
-                text: "Yorkshire and Humberside",
-                selected: data.completeCheckNewPcdCase.selectedArea == "Yorkshire and Humberside"
+                value: "Hampshire and Isle of White",
+                text: "Hampshire and Isle of White"
+              },
+              {
+                value: "Wiltshire",
+                text: "Wiltshire"
+              },
+              {
+                value: "North Yorkshire",
+                text: "North Yorkshire"
+              },
+              {
+                value: "South Yorkshire",
+                text: "South Yorkshire"
+              },
+              {
+                value: "West Yorkshire",
+                text: "West Yorkshire"
+              },
+              {
+                value: "Humberside",
+                text: "Humberside"
               }
             ]
           }) }}
