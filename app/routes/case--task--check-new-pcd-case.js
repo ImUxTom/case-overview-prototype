@@ -238,18 +238,49 @@ module.exports = router => {
       }
     })
 
-    const lastNames = require('../data/last-names')
+    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
 
-    const lastNameItems = lastNames.map(lastName => ({
-      value: lastName,
-      text: lastName
+    // Determine unit ID to filter by (same logic as task-owner route)
+    const unitId = data.transferCase === "Yes" && data.unitId
+      ? parseInt(data.unitId)
+      : task.case.unitId
+
+    // Fetch users from the target unit
+    const users = await prisma.user.findMany({
+      where: {
+        units: {
+          some: { unitId: unitId }
+        }
+      },
+      include: {
+        units: {
+          include: { unit: true }
+        }
+      },
+      orderBy: [
+        { firstName: 'asc' },
+        { lastName: 'asc' }
+      ]
+    })
+
+    // Format items for autocomplete with full name and role
+    const taskOwnerItems = users.map(user => ({
+      value: `user-${user.id}`,
+      text: `${user.firstName} ${user.lastName} (${user.role})`
     }))
 
-    res.render("cases/tasks/check-new-pcd-case/person-name", { task, lastNameItems })
+    res.render("cases/tasks/check-new-pcd-case/person-name", { task, taskOwnerItems })
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/role`)
+    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
+
+    // If user knows the task owner, skip role and task-owner screens
+    if (data.knowPersonName === "Yes") {
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
+    } else {
+      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/role`)
+    }
   })
 
   // Role (only shown if individual)
@@ -620,9 +651,6 @@ module.exports = router => {
       }
       if (data.knowPersonName) {
         activityLogMeta.knowPersonName = data.knowPersonName
-      }
-      if (data.personLastName) {
-        activityLogMeta.personLastName = data.personLastName
       }
       if (data.chooseSpecificRole) {
         activityLogMeta.chooseSpecificRole = data.chooseSpecificRole

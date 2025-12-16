@@ -2,7 +2,7 @@
 
 {% set navId = 'cases' %}
 {% set caption %} {{task.case.reference}} - Check new PCD case {% endset %}
-{% set pageName = 'Do you know who you want to assign the ‘early advice manager triage’ task to??' %}
+{% set pageName = 'Do you know who you want to assign the ‘early advice manager triage’ task to?' %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -18,14 +18,14 @@
       <form method="post">
         {% set lastNameSelectHtml %}
           {{ xGovukAutocomplete({
-            id: "personLastName",
-            name: "completeCheckNewPcdCase[personLastName]",
+            id: "taskOwner",
+            name: "completeCheckNewPcdCase[taskOwner]",
             allowEmpty: false,
             label: {
-              text: "Last name"
+              text: "Task owner"
             },
-            items: lastNameItems,
-            value: data.completeCheckNewPcdCase.personLastName
+            items: taskOwnerItems,
+            value: data.completeCheckNewPcdCase.taskOwner
           }) }}
         {% endset %}
 

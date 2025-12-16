@@ -190,17 +190,6 @@
             }
           } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName,
           {
-            key: { text: "Person's last name" },
-            value: { text: data.personLastName },
-            actions: {
-              items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
-                text: "Change",
-                visuallyHiddenText: "person's last name"
-              }]
-            }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "Yes" and data.personLastName,
-          {
             key: { text: "Do you want to choose a specific role?" },
             value: { text: data.chooseSpecificRole },
             actions: {
@@ -210,7 +199,7 @@
                 visuallyHiddenText: "if you want to choose a specific role"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.chooseSpecificRole,
+          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole,
           {
             key: { text: "Role" },
             value: { text: data.specificRole },
@@ -221,13 +210,13 @@
                 visuallyHiddenText: "role"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.chooseSpecificRole == "Yes" and data.specificRole,
+          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole == "Yes" and data.specificRole,
           {
             key: { text: "Task owner" },
             value: { text: taskOwnerName },
             actions: {
               items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
+                href: ('/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name' if data.knowPersonName == "Yes" else '/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner') | replace(':caseId', task.case.id) | replace(':taskId', task.id),
                 text: "Change",
                 visuallyHiddenText: "task owner"
               }]
