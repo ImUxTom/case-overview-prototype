@@ -85,7 +85,7 @@ module.exports = router => {
       }
       // If Early Advice + NOT RASSO => prosecutor flow
       else if (data.reviewTaskType === "Early advice") {
-        res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/know-prosecutor-name`)
+        res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/prosecutor`)
       }
       // Otherwise => skip to check answers
       else {
@@ -173,7 +173,7 @@ module.exports = router => {
     }
     // Accept + Early advice + NOT RASSO => prosecutor
     else if (data.reviewTaskType === "Early advice") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/know-prosecutor-name`)
+      res.redirect(`/cases/${caseId}/tasks/${taskId}/check-new-pcd-case/prosecutor`)
     }
     // Accept + NOT Early advice (within 5/28 calendar days)
     else {
@@ -224,87 +224,7 @@ module.exports = router => {
   })
 
   router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/user-type", (req, res) => {
-    if (req.session.data.completeCheckNewPcdCase.assignTo === "Individual") {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/person-name`)
-    } else {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/task-owner`)
-    }
-  })
-
-  router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name", async (req, res) => {
-    const task = await prisma.task.findUnique({
-      where: { id: parseInt(req.params.taskId) },
-      include: {
-        case: {
-          include: {
-            defendants: true
-          }
-        }
-      }
-    })
-
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // Determine unit ID to filter by (same logic as task-owner route)
-    const unitId = data.transferCase === "Yes" && data.unitId
-      ? parseInt(data.unitId)
-      : task.case.unitId
-
-    // Fetch users from the target unit
-    const users = await prisma.user.findMany({
-      where: {
-        units: {
-          some: { unitId: unitId }
-        }
-      },
-      include: {
-        units: {
-          include: { unit: true }
-        }
-      },
-      orderBy: [
-        { firstName: 'asc' },
-        { lastName: 'asc' }
-      ]
-    })
-
-    // Format items for autocomplete with full name and role
-    const taskOwnerItems = users.map(user => ({
-      value: `user-${user.id}`,
-      text: `${user.firstName} ${user.lastName} (${user.role})`
-    }))
-
-    res.render("cases/tasks/check-new-pcd-case/person-name", { task, taskOwnerItems })
-  })
-
-  router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name", (req, res) => {
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // If user knows the task owner, skip role and task-owner screens
-    if (data.knowPersonName === "Yes") {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
-    } else {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/role`)
-    }
-  })
-
-  // Role (only shown if individual)
-  router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/role", async (req, res) => {
-    const task = await prisma.task.findUnique({
-      where: { id: parseInt(req.params.taskId) },
-      include: {
-        case: {
-          include: {
-            defendants: true
-          }
-        }
-      }
-    })
-
-    res.render("cases/tasks/check-new-pcd-case/role", { task })
-  })
-
-  router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/role", (req, res) => {
+    // Both Individual and Team go to task-owner
     res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/task-owner`)
   })
 
@@ -350,7 +270,7 @@ module.exports = router => {
 
       ownerItems = users.map(user => ({
         value: `user-${user.id}`,
-        text: `${user.firstName} ${user.lastName}`
+        text: `${user.firstName} ${user.lastName} (${user.role})`
       }))
     } else {
       const teams = await prisma.team.findMany({
@@ -363,7 +283,7 @@ module.exports = router => {
 
       ownerItems = teams.map(team => ({
         value: `team-${team.id}`,
-        text: `${team.name} (${team.unit.name})`
+        text: `${team.name}`
       }))
     }
 
@@ -374,59 +294,7 @@ module.exports = router => {
     res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
   })
 
-  // Know prosecutor name (shown for early advice if not transferring OR if transferring but not RASSO)
-  router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name", async (req, res) => {
-    const task = await prisma.task.findUnique({
-      where: { id: parseInt(req.params.taskId) },
-      include: {
-        case: {
-          include: {
-            defendants: true
-          }
-        }
-      }
-    })
-
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // Determine unit ID to filter by
-    const unitId = data.transferCase === "Yes" && data.unitId
-      ? parseInt(data.unitId)
-      : task.case.unitId
-
-    const prosecutors = await prisma.user.findMany({
-      where: {
-        role: 'Prosecutor',
-        units: {
-          some: { unitId: unitId }
-        }
-      },
-      orderBy: [
-        { firstName: 'asc' },
-        { lastName: 'asc' }
-      ]
-    })
-
-    const prosecutorItems = prosecutors.map(prosecutor => ({
-      value: prosecutor.id,
-      text: `${prosecutor.firstName} ${prosecutor.lastName}`
-    }))
-
-    res.render("cases/tasks/check-new-pcd-case/know-prosecutor-name", { task, prosecutorItems })
-  })
-
-  router.post("/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name", (req, res) => {
-    const data = _.get(req, 'session.data.completeCheckNewPcdCase')
-
-    // TODO: check this.
-    if (data.knowProsecutorName === "Yes") {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/check`)
-    } else {
-      res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/check-new-pcd-case/prosecutor`)
-    }
-  })
-
-  // Prosecutor (only shown if they don't know the prosecutor name)
+  // Prosecutor (shown for early advice if not transferring OR if transferring but not RASSO)
   router.get("/cases/:caseId/tasks/:taskId/check-new-pcd-case/prosecutor", async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
@@ -654,15 +522,6 @@ module.exports = router => {
       if (data.assignTo) {
         activityLogMeta.assignTo = data.assignTo
       }
-      if (data.knowPersonName) {
-        activityLogMeta.knowPersonName = data.knowPersonName
-      }
-      if (data.chooseSpecificRole) {
-        activityLogMeta.chooseSpecificRole = data.chooseSpecificRole
-      }
-      if (data.specificRole) {
-        activityLogMeta.specificRole = data.specificRole
-      }
       if (data.taskOwner) {
         // Resolve task owner name (user or team)
         if (data.taskOwner.startsWith('user-')) {
@@ -686,9 +545,6 @@ module.exports = router => {
             name: team.name
           } : null
         }
-      }
-      if (data.knowProsecutorName) {
-        activityLogMeta.knowProsecutorName = data.knowProsecutorName
       }
       if (data.prosecutorId) {
         // Resolve prosecutor name

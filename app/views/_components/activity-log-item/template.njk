@@ -321,48 +321,28 @@
               value: { text: params.event.meta.unit.name }
             } if params.event.meta.transferCase == "Yes" and params.event.meta.unit,
             {
-              key: { text: 'Do you want to assign the ‘Early advice manager triage’ task to an individual or team?' },
+              key: { text: 'Do you want to assign the ‘early advice manager triage’ task to an individual or team?' },
               value: { text: params.event.meta.assignTo }
             } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.assignTo,
             {
-              key: { text: 'Do you know who you want to assign the ‘Early advice manager triage’ task to?' },
-              value: { text: params.event.meta.knowPersonName }
-            } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.assignTo == "Individual" and params.event.meta.knowPersonName,
-            {
-              key: { text: "Person's last name" },
-              value: { text: params.event.meta.personLastName }
-            } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.assignTo == "Individual" and params.event.meta.knowPersonName == "Yes" and params.event.meta.personLastName,
-            {
-              key: { text: 'Do you want to choose a specific role?' },
-              value: { text: params.event.meta.chooseSpecificRole }
-            } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.assignTo == "Individual" and params.event.meta.chooseSpecificRole,
-            {
-              key: { text: 'Role' },
-              value: { text: params.event.meta.specificRole }
-            } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.assignTo == "Individual" and params.event.meta.chooseSpecificRole == "Yes" and params.event.meta.specificRole,
-            {
-              key: { text: 'Task owner' },
+              key: { text: 'Who do you want to assign the ’early advice manager triage’ task to?' },
               value: { text: params.event.meta.taskOwner.name }
             } if params.event.meta.decision == "Accept" and params.event.meta.transferCase == "Yes" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType == "RASSO" and params.event.meta.taskOwner,
             {
-              key: { text: 'Do you know the name of the prosecutor you want to allocate?' },
-              value: { text: params.event.meta.knowProsecutorName }
-            } if params.event.meta.decision == "Accept" and params.event.meta.reviewTaskType == "Early advice" and (params.event.meta.transferCase == "No" or (params.event.meta.transferCase == "Yes" and params.event.meta.caseType != "RASSO")) and params.event.meta.knowProsecutorName,
-            {
               key: { text: 'Prosecutor' },
               value: { text: params.event.meta.prosecutor.firstName + ' ' + params.event.meta.prosecutor.lastName }
-            } if params.event.meta.decision == "Accept" and params.event.meta.reviewTaskType == "Early advice" and (params.event.meta.transferCase == "No" or (params.event.meta.transferCase == "Yes" and params.event.meta.caseType != "RASSO")) and params.event.meta.prosecutor,
+            } if params.event.meta.decision == "Accept" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType != "RASSO" and params.event.meta.prosecutor,
             {
               key: { text: 'Date the police should respond' },
-              value: { text: params.event.meta.policeResponseDate | isoDateString | govukDateTime }
+              value: { text: params.event.meta.policeResponseDate | govukDateTime }
             } if params.event.meta.decision == "Reject" and params.event.meta.policeResponseDate,
             {
               key: { text: 'Do you want to create a task to remind you about when the police should respond back to you?' },
               value: { text: "Yes" if params.event.meta.createReminderTask == "Yes" else "No" }
             } if params.event.meta.decision == "Reject",
             {
-              key: { text: 'Date you'll be reminded' },
-              value: { text: params.event.meta.reminderDueDate | isoDateString | govukDateTime }
+              key: { text: 'Date you’ll be reminded' },
+              value: { text: params.event.meta.reminderDueDate | govukDateTime }
             } if params.event.meta.decision == "Reject" and params.event.meta.createReminderTask == "Yes" and params.event.meta.reminderDueDate
           ]
         }) }}

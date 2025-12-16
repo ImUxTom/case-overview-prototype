@@ -179,66 +179,22 @@
             }
           } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo,
           {
-            key: { text: "Do you know who you want to assign the ‘Early advice manager triage’ task to?" },
-            value: { text: data.knowPersonName },
-            actions: {
-              items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
-                text: "Change",
-                visuallyHiddenText: "if you know the name of the person"
-              }]
-            }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName,
-          {
-            key: { text: "Do you want to choose a specific role?" },
-            value: { text: data.chooseSpecificRole },
-            actions: {
-              items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/role' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
-                text: "Change",
-                visuallyHiddenText: "if you want to choose a specific role"
-              }]
-            }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole,
-          {
-            key: { text: "Role" },
-            value: { text: data.specificRole },
-            actions: {
-              items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/role' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
-                text: "Change",
-                visuallyHiddenText: "role"
-              }]
-            }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole == "Yes" and data.specificRole,
-          {
-            key: { text: "Task owner" },
+            key: { text: "Who do you want to assign the ’early advice manager triage’ task to?" },
             value: { text: taskOwnerName },
             actions: {
               items: [{
-                href: ('/cases/:caseId/tasks/:taskId/check-new-pcd-case/person-name' if data.knowPersonName == "Yes" else '/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner') | replace(':caseId', task.case.id) | replace(':taskId', task.id),
+                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/task-owner' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
                 text: "Change",
-                visuallyHiddenText: "task owner"
+                visuallyHiddenText: "who you want to assign the ’early advice manager triage’ task to"
               }]
             }
           } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.taskOwner,
-          {
-            key: { text: "Do you know the name of the prosecutor you want to allocate?" },
-            value: { text: data.knowProsecutorName },
-            actions: {
-              items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
-                text: "Change",
-                visuallyHiddenText: "if you know the name of the prosecutor"
-              }]
-            }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType != "RASSO" and data.knowProsecutorName,
           {
             key: { text: "Prosecutor" },
             value: { text: prosecutorValue },
             actions: {
               items: [{
-                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/know-prosecutor-name' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
+                href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/prosecutor' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
                 text: "Change",
                 visuallyHiddenText: "prosecutor"
               }]

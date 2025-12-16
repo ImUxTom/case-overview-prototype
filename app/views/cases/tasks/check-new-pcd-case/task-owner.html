@@ -2,7 +2,7 @@
 
 {% set navId = 'cases' %}
 {% set caption %} {{task.case.reference}} - Check new PCD case {% endset %}
-{% set pageName = "Task owner" %}
+{% set pageName = 'Who do you want to assign the ‘early advice manager triage’ task to?' %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -16,14 +16,14 @@
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <span class="govuk-caption-l">{{caption}}</span>
       <form method="post">
-        {{ govukRadios({
+        {{ xGovukAutocomplete({
+          id: "taskOwner",
           name: "completeCheckNewPcdCase[taskOwner]",
-          fieldset: {
-            legend: {
-              text: pageName,
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
+          allowEmpty: false,
+          label: {
+            text: pageName,
+            isPageHeading: true,
+            classes: "govuk-label--l"
           },
           value: data.completeCheckNewPcdCase.taskOwner,
           items: ownerItems
