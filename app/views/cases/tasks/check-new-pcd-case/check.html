@@ -177,7 +177,7 @@
                 visuallyHiddenText: "if you want to assign to an individual or team"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo,
           {
             key: { text: "Do you know who you want to assign the ‘Early advice manager triage’ task to?" },
             value: { text: data.knowPersonName },
@@ -188,7 +188,7 @@
                 visuallyHiddenText: "if you know the name of the person"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName,
           {
             key: { text: "Do you want to choose a specific role?" },
             value: { text: data.chooseSpecificRole },
@@ -199,7 +199,7 @@
                 visuallyHiddenText: "if you want to choose a specific role"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole,
           {
             key: { text: "Role" },
             value: { text: data.specificRole },
@@ -210,7 +210,7 @@
                 visuallyHiddenText: "role"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole == "Yes" and data.specificRole,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.assignTo == "Individual" and data.knowPersonName == "No" and data.chooseSpecificRole == "Yes" and data.specificRole,
           {
             key: { text: "Task owner" },
             value: { text: taskOwnerName },
@@ -221,7 +221,7 @@
                 visuallyHiddenText: "task owner"
               }]
             }
-          } if data.decision == "Accept" and data.transferCase == "Yes" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.taskOwner,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType == "RASSO" and data.taskOwner,
           {
             key: { text: "Do you know the name of the prosecutor you want to allocate?" },
             value: { text: data.knowProsecutorName },
@@ -232,7 +232,7 @@
                 visuallyHiddenText: "if you know the name of the prosecutor"
               }]
             }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and (data.transferCase == "No" or (data.transferCase == "Yes" and data.caseType != "RASSO")) and data.knowProsecutorName,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType != "RASSO" and data.knowProsecutorName,
           {
             key: { text: "Prosecutor" },
             value: { text: prosecutorValue },
@@ -243,7 +243,7 @@
                 visuallyHiddenText: "prosecutor"
               }]
             }
-          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and (data.transferCase == "No" or (data.transferCase == "Yes" and data.caseType != "RASSO")) and data.prosecutorId,
+          } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType != "RASSO" and data.prosecutorId,
           {
             key: { text: "Date the police should respond" },
             value: { text: data.policeResponseDate | isoDateFromDateInput | govukDateTime },
