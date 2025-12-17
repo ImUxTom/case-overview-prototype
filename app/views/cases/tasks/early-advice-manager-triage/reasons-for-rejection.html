@@ -1,0 +1,159 @@
+{% extends "layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set caption %} {{task.case.reference}} - Early advice manager triage {% endset %}
+{% set pageName = "Reasons for rejection" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{caption}}</span>
+      <form method="post">
+        {{ govukCheckboxes({
+          name: "completeEarlyAdviceManagerTriage[rejectionReasons]",
+          fieldset: {
+            legend: {
+              text: pageName,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          values: data.completeEarlyAdviceManagerTriage.rejectionReasons,
+          items: [
+            {
+              value: "Insufficient evidence",
+              text: "Insufficient evidence",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Insufficient evidence]",
+                  id: "rejection-details-insufficient-evidence",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Insufficient evidence"]
+                })
+              }
+            },
+            {
+              value: "Missing documentation",
+              text: "Missing documentation",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Missing documentation]",
+                  id: "rejection-details-missing-documentation",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Missing documentation"]
+                })
+              }
+            },
+            {
+              value: "Case not suitable for early advice",
+              text: "Case not suitable for early advice",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Case not suitable for early advice]",
+                  id: "rejection-details-not-suitable",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Case not suitable for early advice"]
+                })
+              }
+            },
+            {
+              value: "Defendant not identified",
+              text: "Defendant not identified",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Defendant not identified]",
+                  id: "rejection-details-defendant",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Defendant not identified"]
+                })
+              }
+            },
+            {
+              value: "Investigation incomplete",
+              text: "Investigation incomplete",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Investigation incomplete]",
+                  id: "rejection-details-investigation",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Investigation incomplete"]
+                })
+              }
+            },
+            {
+              value: "No realistic prospect of conviction",
+              text: "No realistic prospect of conviction",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No realistic prospect of conviction]",
+                  id: "rejection-details-no-prospect",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No realistic prospect of conviction"]
+                })
+              }
+            },
+            {
+              value: "Not in the public interest",
+              text: "Not in the public interest",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Not in the public interest]",
+                  id: "rejection-details-public-interest",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Not in the public interest"]
+                })
+              }
+            },
+            {
+              value: "Other",
+              text: "Other",
+              conditional: {
+                html: govukCharacterCount({
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Other]",
+                  id: "rejection-details-other",
+                  maxlength: 250,
+                  label: {
+                    text: "Details (optional)"
+                  },
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Other"]
+                })
+              }
+            }
+          ]
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

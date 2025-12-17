@@ -42,6 +42,8 @@
       {% set completeTaskUrl %}
         {% if task.name == "Check new PCD case" %}
           /cases/{{_case.id}}/tasks/{{task.id}}/check-new-pcd-case
+        {% elif task.name == "Early advice manager triage" %}
+          /cases/{{_case.id}}/tasks/{{task.id}}/early-advice-manager-triage
         {% else %}
           /cases/{{_case.id}}/tasks/{{task.id}}/complete
         {% endif %}
