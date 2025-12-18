@@ -2,7 +2,7 @@
 
 {% set navId = 'cases' %}
 {% set caption %} {{task.case.reference}} - Priority PCD review {% endset %}
-{% set pageName = "Action plan follow-up date" %}
+{% set pageName = "Date the police should respond by" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -17,7 +17,7 @@
       <span class="govuk-caption-l">{{caption}}</span>
       <form method="post">
         {{ govukDateInput({
-          id: "actionPlanDate",
+          id: "policeResponseDate",
           fieldset: {
             legend: {
               text: pageName,
@@ -26,25 +26,25 @@
             }
           },
           hint: {
-            text: "For example, 31 3 2025. Date the police should get back to us responding to our reason for rejection."
+            text: "For example, 31 3 2025"
           },
           items: [
             {
-              name: "completePriorityPcdReview[actionPlanDate][day]",
+              name: "completePriorityPcdReview[policeResponseDate][day]",
               label: "Day",
-              value: data.completePriorityPcdReview.actionPlanDate.day,
+              value: data.completePriorityPcdReview.policeResponseDate.day,
               classes: "govuk-input--width-2"
             },
             {
-              name: "completePriorityPcdReview[actionPlanDate][month]",
+              name: "completePriorityPcdReview[policeResponseDate][month]",
               label: "Month",
-              value: data.completePriorityPcdReview.actionPlanDate.month,
+              value: data.completePriorityPcdReview.policeResponseDate.month,
               classes: "govuk-input--width-2"
             },
             {
-              name: "completePriorityPcdReview[actionPlanDate][year]",
+              name: "completePriorityPcdReview[policeResponseDate][year]",
               label: "Year",
-              value: data.completePriorityPcdReview.actionPlanDate.year,
+              value: data.completePriorityPcdReview.policeResponseDate.year,
               classes: "govuk-input--width-4"
             }
           ]

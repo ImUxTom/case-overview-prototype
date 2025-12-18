@@ -353,8 +353,8 @@
               value: { text: params.event.meta.prosecutor.firstName + ' ' + params.event.meta.prosecutor.lastName }
             } if params.event.meta.decision == "Accept" and params.event.meta.reviewTaskType == "Early advice" and params.event.meta.caseType != "RASSO" and params.event.meta.prosecutor,
             {
-              key: { text: 'Date the police should respond' },
-              value: { text: params.event.meta.policeResponseDate | govukDateTime }
+              key: { text: 'Date the police should respond by' },
+              value: { text: params.event.meta.policeResponseDate | govukDate }
             } if params.event.meta.decision == "Reject" and params.event.meta.policeResponseDate,
             {
               key: { text: 'Do you want to create a task to remind you about when the police should respond back to you?' },
@@ -362,7 +362,73 @@
             } if params.event.meta.decision == "Reject",
             {
               key: { text: 'Date you’ll be reminded' },
-              value: { text: params.event.meta.reminderDueDate | govukDateTime }
+              value: { text: params.event.meta.reminderDueDate | govukDate }
+            } if params.event.meta.decision == "Reject" and params.event.meta.createReminderTask == "Yes" and params.event.meta.reminderDueDate
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.title == 'Task completed: Early advice manager triage' %}
+      <div class="app-activity-log__box">
+        {# Rejection reasons HTML (Reject flow) #}
+        {% set reasonsHtml %}
+          {% if params.event.meta.rejectionReasons %}
+            <ul class="govuk-list govuk-list--spaced govuk-!-margin-bottom-0">
+              {% for reason in params.event.meta.rejectionReasons %}
+                <li>
+                  {% if params.event.meta.rejectionDetails and params.event.meta.rejectionDetails[reason] and params.event.meta.rejectionDetails[reason] | trim %}
+                    {{ reason }}:
+                    <p>{{ params.event.meta.rejectionDetails[reason] }}</p>
+                  {% else %}
+                    {{ reason }}
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endset %}
+
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: 'Task' },
+              value: { text: params.event.meta.task.name }
+            },
+            {
+              key: { text: 'Owner' },
+              value: { text: params.event.meta.assignedToUser.firstName + ' ' + params.event.meta.assignedToUser.lastName }
+            } if params.event.meta.assignedToUser,
+            {
+              key: { text: 'Owner' },
+              value: { text: params.event.meta.assignedToTeam.name + ' (' + params.event.meta.assignedToTeam.unit.name + ')' }
+            } if params.event.meta.assignedToTeam,
+            {
+              key: { text: 'Decision' },
+              value: { text: params.event.meta.decision }
+            } if params.event.meta.decision,
+            {
+              key: { text: 'Prosecutor' },
+              value: { text: params.event.meta.prosecutor.firstName + ' ' + params.event.meta.prosecutor.lastName }
+            } if params.event.meta.decision == "Accept" and params.event.meta.prosecutor,
+            {
+              key: { text: 'Reasons for rejection' },
+              value: { html: reasonsHtml }
+            } if params.event.meta.decision == "Reject" and params.event.meta.rejectionReasons and params.event.meta.rejectionReasons.length,
+            {
+              key: { text: 'Date the police should respond by' },
+              value: { text: params.event.meta.policeResponseDate | govukDate }
+            } if params.event.meta.decision == "Reject" and params.event.meta.policeResponseDate,
+            {
+              key: { text: 'Do you want to create a task to remind you about when the police should respond back to you?' },
+              value: { text: "Yes" if params.event.meta.createReminderTask == "Yes" else "No" }
+            } if params.event.meta.decision == "Reject",
+            {
+              key: { text: 'Date you’ll be reminded' },
+              value: { text: params.event.meta.reminderDueDate | govukDate }
             } if params.event.meta.decision == "Reject" and params.event.meta.createReminderTask == "Yes" and params.event.meta.reminderDueDate
           ]
         }) }}
@@ -381,7 +447,7 @@
               {% for reason in params.event.meta.nfsReasons %}
                 <li>
                   {% if params.event.meta.rejectionDetails and params.event.meta.rejectionDetails[reason] and params.event.meta.rejectionDetails[reason] | trim %}
-                    {{ reason }}:
+                    <p class="govuk-!-margin-bottom-0">{{ reason }}:</p>
                     <p>{{ params.event.meta.rejectionDetails[reason] }}</p>
                   {% else %}
                     {{ reason }}
@@ -396,7 +462,7 @@
         {% set priorityReasonHtml %}
           {% if params.event.meta.priorityReason %}
             {% if params.event.meta.rejectionDetails and params.event.meta.rejectionDetails[params.event.meta.priorityReason] and params.event.meta.rejectionDetails[params.event.meta.priorityReason] | trim %}
-              {{ params.event.meta.priorityReason }}:
+              <p class="govuk-!-margin-bottom-0">{{ params.event.meta.priorityReason }}:</p>
               <p>{{ params.event.meta.rejectionDetails[params.event.meta.priorityReason] }}</p>
             {% else %}
               {{ params.event.meta.priorityReason }}
@@ -455,9 +521,9 @@
               value: { text: params.event.meta.unit.name }
             } if params.event.meta.transferCase == "Yes" and params.event.meta.unit,
             {
-              key: { text: 'Date the police should get back to us' },
-              value: { text: params.event.meta.actionPlanDate | govukDateTime }
-            } if (params.event.meta.decision == "NFS non-compliant" or params.event.meta.decision == "Priority / Red rejection") and params.event.meta.actionPlanDate
+              key: { text: 'Date the police should respond by' },
+              value: { text: params.event.meta.policeResponseDate | govukDate }
+            } if (params.event.meta.decision == "NFS non-compliant" or params.event.meta.decision == "Priority / Red rejection") and params.event.meta.policeResponseDate
           ]
         }) }}
       </div>

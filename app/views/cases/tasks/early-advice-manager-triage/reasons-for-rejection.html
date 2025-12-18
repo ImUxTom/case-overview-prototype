@@ -28,151 +28,17 @@
           values: data.completeEarlyAdviceManagerTriage.rejectionReasons,
           items: [
             {
-              value: "Insufficient evidence",
-              text: "Insufficient evidence",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Insufficient evidence]",
-                  id: "rejection-details-insufficient-evidence",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Insufficient evidence"]
-                })
-              }
-            },
-            {
-              value: "Missing documentation",
-              text: "Missing documentation",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Missing documentation]",
-                  id: "rejection-details-missing-documentation",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Missing documentation"]
-                })
-              }
-            },
-            {
-              value: "Case not suitable for early advice",
-              text: "Case not suitable for early advice",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Case not suitable for early advice]",
-                  id: "rejection-details-not-suitable",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Case not suitable for early advice"]
-                })
-              }
-            },
-            {
-              value: "Defendant not identified",
-              text: "Defendant not identified",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Defendant not identified]",
-                  id: "rejection-details-defendant",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Defendant not identified"]
-                })
-              }
-            },
-            {
-              value: "Investigation incomplete",
-              text: "Investigation incomplete",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Investigation incomplete]",
-                  id: "rejection-details-investigation",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Investigation incomplete"]
-                })
-              }
-            },
-            {
-              value: "No realistic prospect of conviction",
-              text: "No realistic prospect of conviction",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No realistic prospect of conviction]",
-                  id: "rejection-details-no-prospect",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No realistic prospect of conviction"]
-                })
-              }
-            },
-            {
-              value: "Not in the public interest",
-              text: "Not in the public interest",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Not in the public interest]",
-                  id: "rejection-details-public-interest",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Not in the public interest"]
-                })
-              }
-            },
-            {
-              value: "Other",
-              text: "Other",
-              conditional: {
-                html: govukCharacterCount({
-                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Other]",
-                  id: "rejection-details-other",
-                  maxlength: 250,
-                  label: {
-                    text: "Details (optional)"
-                  },
-                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Other"]
-                })
-              }
-            }
-          ]
-        }) }}
-
-        {{ govukCheckboxes({
-          name: "completeCheckNewPcdCase[rejectionReasons]",
-          fieldset: {
-            legend: {
-              text: pageName,
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          values: data.completeCheckNewPcdCase.rejectionReasons,
-          items: [
-            {
               value: "Case Material not correctly received",
               text: "Case Material not correctly received",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Case Material not correctly received]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Case Material not correctly received]",
                   id: "rejection-details-case-material",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Case Material not correctly received"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Case Material not correctly received"]
                 })
               }
             },
@@ -181,13 +47,13 @@
               text: "No/missing Disclosure Schedule",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No/missing Disclosure Schedule]",
-                  id: "rejection-details-case-material",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No/missing Disclosure Schedule]",
+                  id: "rejection-details-disclosure",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No/missing Disclosure Schedule"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No/missing Disclosure Schedule"]
                 })
               }
             },
@@ -196,13 +62,13 @@
               text: "No MG3",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No MG3]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No MG3]",
                   id: "rejection-details-no-mg3",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No MG3"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No MG3"]
                 })
               }
             },
@@ -211,13 +77,13 @@
               text: "No/Incomplete Supervisors comments",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No/Incomplete Supervisors comments]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No/Incomplete Supervisors comments]",
                   id: "rejection-details-supervisors",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No/Incomplete Supervisors comments"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No/Incomplete Supervisors comments"]
                 })
               }
             },
@@ -226,13 +92,13 @@
               text: "No DV Checklist",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No DV Checklist]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No DV Checklist]",
                   id: "rejection-details-dv-checklist",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No DV Checklist"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No DV Checklist"]
                 })
               }
             },
@@ -241,13 +107,13 @@
               text: "No/missing MG11s",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No/missing MG11s]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No/missing MG11s]",
                   id: "rejection-details-mg11s",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No/missing MG11s"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No/missing MG11s"]
                 })
               }
             },
@@ -256,13 +122,13 @@
               text: "No missing exhibits",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No missing exhibits]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No missing exhibits]",
                   id: "rejection-details-exhibits",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No missing exhibits"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No missing exhibits"]
                 })
               }
             },
@@ -271,28 +137,28 @@
               text: "No summary of interview",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][No summary of interview]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][No summary of interview]",
                   id: "rejection-details-no-summary",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["No summary of interview"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["No summary of interview"]
                 })
               }
             },
             {
-              value: "Missing Suspect’s previous convictions",
-              text: "Missing Suspect’s previous convictions",
+              value: "Missing Suspect's previous convictions",
+              text: "Missing Suspect's previous convictions",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Missing Suspect’s previous convictions]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Missing Suspect's previous convictions]",
                   id: "rejection-details-missing-suspects",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Missing Suspect’s previous convictions"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Missing Suspect's previous convictions"]
                 })
               }
             },
@@ -301,13 +167,13 @@
               text: "Missing Victim/Witness previous convictions",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Missing Victim/Witness previous convictions]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Missing Victim/Witness previous convictions]",
                   id: "rejection-details-missing-victim",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Missing Victim/Witness previous convictions"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Missing Victim/Witness previous convictions"]
                 })
               }
             },
@@ -316,13 +182,13 @@
               text: "Hard media not provided",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Hard media not provided]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Hard media not provided]",
                   id: "rejection-details-hard-media",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Hard media not provided"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Hard media not provided"]
                 })
               }
             },
@@ -331,13 +197,13 @@
               text: "Third party material not provided",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Third party material not provided]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Third party material not provided]",
                   id: "rejection-details-third-party",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Third party material not provided"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Third party material not provided"]
                 })
               }
             },
@@ -346,18 +212,18 @@
               text: "Incompatible OIC contact details",
               conditional: {
                 html: govukCharacterCount({
-                  name: "completeCheckNewPcdCase[rejectionDetails][Incompatible OIC contact details]",
+                  name: "completeEarlyAdviceManagerTriage[rejectionDetails][Incompatible OIC contact details]",
                   id: "rejection-details-incompatible-oic",
                   maxlength: 250,
                   label: {
                     text: "Details (optional)"
                   },
-                  value: data.completeCheckNewPcdCase.rejectionDetails["Incompatible OIC contact details"]
+                  value: data.completeEarlyAdviceManagerTriage.rejectionDetails["Incompatible OIC contact details"]
                 })
               }
             }
           ]
-        }) if 1==2}}
+        }) }}
 
         {{ govukButton({
           text: "Continue"

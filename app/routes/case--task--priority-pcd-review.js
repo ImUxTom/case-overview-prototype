@@ -119,15 +119,15 @@ module.exports = router => {
     const taskId = req.params.taskId
     const data = _.get(req, 'session.data.completePriorityPcdReview')
 
-    // If not CPSD, go to transfer question
-    if (data.cpsd === "No") {
+    // If not CPSD AND accepting (NFS compliant), go to transfer question
+    if (data.cpsd === "No" && data.decision === "NFS compliant") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/transfer-case`)
     }
     // If NFS non-compliant or Priority rejection, go to action plan date
     else if (data.decision === "NFS non-compliant" || data.decision === "Priority / Red rejection") {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/action-plan-date`)
     }
-    // Otherwise go to check answers
+    // Otherwise (NFS compliant + CPSD Yes) go to check answers
     else {
       res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/check`)
     }
@@ -386,13 +386,13 @@ module.exports = router => {
       }
     }
 
-    // Add action plan date if applicable
+    // Add police response date if applicable
     if ((data.decision === "NFS non-compliant" || data.decision === "Priority / Red rejection") &&
-        data.actionPlanDate?.day && data.actionPlanDate?.month && data.actionPlanDate?.year) {
-      activityLogMeta.actionPlanDate = DateTime.fromObject({
-        day: parseInt(data.actionPlanDate.day),
-        month: parseInt(data.actionPlanDate.month),
-        year: parseInt(data.actionPlanDate.year)
+        data.policeResponseDate?.day && data.policeResponseDate?.month && data.policeResponseDate?.year) {
+      activityLogMeta.policeResponseDate = DateTime.fromObject({
+        day: parseInt(data.policeResponseDate.day),
+        month: parseInt(data.policeResponseDate.month),
+        year: parseInt(data.policeResponseDate.year)
       }).toISO()
     }
 

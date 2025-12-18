@@ -190,13 +190,13 @@
             }
           } if data.decision == "Accept" and data.reviewTaskType == "Early advice" and data.caseType != "RASSO" and data.prosecutorId,
           {
-            key: { text: "Date the police should respond" },
+            key: { text: "Date the police should respond by" },
             value: { text: data.policeResponseDate | isoDateFromDateInput | govukDateTime },
             actions: {
               items: [{
                 href: '/cases/:caseId/tasks/:taskId/check-new-pcd-case/police-response-date' | replace(':caseId', task.case.id) | replace(':taskId', task.id),
                 text: "Change",
-                visuallyHiddenText: "Date the police should respond"
+                visuallyHiddenText: "Date the police should respond by"
               }]
             }
           } if data.decision == "Reject" and data.policeResponseDate and data.policeResponseDate.day and data.policeResponseDate.month and data.policeResponseDate.year,
