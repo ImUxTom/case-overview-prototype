@@ -7,9 +7,11 @@ node_modules/
 migrate.log
 usage-data-config.json
 .claude/
+.mcp.json
 
 # General ignores
 .DS_Store
 .idea
+design-history/
 
 /prisma/data/

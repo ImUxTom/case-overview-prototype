@@ -32,6 +32,22 @@ async function seedGeneralCases(prisma, dependencies, config) {
     taskNoteDescriptions
   } = config;
 
+  // UK police forces for DGA processing
+  const policeUnits = [
+    'Metropolitan Police',
+    'West Midlands Police',
+    'Greater Manchester Police',
+    'Thames Valley Police',
+    'Kent Police',
+    'Essex Police',
+    'Hampshire Constabulary',
+    'West Yorkshire Police',
+    'Surrey Police',
+    'Sussex Police',
+    'Merseyside Police',
+    'Hertfordshire Constabulary'
+  ];
+
   const createdCases = [];
 
   for (let i = 0; i < totalCases; i++) {
@@ -261,6 +277,7 @@ async function seedGeneralCases(prisma, dependencies, config) {
         type: faker.helpers.arrayElement(types),
         complexity: faker.helpers.arrayElement(complexities),
         unit: { connect: { id: caseUnitId } },
+        policeUnit: faker.helpers.arrayElement(policeUnits),
         defendants: { connect: assignedDefendants.map((d) => ({ id: d.id })) },
         victims: { connect: assignedVictims.map((v) => ({ id: v.id })) },
         location: {

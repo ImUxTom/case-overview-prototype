@@ -9,23 +9,29 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
-      
-      <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
-        <li>
-          <a href="/cases/dga/october2025">October 2025</a> Sent to police / (10 cases still need update)
-          Freeze date: 11 December 2025 (2 months is after the date of the reporting month)
-        </li>
-        <li>
-          <a href="#">September 2025</a> {{ govukTag({
-            text: "Completed"
-          }) }}
-        </li>
-        <li>
-          <a href="#">August 2025</a> {{ govukTag({
-            text: "Completed"
-          }) }}
-        </li>
-      </ul>
+
+      {% if months.length === 0 %}
+        <p class="govuk-body">No DGA cases found.</p>
+      {% else %}
+        <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+          {% for month in months %}
+            <li>
+              <a href="/cases/dga/{{ month.key }}">{{ month.name }}</a>
+              {% if month.totalCases > 0 %}
+                ({{ month.totalCases - month.completedCases }} of {{ month.totalCases }} cases still need update)
+              {% endif %}
+              {% if month.completedCases === month.totalCases and month.totalCases > 0 %}
+                {{ govukTag({
+                  text: "Completed"
+                }) }}
+              {% endif %}
+              {% if month.deadline %}
+                <br>Freeze date: {{ month.deadline | isoDateString | govukDateTime }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
     </div>
   </div>

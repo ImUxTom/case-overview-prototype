@@ -32,6 +32,7 @@ const { seedUserSpecificTestCases } = require("./seed-helpers/user-specific-test
 const { seedPriorityTasks } = require("./seed-helpers/priority-tasks");
 const { seedGuaranteedTasks } = require("./seed-helpers/guaranteed-tasks");
 const { seedDGAAssignments } = require("./seed-helpers/dga-assignments");
+const { seedOctober2025DGAs } = require("./seed-helpers/dga-october-2025");
 const { seedGeneralCases } = require("./seed-helpers/general-cases");
 const { seedCaseNotes } = require("./seed-helpers/case-notes");
 const { seedDirectionNotes } = require("./seed-helpers/direction-notes");
@@ -112,10 +113,13 @@ async function main() {
     }
   );
 
-  // Seed: DGA assignments
+  // Seed: DGA assignments (original - for all users including Veronica)
   await seedDGAAssignments(prisma, createdCases, {
     dgaTarget: DGA_TARGET
   });
+
+  // Seed: October 2025 DGA cases (specific for units 3 and 4)
+  await seedOctober2025DGAs(prisma);
 
   // Seed: guaranteed tasks
   await seedGuaranteedTasks(prisma, users, taskNames);

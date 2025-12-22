@@ -1,5 +1,21 @@
 const { faker } = require('@faker-js/faker');
 
+// Helper: Calculate deadline as end of month + 6 weeks
+function calculateDeadline(nonCompliantDate) {
+  const date = new Date(nonCompliantDate);
+
+  // Get last day of the month
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const endOfMonth = new Date(year, month + 1, 0); // Day 0 of next month = last day of current month
+
+  // Add 6 weeks (42 days)
+  const deadline = new Date(endOfMonth);
+  deadline.setDate(deadline.getDate() + 42);
+
+  return deadline;
+}
+
 async function seedDGAAssignments(prisma, cases, config) {
   const { dgaTarget } = config;
 
@@ -29,18 +45,30 @@ async function seedDGAAssignments(prisma, cases, config) {
     "Victim and witness failure - VPS - no information on whether VPS offered/not provided"
   ];
 
-  // Select random cases for DGA assignment
+  // Select random cases for DGA assignment (original behavior)
   const dgaIds = new Set(
     faker.helpers.arrayElements(cases, dgaTarget).map((c) => c.id)
   );
 
   for (const c of cases) {
     if (dgaIds.has(c.id)) {
-      // Create DGA
+      // Generate non-compliant date between 3-6 months ago
+      const monthsAgo = faker.number.int({ min: 3, max: 6 });
+      const nonCompliantDate = new Date();
+      nonCompliantDate.setMonth(nonCompliantDate.getMonth() - monthsAgo);
+      // Set to a random day in that month
+      nonCompliantDate.setDate(faker.number.int({ min: 1, max: 28 }));
+
+      // Calculate deadline: end of month + 6 weeks
+      const reportDeadline = calculateDeadline(nonCompliantDate);
+
+      // Create DGA with dates
       const dga = await prisma.dGA.create({
         data: {
           caseId: c.id,
           reason: faker.lorem.sentence(),
+          nonCompliantDate: nonCompliantDate,
+          reportDeadline: reportDeadline,
           // outcome omitted → will be NULL
         },
       });
@@ -61,7 +89,7 @@ async function seedDGAAssignments(prisma, cases, config) {
     }
   }
 
-  console.log(`✅ Assigned ${dgaTarget} cases needing DGA review with failure reasons`);
+  console.log(`✅ Assigned ${dgaTarget} cases needing DGA review (general seeding)`);
 }
 
 module.exports = {

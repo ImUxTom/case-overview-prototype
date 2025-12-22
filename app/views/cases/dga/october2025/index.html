@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = 'October 2025 non-compliant DGA cases' %}
+{% set pageName = 'Non-compliant DGA cases' %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -22,6 +22,7 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">October 2025</span>
       <h1 class="govuk-heading-l">{{pageName}}</h1>
       
       {# <p><a href="#" class="govuk-link govuk-link--no-visited-state">Export non-compliant cases and send to police</a></p> #}
@@ -31,40 +32,47 @@
       <h2 class="govuk-heading-m">Record outcomes</h2>
  #}
 
-      <p>Freeze date: 11 December 2025</p>
+      <p>You cannot record changes after 11 December 2025 at 11:59pm.</p>
 
+      <div class="app-dga-police-unit govuk-!-margin-top-7">
+        <h3 class="govuk-heading-s">Police {unit 1} {{ govukTag({
+          text: "Not started",
+          classes: 'govuk-tag--red'
+        }) }}</h3>
 
-      <h3 class="govuk-heading-s">Police {unit 1} {{ govukTag({
-        text: "Not started",
-        classes: 'govuk-tag--red'
-      }) }}</h3>
+        <div class="govuk-button-group">
+          <a href="#" class="govuk-link govuk-link--no-visited-state">Export all DGA cases and mark as sent to police</a>
+        </div>
+      </div>
 
-      <p><a href="#" class="govuk-link govuk-link--no-visited-state">Export all DGA cases and mark as sent to police</a> </p>
+      <div class="app-dga-police-unit govuk-!-margin-top-7">
+        <h3 class="govuk-heading-s ">Police {unit 2} {{ govukTag({
+          text: "In progress",
+          classes: 'govuk-tag--yellow'
+        }) }}</h3>
 
-            <h3 class="govuk-heading-s">Police {unit 2} {{ govukTag({
-              text: "In progress",
-              classes: 'govuk-tag--yellow'
-            }) }}</h3>
+        <p>Sent to police on 10 December 2025.</p>
 
-            <p>Sent to police on 10 December 2025.</p>
+        <div class="govuk-button-group">
+          <a href="#" class="govuk-link govuk-link--no-visited-state">Record outcomes</a>
+        
+          <a href="#" class="govuk-link govuk-link--no-visited-state">Export all</a>
+        </div>
+      </div>
 
-            <div class="govuk-button-group">
-              <a href="#" class="govuk-link govuk-link--no-visited-state">Record outcomes</a>
-            
-              <a href="#" class="govuk-link govuk-link--no-visited-state">Export all</a>
-            </div>
+      <div class="app-dga-police-unit govuk-!-margin-top-7">
+        <h3 class="govuk-heading-s">Police {unit 3} {{ govukTag({
+          text: "Completed"
+        }) }}</h3>
 
-            <h3 class="govuk-heading-s">Police {unit 3} {{ govukTag({
-              text: "Completed"
-            }) }}</h3>
+        <p>Sent to police on 9 December 2025.</p>
 
-            <p>Sent to police on 9 December 2025.</p>
-
-            <div class="govuk-button-group">
-              <a href="#" class="govuk-link govuk-link--no-visited-state">View recorded outcomes</a>
-            
-              <a href="#" class="govuk-link govuk-link--no-visited-state">Export all</a>
-            </div>
+        <div class="govuk-button-group">
+          <a href="#" class="govuk-link govuk-link--no-visited-state">View recorded outcomes</a>
+        
+          <a href="#" class="govuk-link govuk-link--no-visited-state">Export all</a>
+        </div>
+      </div>
 
 
 

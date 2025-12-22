@@ -1,0 +1,80 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set secondaryNavId = 'dga' %}
+{% set pageName = 'Non-compliant DGA cases' %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "DGA",
+        href: "/cases/dga"
+      },
+      {
+        text: monthName,
+        href: "/cases/dga/" + monthKey
+      },
+      {
+        text: policeUnitName
+      }
+    ]
+  }) }}
+{% endblock beforeContent %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ policeUnitName }}</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      <p class="govuk-body">{{ monthName }}</p>
+
+      {% if cases.length %}
+        <div class="app-list">
+          {% for caseItem in cases %}
+          <div class="app-list__item">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+              <h2 class="govuk-heading-s govuk-!-margin-bottom-0">
+                {{ caseItem.reference }}
+              </h2>
+              <div style="text-align: right;">
+                {% if caseItem.reportStatus == "Completed" %}
+                  {{ govukTag({
+                    text: "Completed",
+                    classes: "govuk-tag--blue"
+                  }) }}
+                  <p class="govuk-body">
+                    <a href="/reports/{{ caseItem.id }}/dga-outcomes" class="govuk-link--no-visited-state" style="display: block; margin-top: 8px;">View outcomes</a>
+                  </p>
+                {% elif caseItem.reportStatus == "In progress" %}
+                  {{ govukTag({
+                    text: "In progress",
+                    classes: "govuk-tag--yellow"
+                  }) }}
+                  <p class="govuk-body">
+                    <a href="/reports/{{ caseItem.id }}/dga-outcomes" class="govuk-link--no-visited-state" style="display: block; margin-top: 8px;">Finish recording outcomes</a>
+                  </p>
+                {% else %}
+                  {{ govukTag({
+                    text: "Not started",
+                    classes: "govuk-tag--red"
+                  }) }}
+                  <p class="govuk-body">
+                    <a href="/reports/{{ caseItem.id }}/dga-outcomes" class="govuk-link--no-visited-state" style="display: block; margin-top: 8px;">Change outcomes</a>
+                  </p>
+                {% endif %}
+                
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no cases for this police unit.</p>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

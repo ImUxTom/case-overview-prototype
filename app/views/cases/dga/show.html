@@ -1,0 +1,73 @@
+{% extends "layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set secondaryNavId = 'dga' %}
+{% set pageName = 'Non-compliant DGA cases' %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "DGA",
+        href: "/cases/dga"
+      },
+      {
+        text: monthName
+      }
+    ]
+  }) }}
+{% endblock beforeContent %}
+
+{% block content %}
+  {% include "_includes/success-banner.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ monthName }}</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      
+      <p>You must record changes by {{ deadline | isoDateString | govukDateTime }}.</p>
+      
+
+      {% for policeUnit in policeUnits %}
+        <div class="app-dga-police-unit govuk-!-margin-top-7">
+          <h3 class="govuk-heading-s">
+            {{ policeUnit.name }}
+            {% if policeUnit.completedCases === policeUnit.totalCases and policeUnit.hasSentToPolice %}
+              {{ govukTag({
+                text: "Completed"
+              }) }}
+            {% elif policeUnit.hasAnyProgress and policeUnit.hasSentToPolice %}
+              {{ govukTag({
+                text: "In progress",
+                classes: 'govuk-tag--yellow'
+              }) }}
+            {% else %}
+              {{ govukTag({
+                text: "Not started",
+                classes: 'govuk-tag--red'
+              }) }}
+            {% endif %}
+          </h3>
+
+          {% if policeUnit.hasSentToPolice %}
+            <p>Sent to police on {{ policeUnit.sentDate | isoDateString | govukDate }}.</p>
+          {% endif %}
+
+          <div class="govuk-button-group">
+            {% if not policeUnit.hasSentToPolice %}
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/mark-as-sent" class="govuk-link govuk-link--no-visited-state">Export all DGA cases and mark as sent to police</a>
+            {% elif policeUnit.completedCases < policeUnit.totalCases %}
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View cases</a>
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/export" class="govuk-link govuk-link--no-visited-state">Export all</a>
+            {% else %}
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View cases</a>
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/export" class="govuk-link govuk-link--no-visited-state">Export all</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+{% endblock %}
