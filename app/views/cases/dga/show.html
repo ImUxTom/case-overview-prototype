@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = 'Non-compliant DGA cases' %}
+{% set pageName = 'DGA cases' %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -60,10 +60,10 @@
               <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/mark-as-sent" class="govuk-link govuk-link--no-visited-state">Mark as sent to police</a>
             {% elif policeUnit.completedCases < policeUnit.totalCases %}
               <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/export" class="govuk-link govuk-link--no-visited-state">Export (CSV)</a>
-              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View cases</a>
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View non-compliant DGA cases</a>
             {% else %}
               <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}/export" class="govuk-link govuk-link--no-visited-state">Export (CSV)</a>
-              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View cases</a>
+              <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.name | slugify }}" class="govuk-link govuk-link--no-visited-state">View non-compliant DGA cases</a>
             {% endif %}
           </div>
         </div>
