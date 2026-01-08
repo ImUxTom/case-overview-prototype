@@ -1,19 +1,34 @@
 
-{% if unassignedCaseCount > 0 %}
+{% if unassignedCaseCount > 0 or latestDGAMonth %}
   <div class="app-overview-section">
     <h2 class="govuk-heading-m">Cases</h2>
     <ul class="govuk-list govuk-list--bullet">
-      <li>
-        <a href="/cases/shortcut/unassigned" class="govuk-link--no-visited-state">
-          {{unassignedCaseCount}}
-          {% if unassignedCaseCount == 1 %}
-            case does not
-          {% else %}
-            cases do not
-          {% endif %}
-          have a prosecutor assigned
-        </a>
-      </li>
+      {% if unassignedCaseCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/unassigned" class="govuk-link--no-visited-state">
+            {{unassignedCaseCount}}
+            {% if unassignedCaseCount == 1 %}
+              case does not
+            {% else %}
+              cases do not
+            {% endif %}
+            have a prosecutor assigned
+          </a>
+        </li>
+      {% endif %}
+      {% if latestDGAMonth %}
+        <li>
+          <a href="/cases/dga/{{ latestDGAMonth.key }}" class="govuk-link--no-visited-state">
+            {{ latestDGAMonth.count }}
+            {% if latestDGAMonth.count == 1 %}
+              case needs
+            {% else %}
+              cases need
+            {% endif %}
+            outcomes recorded for DGA by {{ latestDGAMonth.deadline | isoDateString | govukDate }}
+          </a>
+        </li>
+      {% endif %}
     </ul>
   </div>
 {% endif %}

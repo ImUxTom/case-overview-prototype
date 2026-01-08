@@ -45,6 +45,52 @@ module.exports = router => {
       }
     })
 
+    // Find the latest DGA month with cases needing outcomes
+    const dgaCasesNeedingOutcomes = await prisma.dGA.findMany({
+      where: {
+        nonCompliantDate: { not: null },
+        failureReasons: {
+          some: {
+            outcome: null
+          }
+        }
+      },
+      include: {
+        failureReasons: true
+      }
+    })
+
+    // Group by month and find the latest one
+    let latestDGAMonth = null
+    if (dgaCasesNeedingOutcomes.length > 0) {
+      const monthGroups = {}
+      dgaCasesNeedingOutcomes.forEach(dga => {
+        const date = new Date(dga.nonCompliantDate)
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+        if (!monthGroups[monthKey]) {
+          monthGroups[monthKey] = {
+            key: monthKey,
+            deadline: dga.reportDeadline,
+            count: 0
+          }
+        }
+        monthGroups[monthKey].count++
+      })
+
+      const sortedMonths = Object.values(monthGroups).sort((a, b) => b.key.localeCompare(a.key))
+      if (sortedMonths.length > 0) {
+        const latest = sortedMonths[0]
+        const [year, month] = latest.key.split('-')
+        const monthName = new Date(year, parseInt(month) - 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' })
+        latestDGAMonth = {
+          key: latest.key,
+          name: monthName,
+          deadline: latest.deadline,
+          count: latest.count
+        }
+      }
+    }
+
     // Count urgent tasks assigned to current user
     const urgentTaskCount = await prisma.task.count({
       where: {
@@ -260,6 +306,7 @@ module.exports = router => {
       unassignedCaseCount,
       incompleteProfileCount,
       needsDGAReviewCount,
+      latestDGAMonth,
       urgentTaskCount,
       priorityChargingTaskCount,
       ctlCountsByRange,
