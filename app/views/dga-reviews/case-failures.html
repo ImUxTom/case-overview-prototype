@@ -7,16 +7,16 @@
   {{ govukBreadcrumbs({
     items: [
       {
-        text: "Director General Assessment (DGA)",
-        href: "/cases/dga"
+        text: "Director Guidance Assessment (DGA)",
+        href: "/dga-reviews"
       },
       {
         text: monthName,
-        href: "/cases/dga/" + monthKey
+        href: "/dga-reviews/" + monthKey
       },
       {
         text: 'Non-compliant DGA cases',
-        href: "/cases/dga/" + monthKey + "/" + policeUnitId
+        href: "/dga-reviews/" + monthKey + "/" + policeUnitId
       },
       {
         text: 'Decisions'
@@ -51,7 +51,7 @@
             {% if not reason.outcome %}
               {{ govukButton({
                 text: "Record decision",
-                href: "/cases/dga/:caseId/failure-reasons/:reasonId/record-outcome/outcome" | replace(':caseId', case.id) | replace(':reasonId', reason.id)
+                href: "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome"
               }) }}
             {% else %}
               {% set methodsHtml %}
@@ -66,6 +66,7 @@
                 {% endif %}
               {% endset %}
 
+              {% set baseUrl = "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome" %}
               {{ govukSummaryList({
                 rows: [
                   {
@@ -78,7 +79,7 @@
                     actions: {
                       items: [
                         {
-                          href: "/cases/dga/:caseId/failure-reasons/:reasonId/record-outcome/outcome" | replace(':caseId', case.id) | replace(':reasonId', reason.id),
+                          href: baseUrl,
                           text: "Change",
                           visuallyHiddenText: "outcome"
                         }
@@ -92,7 +93,7 @@
                     actions: {
                       items: [
                         {
-                          href: "/cases/dga/:caseId/failure-reasons/:reasonId/record-outcome/decision-explanation" | replace(':caseId', case.id) | replace(':reasonId', reason.id),
+                          href: baseUrl + "/explanation",
                           text: "Change",
                           visuallyHiddenText: "explanation"
                         }
@@ -106,7 +107,7 @@
                     actions: {
                       items: [
                         {
-                          href: "/cases/dga/:caseId/failure-reasons/:reasonId/record-outcome/decision-method" | replace(':caseId', case.id) | replace(':reasonId', reason.id),
+                          href: baseUrl + "/method",
                           text: "Change",
                           visuallyHiddenText: "methods"
                         }

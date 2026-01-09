@@ -3,10 +3,12 @@
 {% set secondaryNavId = 'dga' %}
 {% set pageName = failureReason.reason %}
 
+{% set baseUrl = "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + failureReason.id + "/record-dispute-outcome" %}
+
 {% block beforeContent %}
   {{ govukBackLink({
     text: "Back",
-    href: "/cases/dga/" + case.id + "/failure-reasons/" + failureReason.id + "/record-outcome/outcome"
+    href: baseUrl
   }) }}
 {% endblock %}
 
@@ -52,7 +54,7 @@
       actions: {
         items: [
           {
-            href: "/cases/dga/" + case.id + "/failure-reasons/" + failureReason.id + "/record-outcome/outcome",
+            href: baseUrl,
             text: "Change",
             visuallyHiddenText: "outcome"
           }
@@ -68,7 +70,7 @@
       actions: {
         items: [
           {
-            href: "/cases/dga/" + case.id + "/failure-reasons/" + failureReason.id + "/record-outcome/decision-explanation",
+            href: baseUrl + "/explanation",
             text: "Change",
             visuallyHiddenText: "details"
           }
@@ -82,7 +84,7 @@
       actions: {
         items: [
           {
-            href: "/cases/dga/" + case.id + "/failure-reasons/" + failureReason.id + "/record-outcome/decision-method",
+            href: baseUrl + "/method",
             text: "Change",
             visuallyHiddenText: "methods"
           }

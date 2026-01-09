@@ -6,7 +6,7 @@
 {% block beforeContent %}
   {{ govukBackLink({
     text: "Back",
-    href: "/cases/dga/" + case.id + "/failure-reasons/" + failureReason.id + "/record-outcome/outcome"
+    href: "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + failureReason.id + "/record-dispute-outcome"
   }) }}
 {% endblock %}
 

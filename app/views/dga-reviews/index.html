@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = 'Director General Assessment (DGA)' %}
+{% set pageName = 'Director Guidance Assessment (DGA)' %}
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
@@ -18,7 +18,7 @@
             <div class="app-list__item">
               <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
                 <div>
-                  <a href="/cases/dga/{{ month.key }}">{{ month.name }}</a>
+                  <a href="/dga-reviews/{{ month.key }}">{{ month.name }}</a>
                 </div>
                 <div class="app-list__tag">
                   {{ govukTag({

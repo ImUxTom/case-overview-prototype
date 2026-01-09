@@ -7,8 +7,8 @@
   {{ govukBreadcrumbs({
     items: [
       {
-        text: "Director General Assessment (DGA)",
-        href: "/cases/dga"
+        text: "Director Guidance Assessment (DGA)",
+        href: "/dga-reviews"
       },
       {
         text: monthName
@@ -38,9 +38,9 @@
           <p>{{policeUnit.completedCases}} of {{policeUnit.totalCases}} cases have recorded decisions.</p>
 
           <div class="govuk-button-group">
-            <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.id }}/export" class="govuk-link govuk-link--no-visited-state">Export</a>
-            <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Non-compliant DGA cases</a>
-            <a href="/cases/dga/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Mark cases as not disputed?</a>
+            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}/export" class="govuk-link govuk-link--no-visited-state">Export</a>
+            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Non-compliant DGA cases</a>
+            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Mark cases as not disputed?</a>
           </div>
         </div>
       {% endfor %}

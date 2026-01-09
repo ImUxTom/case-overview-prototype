@@ -5,7 +5,7 @@ const { getCompletionStatus, getDgaReportStatus } = require('../helpers/dgaRepor
 const Pagination = require('../helpers/pagination')
 
 module.exports = router => {
-  router.get('/cases/dga', async (req, res) => {
+  router.get('/dga-reviews', async (req, res) => {
     const currentUser = req.session.data.user
 
     // Get user's unit IDs for filtering
@@ -68,13 +68,13 @@ module.exports = router => {
       }))
       .sort((a, b) => b.date - a.date)
 
-    res.render('cases/dga/index', {
+    res.render('dga-reviews/index', {
       months
     })
   })
 
   // Show cases for a specific month, grouped by police unit
-  router.get('/cases/dga/:month', async (req, res) => {
+  router.get('/dga-reviews/:month', async (req, res) => {
     const monthKey = req.params.month // Expected format: YYYY-MM (e.g., "2024-10")
     const currentUser = req.session.data.user
 
@@ -85,7 +85,7 @@ module.exports = router => {
     const [year, month] = monthKey.split('-').map(Number)
 
     if (!year || !month || month < 1 || month > 12) {
-      return res.redirect('/cases/dga')
+      return res.redirect('/dga-reviews')
     }
 
     // Create date range for the month
@@ -130,7 +130,7 @@ module.exports = router => {
     })
 
     if (dgaCases.length === 0) {
-      return res.redirect('/cases/dga')
+      return res.redirect('/dga-reviews')
     }
 
     // Group cases by police unit
@@ -195,7 +195,7 @@ module.exports = router => {
     const monthName = startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
     const deadline = dgaCases[0]?.dga?.reportDeadline
 
-    res.render('cases/dga/show', {
+    res.render('dga-reviews/month', {
       monthKey,
       monthName,
       deadline,
@@ -205,7 +205,7 @@ module.exports = router => {
   })
 
   // Show cases for a specific police unit within a month
-  router.get('/cases/dga/:month/:policeUnitId', async (req, res) => {
+  router.get('/dga-reviews/:month/:policeUnitId', async (req, res) => {
     const monthKey = req.params.month // Expected format: YYYY-MM (e.g., "2024-10")
     const policeUnitId = parseInt(req.params.policeUnitId)
     const currentUser = req.session.data.user
@@ -217,7 +217,7 @@ module.exports = router => {
     const [year, month] = monthKey.split('-').map(Number)
 
     if (!year || !month || month < 1 || month > 12) {
-      return res.redirect('/cases/dga')
+      return res.redirect('/dga-reviews')
     }
 
     // Create date range for the month
@@ -260,7 +260,7 @@ module.exports = router => {
     })
 
     if (dgaCases.length === 0) {
-      return res.redirect('/cases/dga')
+      return res.redirect('/dga-reviews')
     }
 
     // Filter cases by police unit ID
@@ -269,7 +269,7 @@ module.exports = router => {
     })
 
     if (casesForPoliceUnit.length === 0) {
-      return res.redirect(`/cases/dga/${monthKey}`)
+      return res.redirect(`/dga-reviews/${monthKey}`)
     }
 
     // Calculate report status for each case
@@ -293,7 +293,7 @@ module.exports = router => {
     const pagination = new Pagination(casesWithStatus, req.query.page, 25)
     const paginatedCases = pagination.getData()
 
-    res.render('cases/dga/police-unit', {
+    res.render('dga-reviews/police-cases', {
       monthKey,
       monthName,
       policeUnitId,
@@ -305,7 +305,7 @@ module.exports = router => {
   })
 
   // Export cases for a specific police unit within a month
-  router.get('/cases/dga/:month/:policeUnitId/export', async (req, res) => {
+  router.get('/dga-reviews/:month/:policeUnitId/export', async (req, res) => {
     const ExcelJS = require('exceljs')
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
@@ -318,7 +318,7 @@ module.exports = router => {
     const [year, month] = monthKey.split('-').map(Number)
 
     if (!year || !month || month < 1 || month > 12) {
-      return res.redirect('/cases/dga')
+      return res.redirect('/dga-reviews')
     }
 
     // Create date range for the month
@@ -357,7 +357,7 @@ module.exports = router => {
     })
 
     if (cases.length === 0) {
-      return res.redirect(`/cases/dga/${monthKey}`)
+      return res.redirect(`/dga-reviews/${monthKey}`)
     }
 
     // Get police unit name for filename
@@ -444,7 +444,7 @@ module.exports = router => {
   })
 
   // View the failure reasons list for a specific case
-  router.get('/cases/dga/:month/:policeUnitId/:caseId', async (req, res) => {
+  router.get('/dga-reviews/:month/:policeUnitId/:caseId', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const monthKey = req.params.month // e.g., "2025-10"
     const policeUnitId = parseInt(req.params.policeUnitId)
@@ -475,7 +475,7 @@ module.exports = router => {
     const outcomesTotal = caseData.dga.failureReasons.length
     const outcomesCompleted = caseData.dga.failureReasons.filter(fr => fr.outcome !== null).length
 
-    res.render('cases/dga/failure-reasons/index', {
+    res.render('dga-reviews/case-failures', {
       case: caseData,
       monthKey,
       monthName,
