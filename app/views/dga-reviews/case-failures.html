@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = case.reference %}
+{% set pageName = 'Dispute outcomes' %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -19,7 +19,7 @@
         href: "/dga-reviews/" + monthKey + "/" + policeUnitId
       },
       {
-        text: 'Decisions'
+        text: pageName
       }
     ]
   }) }}
@@ -33,14 +33,14 @@
       <div class="govuk-grid-column-two-thirds">
         <span class="govuk-caption-l">{{ case.reference }}</span>
         <h1 class="govuk-heading-l">
-          Decisions
+          {{ pageName }}   
           {{ govukTag({
             text: reportStatus,
             classes: reportStatus | completionStatusTagClass
           }) }}
         </h1>
 
-        <p class="govuk-body">{{ outcomesCompleted }} of {{ outcomesTotal }} decision{{ "s" if outcomesTotal != 1 }} recorded.</p>
+        <p class="govuk-body">{{ outcomesCompleted }} of {{ outcomesTotal }} dispute outcome{{ "s" if outcomesTotal != 1 }} recorded.</p>
 
         {% for reason in case.dga.failureReasons %}
 
@@ -50,7 +50,7 @@
 
             {% if not reason.outcome %}
               {{ govukButton({
-                text: "Record decision",
+                text: "Record dispute outcome",
                 href: "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome"
               }) }}
             {% else %}
@@ -71,7 +71,7 @@
                 rows: [
                   {
                     key: {
-                      text: "Decision"
+                      text: "Dispute outcome"
                     },
                     value: {
                       text: reason.outcome
@@ -88,7 +88,7 @@
                   },
 
                   {
-                    key: { text: "Reason for this decision" },
+                    key: { text: "Reason for this Dispute outcome" },
                     value: { text: reason.details if reason.details else "-" },
                     actions: {
                       items: [
@@ -102,7 +102,7 @@
                   } if reason.outcome != "Not disputed",
 
                   {
-                    key: { text: "How did you communicate with the police to make this decision?" },
+                    key: { text: "How did you discuss this dispute with the police?" },
                     value: { html: methodsHtml },
                     actions: {
                       items: [

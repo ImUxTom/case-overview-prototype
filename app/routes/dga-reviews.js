@@ -11,12 +11,12 @@ module.exports = router => {
     // Get user's unit IDs for filtering
     const userUnitIds = currentUser?.units?.map(uu => uu.unitId) || []
 
-    // Get all cases with DGA that have a nonCompliantDate
+    // Get all cases with DGA that have a reviewDate
     const dgaCases = await prisma.case.findMany({
       where: {
         AND: [
           { dga: { isNot: null } },
-          { dga: { nonCompliantDate: { not: null } } },
+          { dga: { reviewDate: { not: null } } },
           { unitId: { in: userUnitIds } }
         ]
       },
@@ -33,9 +33,9 @@ module.exports = router => {
     const monthsMap = new Map()
 
     dgaCases.forEach(caseItem => {
-      if (!caseItem.dga?.nonCompliantDate) return
+      if (!caseItem.dga?.reviewDate) return
 
-      const date = new Date(caseItem.dga.nonCompliantDate)
+      const date = new Date(caseItem.dga.reviewDate)
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
       const monthName = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 
@@ -43,8 +43,9 @@ module.exports = router => {
         monthsMap.set(monthKey, {
           key: monthKey,
           name: monthName,
-          deadline: caseItem.dga.reportDeadline,
+          deadline: caseItem.dga.recordDisputeOutcomesDeadline,
           totalCases: 0,
+          nonCompliantCases: 0,
           completedCases: 0,
           date: date
         })
@@ -53,18 +54,23 @@ module.exports = router => {
       const monthData = monthsMap.get(monthKey)
       monthData.totalCases++
 
-      // Check if all failure reasons have outcomes
-      const allCompleted = caseItem.dga.failureReasons.every(fr => fr.outcome !== null)
-      if (allCompleted) {
-        monthData.completedCases++
+      const isNonCompliant = caseItem.dga.failureReasons.length > 0
+      if (isNonCompliant) {
+        monthData.nonCompliantCases++
+        // Check if all failure reasons have outcomes
+        const allCompleted = caseItem.dga.failureReasons.every(fr => fr.outcome !== null)
+        if (allCompleted) {
+          monthData.completedCases++
+        }
       }
     })
 
     // Convert to array, add status, and sort by date (most recent first)
+    // Status is based on non-compliant cases only (compliant cases don't need outcomes recorded)
     const months = Array.from(monthsMap.values())
       .map(month => ({
         ...month,
-        status: getCompletionStatus(month.completedCases, month.totalCases)
+        status: getCompletionStatus(month.completedCases, month.nonCompliantCases)
       }))
       .sort((a, b) => b.date - a.date)
 
@@ -99,7 +105,7 @@ module.exports = router => {
           { dga: { isNot: null } },
           {
             dga: {
-              nonCompliantDate: {
+              reviewDate: {
                 gte: startDate,
                 lte: endDate
               }
@@ -146,6 +152,8 @@ module.exports = router => {
           name: policeUnitName,
           cases: [],
           totalCases: 0,
+          compliantCases: 0,
+          nonCompliantCases: 0,
           completedCases: 0,
           hasAnyProgress: false,
           sentDate: null,
@@ -163,24 +171,33 @@ module.exports = router => {
         unitData.hasSentToPolice = true
       }
 
-      // Check if all failure reasons have outcomes (case is fully complete)
-      const allCompleted = caseItem.dga.failureReasons.every(fr => fr.outcome !== null)
-      if (allCompleted) {
-        unitData.completedCases++
-      }
+      // Check compliance: non-compliant if has failure reasons
+      const isNonCompliant = caseItem.dga.failureReasons.length > 0
+      if (isNonCompliant) {
+        unitData.nonCompliantCases++
 
-      // Check if any failure reason has an outcome (case has progress)
-      const hasAnyOutcome = caseItem.dga.failureReasons.some(fr => fr.outcome !== null)
-      if (hasAnyOutcome) {
-        unitData.hasAnyProgress = true
+        // Check if all failure reasons have outcomes (case is fully complete)
+        const allCompleted = caseItem.dga.failureReasons.every(fr => fr.outcome !== null)
+        if (allCompleted) {
+          unitData.completedCases++
+        }
+
+        // Check if any failure reason has an outcome (case has progress)
+        const hasAnyOutcome = caseItem.dga.failureReasons.some(fr => fr.outcome !== null)
+        if (hasAnyOutcome) {
+          unitData.hasAnyProgress = true
+        }
+      } else {
+        unitData.compliantCases++
       }
     })
 
     // Convert to array, add status, and sort alphabetically by police unit name
+    // Status is based on non-compliant cases only (compliant cases don't need outcomes recorded)
     const policeUnits = Array.from(policeUnitsMap.values())
       .map(unit => {
         let status
-        if (unit.completedCases === unit.totalCases) {
+        if (unit.nonCompliantCases === 0 || unit.completedCases === unit.nonCompliantCases) {
           status = 'Completed'
         } else if (unit.hasAnyProgress) {
           status = 'In progress'
@@ -193,7 +210,7 @@ module.exports = router => {
 
     // Get month details
     const monthName = startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-    const deadline = dgaCases[0]?.dga?.reportDeadline
+    const deadline = dgaCases.find(c => c.dga?.recordDisputeOutcomesDeadline)?.dga?.recordDisputeOutcomesDeadline
 
     res.render('dga-reviews/month', {
       monthKey,
@@ -231,7 +248,7 @@ module.exports = router => {
           { dga: { isNot: null } },
           {
             dga: {
-              nonCompliantDate: {
+              reviewDate: {
                 gte: startDate,
                 lte: endDate
               }
@@ -263,9 +280,9 @@ module.exports = router => {
       return res.redirect('/dga-reviews')
     }
 
-    // Filter cases by police unit ID
+    // Filter cases by police unit ID and only include non-compliant cases (those with failure reasons)
     const casesForPoliceUnit = dgaCases.filter(c => {
-      return c.policeUnitId === policeUnitId
+      return c.policeUnitId === policeUnitId && c.dga.failureReasons.length > 0
     })
 
     if (casesForPoliceUnit.length === 0) {
@@ -332,7 +349,7 @@ module.exports = router => {
           { dga: { isNot: null } },
           {
             dga: {
-              nonCompliantDate: {
+              reviewDate: {
                 gte: startDate,
                 lte: endDate
               }

@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = failureReason.reason %}
+{% set pageName = 'How did you discuss this dispute with the police?' %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -15,7 +15,7 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
   <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">Tell us how you communicated with the police to make this decision</h1>
+  <h1 class="govuk-heading-l">Tell us how you discussed this dispute with the police</h1>
 
   <div class="govuk-inset-text">
     <h3 class="govuk-heading-s">Failure reason</h3>
@@ -27,7 +27,7 @@
       name: "recordOutcome[methods]",
       fieldset: {
         legend: {
-          text: "How did you communicate with the police to make this decision?",
+          text: pageName,
           classes: "govuk-fieldset__legend--m"
         }
       },

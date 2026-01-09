@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = failureReason.reason %}
+{% set pageName = 'Reason for dispute outcome' %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -15,7 +15,7 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
   <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">Enter a reason for this decision</h1>
+  <h1 class="govuk-heading-l">Enter a reason for the dispute outcome</h1>
 
 
   <div class="govuk-inset-text">
@@ -26,7 +26,7 @@
   <form method="post">
     {{ govukCharacterCount({
       label: {
-        text: "Reason for this decision",
+        text: pageName,
         classes: "govuk-label--m"
       },
       name: "recordOutcome[explanation]",

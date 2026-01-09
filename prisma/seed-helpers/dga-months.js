@@ -2,8 +2,8 @@ const { faker } = require('@faker-js/faker');
 const { generateCaseReference } = require('./identifiers');
 
 // Helper: Calculate deadline as end of month + 6 weeks
-function calculateDeadline(nonCompliantDate) {
-  const date = new Date(nonCompliantDate);
+function calculateDeadline(reviewDate) {
+  const date = new Date(reviewDate);
 
   // Get last day of the month
   const year = date.getFullYear();
@@ -60,6 +60,7 @@ async function seedDGAMonths(prisma) {
   // October 2025: All completed (past month)
   // November 2025: Mixed states (current month being worked on)
   // casesPerUnit is now per police unit to allow different counts
+  // isCompliant: true means cases with DGA but no failure reasons (passed the review)
   const monthConfigs = [
     {
       name: 'September 2025',
@@ -67,8 +68,11 @@ async function seedDGAMonths(prisma) {
       month: 8, // 0-indexed, so 8 = September
       policeUnits: [
         { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 37 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 8 },
         { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 37 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 1), casesPerUnit: 3 }
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 10 },
+        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 1), casesPerUnit: 3 },
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 1), casesPerUnit: 2 }
       ]
     },
     {
@@ -77,8 +81,11 @@ async function seedDGAMonths(prisma) {
       month: 9, // 0-indexed, so 9 = October
       policeUnits: [
         { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 37 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 12 },
         { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 37 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 3 }
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 8 },
+        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 3 },
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 1 }
       ]
     },
     {
@@ -87,10 +94,13 @@ async function seedDGAMonths(prisma) {
       month: 10, // 0-indexed, so 10 = November
       policeUnits: [
         { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 37 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: null, casesPerUnit: 15 },
         { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 1 },
         { name: 'Thames Valley Police', state: 'in-progress', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 1 },
         { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 1 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 25), casesPerUnit: 26 }
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 5 },
+        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 25), casesPerUnit: 26 },
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 25), casesPerUnit: 4 }
       ]
     }
   ];
@@ -127,27 +137,36 @@ async function seedDGAMonths(prisma) {
           }
         });
 
-        // Set non-compliant date to random day in the month
+        // Set review date to random day in the month
         const maxDay = getMaxDaysInMonth(monthConfig.year, monthConfig.month);
-        const nonCompliantDate = new Date(
+        const reviewDate = new Date(
           monthConfig.year,
           monthConfig.month,
           faker.number.int({ min: 1, max: maxDay })
         );
-        const reportDeadline = calculateDeadline(nonCompliantDate);
+
+        // Only non-compliant cases get a deadline for recording dispute outcomes
+        const isCompliant = state === 'compliant';
+        const recordDisputeOutcomesDeadline = isCompliant ? null : calculateDeadline(reviewDate);
 
         // Create DGA
         const dga = await prisma.dGA.create({
           data: {
             caseId: newCase.id,
             reason: faker.lorem.sentence(),
-            nonCompliantDate: nonCompliantDate,
-            reportDeadline: reportDeadline,
+            reviewDate: reviewDate,
+            recordDisputeOutcomesDeadline: recordDisputeOutcomesDeadline,
             sentToPoliceDate: sentToPoliceDate,
           },
         });
 
-        // Create 1-5 failure reasons for this DGA
+        // Compliant cases have no failure reasons
+        if (isCompliant) {
+          monthCaseCount++;
+          continue;
+        }
+
+        // Create 1-5 failure reasons for non-compliant cases
         const numFailureReasons = faker.number.int({ min: 1, max: 5 });
         const selectedReasons = faker.helpers.arrayElements(failureReasonsList, numFailureReasons);
 

@@ -23,10 +23,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageName }}</h1>     
-      <p>You must record decisions by {{ deadline | isoDateString | govukDateTime }}.</p>
+      <p>You must record dispute outcomes by {{ deadline | isoDateString | govukDateTime }}.</p>
       
       {% for policeUnit in policeUnits %}
-        <div class="app-dga-police-unit govuk-!-margin-top-7">
+        <div class="app-dga-police-unit govuk-!-margin-top-7 govuk-!-margin-bottom-9">
           <h2 class="govuk-heading-m">
             {{ policeUnit.name }}
             {{ govukTag({
@@ -35,13 +35,42 @@
             }) }}
           </h2>
 
-          <p>{{policeUnit.completedCases}} of {{policeUnit.totalCases}} cases have recorded decisions.</p>
-
-          <div class="govuk-button-group">
-            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}/export" class="govuk-link govuk-link--no-visited-state">Export</a>
+          <div class="govuk-button-group govuk-!-margin-bottom-1">
+            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}/export" class="govuk-link govuk-link--no-visited-state">Export all</a>
             <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Non-compliant DGA cases</a>
-            <a href="/dga-reviews/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Mark cases as not disputed?</a>
           </div>
+          
+          {{ govukSummaryList({
+            rows: [
+              {
+                key: { text: "Total cases" },
+                value: { text: policeUnit.totalCases }
+              },
+              {
+                key: { text: "Compliant cases" },
+                value: { text: policeUnit.compliantCases }
+              },
+              {
+                key: { text: "Non-compliant cases" },
+                value: { text: policeUnit.nonCompliantCases }
+              },
+              {
+                key: { text: "Cases that have dispute outcomes recorded" },
+                value: { text: policeUnit.completedCases + " of " + policeUnit.nonCompliantCases },
+                actions: {
+                  items: [
+                    {
+                      href: "/dga-reviews/:month/:policeUnitId" | replace(":month", monthKey) | replace(":policeUnitId", policeUnit.id),
+                      text: "Record" if policeUnit.nonCompliantCases > policeUnit.completedCases else "Change",
+                      visuallyHiddenText: policeUnit.name
+                    }
+                  ]
+                } if 1==2
+              }
+            ]
+          }) }}
+
+          
         </div>
       {% endfor %}
 

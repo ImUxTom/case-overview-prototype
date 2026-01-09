@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = failureReason.reason %}
+{% set pageName = 'Check details and record dispute outcome' %}
 
 {% set baseUrl = "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + failureReason.id + "/record-dispute-outcome" %}
 
@@ -13,97 +13,82 @@
 {% endblock %}
 
 {% block content %}
-<div class="govuk-width-container">
+  <div class="govuk-width-container">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
 
-  <span class="govuk-caption-l">{{ case.reference }}</span>
-  <h1 class="govuk-heading-l">Check details and record decision</h1>
+        <span class="govuk-caption-l">{{ case.reference }}</span>
+        <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
-    <div class="govuk-inset-text">
-    <h3 class="govuk-heading-s">Failure reason</h3>
-        {{ failureReason.reason }}
-  </div>
+        <div class="govuk-inset-text">
+          <h2 class="govuk-heading-s">Failure reason</h2>
+          {{ failureReason.reason }}
+        </div>
 
-  <h2 class="govuk-heading-m"></h2>
+        {% set methodsHtml %}
+          {% if methods and methods.length > 0 %}
+            <ul class="govuk-list govuk-list--bullet">
+              {% for method in methods %}
+                <li>{{ method }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endset %}
 
-  {% set methodsHtml %}
-    {% if methods and methods.length > 0 %}
-      <ul class="govuk-list govuk-list--bullet">
-        {% for method in methods %}
-          <li>{{ method }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      -
-    {% endif %}
-  {% endset %}
+        {% set detailsText %}
+          {% if details %}
+            {{ details }}
+          {% endif %}
+        {% endset %}
 
-  {% set detailsText %}
-    {% if details %}
-      {{ details }}
-    {% else %}
-      -
-    {% endif %}
-  {% endset %}
+        {{ govukSummaryList({
+          rows: [{
+            key: { text: "Dispute outcome" },
+            value: { text: outcome },
+            actions: {
+              items: [
+                {
+                  href: baseUrl,
+                  text: "Change",
+                  visuallyHiddenText: "outcome"
+                }
+              ]
+            }
+          },{
+            key: { text: "Reason for dispute outcome" },
+            value: { text: detailsText },
+            actions: {
+              items: [
+                {
+                  href: baseUrl + "/explanation",
+                  text: "Change",
+                  visuallyHiddenText: "details"
+                }
+              ]
+            }
+          } if outcome != "Not disputed", {
+            key: { text: "How did you discuss this dispute with the police?" },
+            value: { html: methodsHtml },
+            actions: {
+              items: [
+                {
+                  href: baseUrl + "/method",
+                  text: "Change",
+                  visuallyHiddenText: "methods"
+                }
+              ]
+            }
+          } if outcome != "Not disputed"
+          ] 
+        }) }}
 
-  {% set summaryRows = [
-    {
-      key: { text: "Decision" },
-      value: { text: outcome },
-      actions: {
-        items: [
-          {
-            href: baseUrl,
-            text: "Change",
-            visuallyHiddenText: "outcome"
-          }
-        ]
-      }
-    }
-  ] %}
+        <form method="post">
+          {{ govukButton({
+            text: "Record dispute outcome"
+          }) }}
+        </form>
 
-  {% if outcome != "Not disputed" %}
-    {% set summaryRows = (summaryRows.push({
-      key: { text: "Reason for this decision" },
-      value: { text: detailsText },
-      actions: {
-        items: [
-          {
-            href: baseUrl + "/explanation",
-            text: "Change",
-            visuallyHiddenText: "details"
-          }
-        ]
-      }
-    }), summaryRows) %}
-
-    {% set summaryRows = (summaryRows.push({
-      key: { text: "How did you communicate with the police to make this decision?" },
-      value: { html: methodsHtml },
-      actions: {
-        items: [
-          {
-            href: baseUrl + "/method",
-            text: "Change",
-            visuallyHiddenText: "methods"
-          }
-        ]
-      }
-    }), summaryRows) %}
-  {% endif %}
-
-  {{ govukSummaryList({
-    rows: summaryRows
-  }) }}
-
-  <form method="post">
-    {{ govukButton({
-      text: "Record decision"
-    }) }}
-  </form>
-
-  </div>
-  </div>
+      </div>
+    </div>
   </div>
 {% endblock %}

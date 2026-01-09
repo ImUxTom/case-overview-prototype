@@ -17,7 +17,7 @@
     </p>
   </div>
   <div class="app-activity-log__description">
-    {% if params.event.title == 'Non-compliant DGA decision recorded' %}
+    {% if params.event.title == 'DGA dispute outcome recorded' %}
       {% set methodsHtml %}
         {% if params.event.meta.methods %}
           <ul class="govuk-list govuk-list--bullet">
@@ -43,15 +43,15 @@
               value: { text: params.event.meta.monthName }
             },
             {
-              key: { text: "Decision" },
+              key: { text: "Dispute outcome" },
               value: { text: params.event.meta.outcome }
             },
             {
-              key: { text: "Reason for this decision" },
+              key: { text: "Reason for this Dispute outcome" },
               value: { text: params.event.meta.explanation }
             } if params.event.meta.outcome != 'Not disputed' and params.event.meta.explanation,
             {
-              key: { text: "How did you communicate with the police to make this decision?" },
+              key: { text: "How did you discuss this dispute with the police?" },
               value: { html: methodsHtml }
             } if params.event.meta.outcome != 'Not disputed' and params.event.meta.methods
           ]

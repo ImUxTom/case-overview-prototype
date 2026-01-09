@@ -152,17 +152,17 @@ model Case {
 }
 
 model DGA {
-  id                Int                 @id @default(autoincrement())
-  caseId            Int                 @unique
-  case              Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  reason            String?
-  outcome           String?
-  failureReasons    DGAFailureReason[]
-  nonCompliantDate  DateTime?           // When this case became non-compliant (used to determine month)
-  reportDeadline    DateTime?           // End of nonCompliantDate's month + 6 weeks
-  sentToPoliceDate  DateTime?           // When the DGA cases were sent to the police unit
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id                            Int                 @id @default(autoincrement())
+  caseId                        Int                 @unique
+  case                          Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  reason                        String?
+  outcome                       String?
+  failureReasons                DGAFailureReason[]
+  reviewDate                    DateTime?           // When the DGA assessment was done (used to determine month)
+  recordDisputeOutcomesDeadline DateTime?           // Deadline for recording dispute outcomes (only for non-compliant cases)
+  sentToPoliceDate              DateTime?           // When the DGA cases were sent to the police unit
+  createdAt                     DateTime            @default(now())
+  updatedAt                     DateTime            @updatedAt
 }
 
 model DGAFailureReason {

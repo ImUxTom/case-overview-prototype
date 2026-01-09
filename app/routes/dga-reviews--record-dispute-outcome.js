@@ -245,7 +245,7 @@ module.exports = router => {
         model: 'DGAFailureReason',
         recordId: failureReasonId,
         action: 'UPDATE',
-        title: 'Non-compliant DGA decision recorded',
+        title: 'DGA dispute outcome recorded',
         caseId: caseId,
         meta: meta
       }

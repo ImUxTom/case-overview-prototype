@@ -1,6 +1,6 @@
 module.exports = [
   'Case note added',
-  'Non-compliant DGA decision recorded',
+  'DGA dispute outcome recorded',
   'Direction note added',
   'Prosecutor assigned',
   'Task added',

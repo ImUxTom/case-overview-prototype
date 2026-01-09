@@ -48,7 +48,7 @@ module.exports = router => {
     // Find the latest DGA month with cases needing outcomes
     const dgaCasesNeedingOutcomes = await prisma.dGA.findMany({
       where: {
-        nonCompliantDate: { not: null },
+        reviewDate: { not: null },
         failureReasons: {
           some: {
             outcome: null
@@ -65,12 +65,12 @@ module.exports = router => {
     if (dgaCasesNeedingOutcomes.length > 0) {
       const monthGroups = {}
       dgaCasesNeedingOutcomes.forEach(dga => {
-        const date = new Date(dga.nonCompliantDate)
+        const date = new Date(dga.reviewDate)
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (!monthGroups[monthKey]) {
           monthGroups[monthKey] = {
             key: monthKey,
-            deadline: dga.reportDeadline,
+            deadline: dga.recordDisputeOutcomesDeadline,
             count: 0
           }
         }
