@@ -173,16 +173,10 @@ module.exports = router => {
     })
 
     const failureReason = caseData.dga.failureReasons[0]
-    const outcome = req.session.data.recordOutcome?.outcome
-    const details = req.session.data.recordOutcome?.explanation
-    const methods = req.session.data.recordOutcome?.methods || []
 
     res.render('dga-reviews/record-dispute-outcome/check', {
       case: caseData,
       failureReason: failureReason,
-      outcome: outcome,
-      details: details,
-      methods: methods,
       monthKey,
       policeUnitId
     })

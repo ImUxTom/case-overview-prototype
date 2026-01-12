@@ -8,7 +8,7 @@
 {% block beforeContent %}
   {{ govukBackLink({
     text: "Back",
-    href: baseUrl
+    href: baseUrl + "/method" if data.recordOutcome.outcome != "Not disputed" else baseUrl
   }) }}
 {% endblock %}
 
@@ -26,60 +26,51 @@
         </div>
 
         {% set methodsHtml %}
-          {% if methods and methods.length > 0 %}
+          {% if data.recordOutcome.methods and data.recordOutcome.methods.length > 0 %}
             <ul class="govuk-list govuk-list--bullet">
-              {% for method in methods %}
+              {% for method in data.recordOutcome.methods %}
                 <li>{{ method }}</li>
               {% endfor %}
             </ul>
           {% endif %}
         {% endset %}
 
-        {% set detailsText %}
-          {% if details %}
-            {{ details }}
-          {% endif %}
-        {% endset %}
-
         {{ govukSummaryList({
-          rows: [{
-            key: { text: "Dispute outcome" },
-            value: { text: outcome },
-            actions: {
-              items: [
-                {
+          rows: [
+            {
+              key: { text: "Dispute outcome" },
+              value: { text: data.recordOutcome.outcome },
+              actions: {
+                items: [{
                   href: baseUrl,
                   text: "Change",
-                  visuallyHiddenText: "outcome"
-                }
-              ]
-            }
-          },{
-            key: { text: "Reason for dispute outcome" },
-            value: { text: detailsText },
-            actions: {
-              items: [
-                {
+                  visuallyHiddenText: "dispute outcome"
+                }]
+              }
+            },
+            {
+              key: { text: "Reason for dispute outcome" },
+              value: { text: data.recordOutcome.explanation },
+              actions: {
+                items: [{
                   href: baseUrl + "/explanation",
                   text: "Change",
-                  visuallyHiddenText: "details"
-                }
-              ]
-            }
-          } if outcome != "Not disputed", {
-            key: { text: "How did you discuss this dispute with the police?" },
-            value: { html: methodsHtml },
-            actions: {
-              items: [
-                {
+                  visuallyHiddenText: "reason for dispute outcome"
+                }]
+              }
+            } if data.recordOutcome.outcome != "Not disputed",
+            {
+              key: { text: "How did you discuss this dispute with the police?" },
+              value: { html: methodsHtml },
+              actions: {
+                items: [{
                   href: baseUrl + "/method",
                   text: "Change",
-                  visuallyHiddenText: "methods"
-                }
-              ]
-            }
-          } if outcome != "Not disputed"
-          ] 
+                  visuallyHiddenText: "how you discussed this dispute with the police"
+                }]
+              }
+            } if data.recordOutcome.outcome != "Not disputed"
+          ]
         }) }}
 
         <form method="post">
