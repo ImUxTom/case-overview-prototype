@@ -247,7 +247,7 @@ module.exports = router => {
 
     delete req.session.data.recordOutcome
 
-    req.flash('success', 'Decision recorded')
+    req.flash('success', 'Dispute outcome recorded')
 
     res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}`)
   })
