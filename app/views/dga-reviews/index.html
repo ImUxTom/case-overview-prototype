@@ -27,45 +27,44 @@
                   }) }}
                 </div>
               </h2>
-              {% if month.status != "Completed" %}
-                {{ govukSummaryList({
-                  classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
-                  rows: [
-                    {
-                      key: {
-                        text: "Deadline"
-                      },
-                      value: {
-                        text: month.deadline | isoDateString | govukDateTime
-                      }
+              
+              {{ govukSummaryList({
+                classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                rows: [
+                  {
+                    key: {
+                      text: "Deadline"
                     },
-                    {
-                      key: {
-                        text: "Total cases"
-                      },
-                      value: {
-                        text: month.totalCases
-                      }
-                    }, 
-                    {
-                      key: {
-                        text: "Compliant cases"
-                      },
-                      value: {
-                        text: month.compliantCases
-                      }
+                    value: {
+                      text: month.deadline | isoDateString | govukDateTime
+                    }
+                  },
+                  {
+                    key: {
+                      text: "Total cases"
                     },
-                    {
-                      key: {
-                        text: "Non-compliant cases"
-                      },
-                      value: {
-                        text: month.nonCompliantCases
-                      }
-                    }                    
-                  ]
-                }) }}
-              {% endif %}
+                    value: {
+                      text: month.totalCases
+                    }
+                  }, 
+                  {
+                    key: {
+                      text: "Compliant cases"
+                    },
+                    value: {
+                      text: month.compliantCases
+                    }
+                  },
+                  {
+                    key: {
+                      text: "Non-compliant cases"
+                    },
+                    value: {
+                      text: month.nonCompliantCases
+                    }
+                  }                    
+                ]
+              }) }}
             </div>
           {% endfor %}
         </div>
