@@ -7,7 +7,7 @@
   {{ govukBreadcrumbs({
     items: [
       {
-        text: "Director Guidance Assessment (DGA)",
+        text: "Director’s Guidance Assessment (DGA)",
         href: "/dga-reviews"
       },
       {
@@ -44,7 +44,7 @@
             classes: 'app-summary-list--wide-actions',
             rows: [
               {
-                key: { text: "Total cases" },
+                key: { text: "Total cases with DGA" },
                 value: { text: policeUnit.totalCases },
                 actions: {
                   items: [
@@ -59,9 +59,9 @@
               {
                 key: { text: "Compliant cases" },
                 value: { text: policeUnit.compliantCases }
-              },
+              } if 1==2,
               {
-                key: { text: "Non-compliant cases" },
+                key: { text: "Cases with non-compliant DGA" },
                 value: { text: policeUnit.nonCompliantCases },
                 actions: {
                   items: [

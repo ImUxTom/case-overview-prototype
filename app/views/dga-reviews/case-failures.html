@@ -40,9 +40,18 @@
           }) if reportStatus != "Completed" }}
         </h1>
 
+        
         {% if reportStatus != "Completed" %}
-          <p class="govuk-body">{{ outcomesRemaining }} failure {{ "reason" if outcomesRemaining == 1 else "reasons" }} still {{ "needs" if outcomesRemaining == 1 else "need" }} {{ "an outcome" if outcomesRemaining == 1 else "outcomes" }}.</p>
+          <p class="govuk-body">{{ outcomesRemaining }} failure {{ "reason" if outcomesRemaining == 1 else "reasons" }} {{ "needs" if outcomesRemaining == 1 else "need" }} {{ "an outcome" if outcomesRemaining == 1 else "outcomes" }}.</p>
         {% endif %}
+
+        <div class="govuk-button-group govuk-!-margin-top-7">
+          {{ govukButton({
+            text: "Mark as not disputed",
+            classes: "govuk-button--secondary"
+          }) }}
+        </div>
+
 
         {% for reason in case.dga.failureReasons %}
 

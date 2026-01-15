@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = 'Director Guidance Assessment (DGA)' %}
+{% set pageName = 'Director’s Guidance Assessment (DGA)' %}
 
 {% block content %}
   {% include "_includes/success-banner.njk" %}
@@ -33,7 +33,7 @@
                 rows: [
                   {
                     key: {
-                      text: "Deadline"
+                      text: "Deadline to record outcomes"
                     },
                     value: {
                       text: month.deadline | isoDateString | govukDateTime
@@ -41,23 +41,15 @@
                   },
                   {
                     key: {
-                      text: "Total cases"
+                      text: "Total cases with DGA"
                     },
                     value: {
                       text: month.totalCases
                     }
-                  }, 
-                  {
-                    key: {
-                      text: "Compliant cases"
-                    },
-                    value: {
-                      text: month.compliantCases
-                    }
                   },
                   {
                     key: {
-                      text: "Non-compliant cases"
+                      text: "Cases with non-compliant DGA"
                     },
                     value: {
                       text: month.nonCompliantCases
