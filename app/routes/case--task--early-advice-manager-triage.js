@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { handlePost } = require('../helpers/form-flow')
 
-const FLOW = {
+const flow = {
   name: 'early-advice-manager-triage',
   sessionKey: 'completeEarlyAdviceManagerTriage',
   collects: {
@@ -26,7 +26,7 @@ const FLOW = {
 
 module.exports = router => {
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -38,14 +38,14 @@ module.exports = router => {
       }
     })
 
-    res.render(`cases/tasks/${FLOW.name}/index`, { task })
+    res.render(`cases/tasks/${flow.name}/index`, { task })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}`, (req, res) => {
-    handlePost({ req, res, flow: FLOW })
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}`, (req, res) => {
+    handlePost({ req, res, flow })
   })
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}/prosecutor`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/prosecutor`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -75,14 +75,14 @@ module.exports = router => {
       text: `${prosecutor.firstName} ${prosecutor.lastName}`
     }))
 
-    res.render(`cases/tasks/${FLOW.name}/prosecutor`, { task, prosecutorItems })
+    res.render(`cases/tasks/${flow.name}/prosecutor`, { task, prosecutorItems })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}/prosecutor`, (req, res) => {
-    handlePost({ req, res, flow: FLOW })
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/prosecutor`, (req, res) => {
+    handlePost({ req, res, flow })
   })
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}/reasons-for-rejection`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/reasons-for-rejection`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -94,14 +94,14 @@ module.exports = router => {
       }
     })
 
-    res.render(`cases/tasks/${FLOW.name}/reasons-for-rejection`, { task })
+    res.render(`cases/tasks/${flow.name}/reasons-for-rejection`, { task })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}/reasons-for-rejection`, (req, res) => {
-    handlePost({ req, res, flow: FLOW })
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/reasons-for-rejection`, (req, res) => {
+    handlePost({ req, res, flow })
   })
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}/police-response-date`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/police-response-date`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -113,14 +113,14 @@ module.exports = router => {
       }
     })
 
-    res.render(`cases/tasks/${FLOW.name}/police-response-date`, { task })
+    res.render(`cases/tasks/${flow.name}/police-response-date`, { task })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}/police-response-date`, (req, res) => {
-    handlePost({ req, res, flow: FLOW })
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/police-response-date`, (req, res) => {
+    handlePost({ req, res, flow })
   })
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}/create-reminder-task`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/create-reminder-task`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -132,14 +132,14 @@ module.exports = router => {
       }
     })
 
-    res.render(`cases/tasks/${FLOW.name}/create-reminder-task`, { task })
+    res.render(`cases/tasks/${flow.name}/create-reminder-task`, { task })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}/create-reminder-task`, (req, res) => {
-    handlePost({ req, res, flow: FLOW })
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/create-reminder-task`, (req, res) => {
+    handlePost({ req, res, flow })
   })
 
-  router.get(`/cases/:caseId/tasks/:taskId/${FLOW.name}/check`, async (req, res) => {
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/check`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -152,7 +152,7 @@ module.exports = router => {
       }
     })
 
-    const data = _.get(req, `session.data.${FLOW.sessionKey}`)
+    const data = _.get(req, `session.data.${flow.sessionKey}`)
 
     const prosecutors = await prisma.user.findMany({
       where: { role: 'Prosecutor' },
@@ -162,14 +162,14 @@ module.exports = router => {
       ]
     })
 
-    res.render(`cases/tasks/${FLOW.name}/check`, { task, data, prosecutors })
+    res.render(`cases/tasks/${flow.name}/check`, { task, data, prosecutors })
   })
 
-  router.post(`/cases/:caseId/tasks/:taskId/${FLOW.name}/check`, async (req, res) => {
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/check`, async (req, res) => {
     const taskId = parseInt(req.params.taskId)
     const caseId = parseInt(req.params.caseId)
 
-    const data = _.get(req, `session.data.${FLOW.sessionKey}`)
+    const data = _.get(req, `session.data.${flow.sessionKey}`)
 
     const task = await prisma.task.update({
       where: { id: taskId },
@@ -240,7 +240,7 @@ module.exports = router => {
       }
     })
 
-    delete req.session.data[FLOW.sessionKey]
+    delete req.session.data[flow.sessionKey]
 
     req.flash('success', 'Task completed')
     res.redirect(`/cases/${caseId}/tasks`)
