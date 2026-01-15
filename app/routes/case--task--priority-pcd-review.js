@@ -3,11 +3,76 @@ const { DateTime } = require('luxon')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { getAreaForUnit, getAllAreas, getUnitsForArea } = require('../helpers/unitAreaMapping')
+const { handlePost } = require('../helpers/form-flow')
+
+const flow = {
+  name: 'priority-pcd-review',
+  sessionKey: 'completePriorityPcdReview',
+  collects: {
+    '': ['decision'],
+    'case-type': ['caseType'],
+    'nfs-reasons': ['nfsReasons', 'rejectionDetails'],
+    'priority-reasons': ['priorityReason', 'rejectionDetails'],
+    'cpsd': ['cpsd'],
+    'transfer-case': ['transferCase'],
+    'area': ['changeArea', 'area'],
+    'unit': ['unitId'],
+    'action-plan-date': ['policeResponseDate'],
+  },
+  requires: [
+    { field: 'decision' },
+    { field: 'caseType' },
+    { field: 'nfsReasons', when: { decision: 'NFS non-compliant' } },
+    { field: 'priorityReason', when: { decision: 'Priority / Red rejection' } },
+    { field: 'cpsd' },
+    { field: 'transferCase', when: { decision: 'NFS compliant', cpsd: 'No' } },
+    { field: 'changeArea', when: { decision: 'NFS compliant', cpsd: 'No', transferCase: 'Yes' } },
+    { field: 'unitId', when: { decision: 'NFS compliant', cpsd: 'No', transferCase: 'Yes' } },
+    { field: 'policeResponseDate', when: { decision: { either: ['NFS non-compliant', 'Priority / Red rejection'] } } },
+  ]
+}
 
 module.exports = router => {
 
-  // Step 1: Decision
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review", async (req, res) => {
+  // POST handlers for form steps
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/case-type`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/nfs-reasons`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/priority-reasons`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/cpsd`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/transfer-case`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/area`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/unit`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/action-plan-date`, (req, res) => {
+    handlePost({ req, res, flow })
+  })
+
+  // GET: Decision (index page)
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -22,12 +87,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/index", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/priority-pcd-review/case-type`)
-  })
-
-  // Step 2: Case type
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/case-type", async (req, res) => {
+  // GET: Case type
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/case-type`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -42,24 +103,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/case-type", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/case-type", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    const data = _.get(req, 'session.data.completePriorityPcdReview')
-
-    // Route based on decision
-    if (data.decision === "NFS non-compliant") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/nfs-reasons`)
-    } else if (data.decision === "Priority / Red rejection") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/priority-reasons`)
-    } else {
-      // NFS compliant - go to CPSD question
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/cpsd`)
-    }
-  })
-
-  // Step 3a: NFS non-compliant reasons (conditional)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/nfs-reasons", async (req, res) => {
+  // GET: NFS non-compliant reasons
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/nfs-reasons`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -74,12 +119,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/nfs-reasons", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/nfs-reasons", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/priority-pcd-review/cpsd`)
-  })
-
-  // Step 3b: Priority rejection reasons (conditional)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/priority-reasons", async (req, res) => {
+  // GET: Priority rejection reasons
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/priority-reasons`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -94,11 +135,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/priority-reasons", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/priority-reasons", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/priority-pcd-review/cpsd`)
-  })
-
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/cpsd", async (req, res) => {
+  // GET: CPSD
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/cpsd`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -113,27 +151,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/cpsd", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/cpsd", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    const data = _.get(req, 'session.data.completePriorityPcdReview')
-
-    // If not CPSD AND accepting (NFS compliant), go to transfer question
-    if (data.cpsd === "No" && data.decision === "NFS compliant") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/transfer-case`)
-    }
-    // If NFS non-compliant or Priority rejection, go to action plan date
-    else if (data.decision === "NFS non-compliant" || data.decision === "Priority / Red rejection") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/action-plan-date`)
-    }
-    // Otherwise (NFS compliant + CPSD Yes) go to check answers
-    else {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/check`)
-    }
-  })
-
-  // Step 5: Transfer case (conditional - only if CPSD = No)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/transfer-case", async (req, res) => {
+  // GET: Transfer case
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/transfer-case`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -149,27 +168,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/transfer-case", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/transfer-case", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    const data = _.get(req, 'session.data.completePriorityPcdReview')
-
-    // If transferring, go to area selection
-    if (data.transferCase === "Yes") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/area`)
-    }
-    // If NFS non-compliant or Priority rejection, go to action plan date
-    else if (data.decision === "NFS non-compliant" || data.decision === "Priority / Red rejection") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/action-plan-date`)
-    }
-    // Otherwise go to check answers
-    else {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/check`)
-    }
-  })
-
-  // Step 6a: Area (conditional - if transferring)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/area", async (req, res) => {
+  // GET: Area
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/area`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -200,12 +200,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/area", { task, areaItems, area: currentAreaName })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/area", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/priority-pcd-review/unit`)
-  })
-
-  // Step 6b: Unit (conditional - if transferring)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/unit", async (req, res) => {
+  // GET: Unit
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/unit`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -241,23 +237,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/unit", { task, unitItems })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/unit", (req, res) => {
-    const caseId = req.params.caseId
-    const taskId = req.params.taskId
-    const data = _.get(req, 'session.data.completePriorityPcdReview')
-
-    // If NFS non-compliant or Priority rejection, go to action plan date
-    if (data.decision === "NFS non-compliant" || data.decision === "Priority / Red rejection") {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/action-plan-date`)
-    }
-    // Otherwise go to check answers
-    else {
-      res.redirect(`/cases/${caseId}/tasks/${taskId}/priority-pcd-review/check`)
-    }
-  })
-
-  // Step 7: Action plan date (conditional - only if NFS non-compliant or Priority rejection)
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/action-plan-date", async (req, res) => {
+  // GET: Action plan date
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/action-plan-date`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -272,12 +253,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/action-plan-date", { task })
   })
 
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/action-plan-date", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/tasks/${req.params.taskId}/priority-pcd-review/check`)
-  })
-
-  // Step 8: Check answers
-  router.get("/cases/:caseId/tasks/:taskId/priority-pcd-review/check", async (req, res) => {
+  // GET: Check answers
+  router.get(`/cases/:caseId/tasks/:taskId/${flow.name}/check`, async (req, res) => {
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },
       include: {
@@ -300,8 +277,8 @@ module.exports = router => {
     res.render("cases/tasks/priority-pcd-review/check", { task, data, units })
   })
 
-  // Step 9: Completion
-  router.post("/cases/:caseId/tasks/:taskId/priority-pcd-review/check", async (req, res) => {
+  // POST: Check answers - completion handler
+  router.post(`/cases/:caseId/tasks/:taskId/${flow.name}/check`, async (req, res) => {
     const taskId = parseInt(req.params.taskId)
     const caseId = parseInt(req.params.caseId)
 
