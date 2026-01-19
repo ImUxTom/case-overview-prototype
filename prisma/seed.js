@@ -29,7 +29,8 @@ const { seedDefendants } = require("./seed-helpers/defendants");
 const { seedVictims } = require("./seed-helpers/victims");
 const { seedPoliceUnits } = require("./seed-helpers/police-units");
 const { getDefendantTimeLimitTypes } = require("./seed-helpers/defendant-time-limit-types");
-const { seedUserSpecificTestCases } = require("./seed-helpers/user-specific-test-cases");
+const { seedRachaelCases } = require("./seed-helpers/rachael-cases");
+const { seedSimonCases } = require("./seed-helpers/simon-cases");
 const { seedPriorityTasks } = require("./seed-helpers/priority-tasks");
 const { seedGuaranteedTasks } = require("./seed-helpers/guaranteed-tasks");
 const { seedDGAMonths } = require("./seed-helpers/dga-months");
@@ -125,8 +126,15 @@ async function main() {
   // Seed: Priority tasks to make sure each user profile e.g. Rachael has priority tasks
   await seedPriorityTasks(prisma, taskNames);
 
-  // Seed: User specific cases/tasks e.g. Rachael
-  await seedUserSpecificTestCases(
+  // Seed: Rachael Harvey's cases
+  await seedRachaelCases(
+    prisma,
+    { defenceLawyers, victims },
+    { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }
+  );
+
+  // Seed: Simon Whatley's cases
+  await seedSimonCases(
     prisma,
     { defenceLawyers, victims },
     { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }

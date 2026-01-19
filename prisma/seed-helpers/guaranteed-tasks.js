@@ -1,6 +1,10 @@
 const { faker } = require('@faker-js/faker');
 const { generatePendingTaskDates, generateDueTaskDates, generateOverdueTaskDates, generateEscalatedTaskDates } = require('./task-dates');
 
+// This seeds tasks for ALL users (~400), not just the main test users (Rachael, Simon, Tony).
+// This is needed because when signed in as Rachael/Simon, you can filter to see other users'
+// cases and tasks. Without this, those filters would return empty results.
+
 async function seedGuaranteedTasks(prisma, users, taskNames) {
   // Ensure each user (except Tony Stark) has tasks that are overdue, due today, and due tomorrow
   const usersExcludingTony = users.filter(u => u.email !== 'tony@cps.gov.uk');
