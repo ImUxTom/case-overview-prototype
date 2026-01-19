@@ -64,8 +64,8 @@ function getPossibleEvents(context) {
   }
 
   if (context.fullCase.witnesses && context.fullCase.witnesses.length > 0) {
-    possible.push('Witness marked as appearing in court');
-    possible.push('Witness marked as not attending court');
+    possible.push('Witness marked as required to attend court');
+    possible.push('Witness marked as not required to attend court');
   }
 
   if (context.witnessesWithStatements.length > 0) {
@@ -112,14 +112,14 @@ const eventGenerators = {
     };
   },
 
-  'Witness marked as appearing in court': (context, randomUser, eventDate) => {
+  'Witness marked as required to attend court': (context, randomUser, eventDate) => {
     const witness = faker.helpers.arrayElement(context.fullCase.witnesses);
 
     return {
       userId: randomUser.id,
       caseId: context.fullCase.id,
       action: 'UPDATE',
-      title: 'Witness marked as appearing in court',
+      title: 'Witness marked as required to attend court',
       model: 'Witness',
       recordId: witness.id,
       createdAt: eventDate,
@@ -133,14 +133,14 @@ const eventGenerators = {
     };
   },
 
-  'Witness marked as not attending court': (context, randomUser, eventDate) => {
+  'Witness marked as not required to attend court': (context, randomUser, eventDate) => {
     const witness = faker.helpers.arrayElement(context.fullCase.witnesses);
 
     return {
       userId: randomUser.id,
       caseId: context.fullCase.id,
       action: 'UPDATE',
-      title: 'Witness marked as not attending court',
+      title: 'Witness marked as not required to attend court',
       model: 'Witness',
       recordId: witness.id,
       createdAt: eventDate,

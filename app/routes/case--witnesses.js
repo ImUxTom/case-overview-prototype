@@ -32,6 +32,11 @@ module.exports = router => {
 
     _case = addTimeLimitDates(_case)
 
+    _case.witnesses = _case.witnesses.map(witness => ({
+      ...witness,
+      hasSection9Statement: witness.statements.some(s => s.isMarkedAsSection9 === true)
+    }))
+
     res.render("cases/witnesses/index", { _case })
   })
 

@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Confirm that you want to mark the witness as attending court" %}
+{% set pageName = "Confirm that you want to mark the witness as required to attend court" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -20,7 +20,7 @@
 
       <form method="post">
         {{ govukButton({
-          text: "Mark witness as attending court"
+          text: "Mark witness as required to attend court"
         }) }}
       </form>
       <p><a href="/cases/{{_case.id}}/witnesses/{{witness.id}}">Cancel</a></p>

@@ -66,10 +66,13 @@
                     {{ govukTag({ text: 'Key witness', classes: 'govuk-!-margin-left-1' })}}
                   {% endif %}
                   {% if witness.isAppearingInCourt %}
-                    {{ govukTag({ text: 'Attending court', classes: 'govuk-!-margin-left-1' })}}
+                    {{ govukTag({ text: 'Required to attend court', classes: 'govuk-!-margin-left-1' })}}
                   {% endif %}
                   {% if witness.isAppearingInCourt == false %}
-                    {{ govukTag({ text: 'Not attending court', classes: 'govuk-!-margin-left-1' })}}
+                    {{ govukTag({ text: 'Not required to attend court', classes: 'govuk-!-margin-left-1' })}}
+                  {% endif %}
+                  {% if witness.hasSection9Statement %}
+                    {{ govukTag({ text: 'Section 9', classes: 'govuk-!-margin-left-1' })}}
                   {% endif %}
                 </div>
               </h2>

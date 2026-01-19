@@ -5,8 +5,8 @@ module.exports = [
   'Prosecutor assigned',
   'Task added',
   'Task note added',
-  'Witness marked as appearing in court',
-  'Witness marked as not appearing in court',
+  'Witness marked as required to attend court',
+  'Witness marked as not required to attend court',
   'Witness statement marked as Section 9',
   'Witness statement unmarked as Section 9'
 ]
