@@ -25,7 +25,7 @@ function getMaxDaysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
 }
 
-async function seedDGAMonths(prisma) {
+async function seedDGAMonths(prisma, defendants) {
   const failureReasonsList = [
     "Breach failure - Charged by Police in breach of the Director's Guidance",
     "Disclosure failure - Disclosable unused material not provided",
@@ -133,7 +133,8 @@ async function seedDGAMonths(prisma) {
           data: {
             reference: generateCaseReference(),
             unitId: cpsUnitId,
-            policeUnitId: policeUnitId
+            policeUnitId: policeUnitId,
+            defendants: { connect: { id: faker.helpers.arrayElement(defendants).id } }
           }
         });
 

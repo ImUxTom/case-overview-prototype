@@ -42,12 +42,18 @@ async function seedGeneralCases(prisma, dependencies, config) {
     // Select defendants ONLY from the appropriate pool
     // This ensures no mixing of time limit types within a case
     let defendantPool;
-    if (timeLimitType === 'CTL') {
+    if (timeLimitType === 'CTL' && ctlDefendants.length > 0) {
       defendantPool = ctlDefendants;
-    } else if (timeLimitType === 'STL') {
+    } else if (timeLimitType === 'STL' && stlDefendants.length > 0) {
       defendantPool = stlDefendants;
-    } else {
+    } else if (timeLimitType === 'PACE' && paceDefendants.length > 0) {
       defendantPool = paceDefendants;
+    } else {
+      // Fallback to any non-empty pool
+      defendantPool = ctlDefendants.length > 0 ? ctlDefendants :
+                      stlDefendants.length > 0 ? stlDefendants :
+                      paceDefendants.length > 0 ? paceDefendants :
+                      defendants;
     }
 
     const assignedDefendants = faker.helpers.arrayElements(

@@ -118,7 +118,7 @@ async function main() {
   );
 
   // Seed: DGA cases for September, October, November 2025 (specific for units 3 and 4)
-  await seedDGAMonths(prisma);
+  await seedDGAMonths(prisma, defendants);
 
   // Seed: guaranteed tasks
   await seedGuaranteedTasks(prisma, users, taskNames);
