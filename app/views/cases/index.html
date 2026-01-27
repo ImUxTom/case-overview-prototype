@@ -49,9 +49,6 @@
                   <a href="/cases/{{_case.id}}" class="govuk-link--no-visited-state">{{defendantsValue}}</a>
                 </div>
                 <div class="app-list__tag">
-                  {% if _case.hasCTL %}
-                    {{ govukTag({ text: 'Custody time limit', classes: 'govuk-tag--re' })}}
-                  {% endif %}
                 </div>
               </h2>
 
@@ -135,7 +132,7 @@
                     value: {
                       html: _case.type
                     }
-                  },
+                  } if 1==2,
                   {
                     key: {
                       html: 'Hearing date'
@@ -143,7 +140,7 @@
                     value: {
                       html: _case.hearings[0].startDate | isoDateString | govukDateTime
                     }
-                  } if _case.hearings and _case.hearings.length > 0,
+                  } if _case.hearings and _case.hearings.length > 0 and 1 == 2,
                   {
                     key: {
                       html: 'Custody time limit'
@@ -151,7 +148,7 @@
                     value: {
                       html: (_case.soonestCTL | isoDateString | govukDateTime) + ' (' + (_case.soonestCTL | daysUntil) + ')'
                     }
-                  } if _case.hasCTL                
+                  } if _case.hasCTL and 1==2        
                 ]
               })}}
             </div>
