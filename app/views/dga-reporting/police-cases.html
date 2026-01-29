@@ -8,11 +8,11 @@
     items: [
       {
         text: "Director’s Guidance Assessment (DGA) reporting",
-        href: "/dga-reviews"
+        href: "/dga-reporting"
       },
       {
         text: monthName,
-        href: "/dga-reviews/" + monthKey
+        href: "/dga-reporting/" + monthKey
       },
       {
         text: pageName
@@ -29,7 +29,7 @@
       <span class="govuk-caption-l">{{ policeUnitName }}</span>
       <h1 class="govuk-heading-l">{{ pageName }} ({{ totalCases }})</h1>
 
-      {% include "_includes/dga-reviews/search-form.njk" %}
+      {% include "_includes/dga-reporting/search-form.njk" %}
 
       <form method="post">
         <div class="govuk-button-group govuk-!-margin-top-7">
@@ -55,7 +55,7 @@
               <div class="app-list__content">
                 <h2 class="govuk-heading-s govuk-!-margin-bottom-0">
                   <div>
-                    <a href="/dga-reviews/{{ monthKey }}/{{ policeUnitId }}/{{ _case.id }}" class="govuk-link--no-visited-state">
+                    <a href="/dga-reporting/{{ monthKey }}/{{ policeUnitId }}/{{ _case.id }}" class="govuk-link--no-visited-state">
                       {{ _case.reference }}
                     </a>
                   </div>

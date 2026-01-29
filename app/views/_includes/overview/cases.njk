@@ -18,7 +18,7 @@
       {% endif %}
       {% if latestDGAMonth %}
         <li>
-          <a href="/dga-reviews/{{ latestDGAMonth.key }}" class="govuk-link--no-visited-state">
+          <a href="/dga-reporting/{{ latestDGAMonth.key }}" class="govuk-link--no-visited-state">
             {{ latestDGAMonth.count }}
             {% if latestDGAMonth.count == 1 %}
               non-compliant DGA case needs
@@ -32,24 +32,6 @@
     </ul>
   </div>
 {% endif %}
-
-
-{# <h2 class="govuk-heading-m">DGA</h2>
-
-<ul class="govuk-list govuk-list--bullet">
-  <li>
-    <a href="#" class="govuk-link--no-visited-state">October 2025</a>
-  </li>
-</ul>
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
-
-<h2 class="govuk-heading-l">October 2025 DGA</h2>
-
-
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>  #}
 
 
 {# {% if unassignedCaseCount > 0 %}

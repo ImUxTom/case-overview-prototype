@@ -8,15 +8,15 @@
     items: [
       {
         text: "Director’s Guidance Assessment (DGA) reporting",
-        href: "/dga-reviews"
+        href: "/dga-reporting"
       },
       {
         text: monthName,
-        href: "/dga-reviews/" + monthKey
+        href: "/dga-reporting/" + monthKey
       },
       {
         text: 'Non-compliant DGA cases',
-        href: "/dga-reviews/" + monthKey + "/" + policeUnitId
+        href: "/dga-reporting/" + monthKey + "/" + policeUnitId
       },
       {
         text: pageName
@@ -37,9 +37,8 @@
           {{ govukTag({
             text: reportStatus,
             classes: reportStatus | completionStatusTagClass
-          }) if reportStatus != "Completed" }}
+          }) }}
         </h1>
-
         
         {% if reportStatus != "Completed" %}
           <p class="govuk-body">{{ outcomesRemaining }} failure {{ "reason" if outcomesRemaining == 1 else "reasons" }} {{ "needs" if outcomesRemaining == 1 else "need" }} {{ "an outcome" if outcomesRemaining == 1 else "outcomes" }}.</p>
@@ -59,10 +58,11 @@
             </h2>
 
             {% if not reason.disputed %}
+              {# <p><a href="">Mark as complete</a></p> #}
               {{ govukButton({
                 text: "Record dispute outcome",
-                href: "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome"
-              }) }}
+                href: "/dga-reporting/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome"
+              })}}
             {% else %}
               {% set methodsHtml %}
                 {% if reason.methods %}
@@ -76,7 +76,7 @@
                 {% endif %}
               {% endset %}
 
-              {% set baseUrl = "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome" %}
+              {% set baseUrl = "/dga-reporting/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + reason.id + "/record-dispute-outcome" %}
               {{ govukSummaryList({
                 rows: [
                   {

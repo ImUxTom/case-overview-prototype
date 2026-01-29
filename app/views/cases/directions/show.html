@@ -41,7 +41,7 @@
       <div class="govuk-button-group">
         <a href="/cases/{{_case.id}}/directions/{{direction.id}}/complete" class="govuk-button">Complete direction</a>
         {{ govukButton({
-          text: "Defer",
+          text: "Delete",
           classes: 'govuk-button--secondary'
         }) }}
       </div>
@@ -74,7 +74,7 @@
                   visuallyHiddenText: "title"
                 }
               ]
-            }
+            } if 1 == 2
           },
           {
             key: {
@@ -115,6 +115,15 @@
             },
             value: {
               html: dueDateValue
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/" + _case.id + "/directions/" + direction.id + "/edit",
+                  text: "Change",
+                  visuallyHiddenText: "Due date"
+                }
+              ]
             }
           },
           {

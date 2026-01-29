@@ -67,4 +67,4 @@ https://design-system.service.gov.uk/components/notification-banner/
 
 This is because the components inside the Design System have been extensively accessibility and usability tested.
 
-## Something about focus management as it's a stupid SPA
+## Something about focus management

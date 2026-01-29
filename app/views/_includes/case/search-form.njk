@@ -1,10 +1,10 @@
-<div class="app-search-form" id="app-case-search">
+<search class="app-search-form" id="app-case-search">
   <form>
     {{ govukInput({
       id: "caseSearch[keywords]",
       name: "caseSearch[keywords]",
       label: {
-        text: "Search by reference number or defendant",
+        text: "Search by URN or defendant name",
         classes: "govuk-label--s app-search-form__label"
       },
       value: data.caseSearch.keywords
@@ -19,4 +19,4 @@
   {% if data.caseSearch.keywords %}
     <p class="govuk-!-margin-top-2 govuk-!-margin-bottom-0"><a class="govuk-link--no-visited-state" href="/cases/clear-search">Clear search</a></p>
   {% endif %}
-</div>
+</search>

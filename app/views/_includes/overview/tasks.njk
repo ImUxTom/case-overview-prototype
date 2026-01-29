@@ -1,6 +1,6 @@
 {% if urgentTaskCount > 0 or paceClockCountsByRange.expired > 0 or paceClockCountsByRange.lessThan1Hour > 0 or paceClockCountsByRange.lessThan2Hours > 0 or paceClockCountsByRange.lessThan3Hours > 0 or paceClockCountsByRange.moreThan3Hours > 0 or ctlCountsByRange.overdue > 0 or ctlCountsByRange.today > 0 or ctlCountsByRange.tomorrow > 0 or ctlCountsByRange.thisWeek > 0 or ctlCountsByRange.nextWeek > 0 or ctlCountsByRange.later > 0 or stlCountsByRange.overdue > 0 or stlCountsByRange.today > 0 or stlCountsByRange.tomorrow > 0 or stlCountsByRange.thisWeek > 0 or stlCountsByRange.nextWeek > 0 or stlCountsByRange.later > 0 %}
   <div class="app-overview-section">
-    <h2 class="govuk-heading-m">Urgent tasks assigned to you</h2>
+    <h2 class="govuk-heading-m">High priority tasks assigned to you</h2>
     <ul class="govuk-list govuk-list--bullet">
       {% if urgentTaskCount > 0 %}
         <li>

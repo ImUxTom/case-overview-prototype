@@ -18,6 +18,10 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{pageName}}</h1>
+      
+      {{ govukButton({
+        text: "Add direction"
+      }) }}
 
       {% if _case.directions.length %}
         <div class="app-list">

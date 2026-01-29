@@ -1,12 +1,12 @@
 {% extends "_layouts/main.html" %}
 {% set navId = 'cases' %}
 {% set secondaryNavId = 'dga' %}
-{% set pageName = 'Time period to export for November' %}
+{% set pageName = 'Time period to export for ' + monthName %}
 
 {% block beforeContent %}
   {{ govukBackLink({
     text: "Back",
-    href: "/dga-reviews/" + monthKey
+    href: "/dga-reporting/" + monthKey
   }) }}
 {% endblock %}
 
@@ -32,7 +32,7 @@
       }) }}
     </form>
 
-    <p><a href="/dga-reviews/{{monthKey}}" class="govuk-link">Return to {{monthName}}</a></p>
+    <p><a href="/dga-reporting/{{monthKey}}" class="govuk-link">Return to {{monthName}}</a></p>
   </div>
 </div>
 {% endblock %}

@@ -54,36 +54,23 @@ async function seedDGAMonths(prisma, defendants) {
 
 
   // Month configurations
-  // September 2025: All completed (past month)
   // October 2025: All completed (past month)
-  // November 2025: Mixed states (current month being worked on)
+  // November 2025: All completed (past month)
+  // December 2025: Mixed states (current month being worked on)
   // casesPerUnit is now per police unit to allow different counts
   // isCompliant: true means cases with DGA but no failure reasons (passed the review)
   const monthConfigs = [
-    {
-      name: 'September 2025',
-      year: 2025,
-      month: 8, // 0-indexed, so 8 = September
-      policeUnits: [
-        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 37 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 8 },
-        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 37 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 10 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 1), casesPerUnit: 3 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 1), casesPerUnit: 2 }
-      ]
-    },
     {
       name: 'October 2025',
       year: 2025,
       month: 9, // 0-indexed, so 9 = October
       policeUnits: [
         { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 37 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 12 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 8 },
         { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 37 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 10 },
         { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 3 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 1 }
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 1), casesPerUnit: 2 }
       ]
     },
     {
@@ -91,14 +78,27 @@ async function seedDGAMonths(prisma, defendants) {
       year: 2025,
       month: 10, // 0-indexed, so 10 = November
       policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 5), casesPerUnit: 37 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 5), casesPerUnit: 12 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 3), casesPerUnit: 37 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 3), casesPerUnit: 8 },
+        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 3 },
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 1 }
+      ]
+    },
+    {
+      name: 'December 2025',
+      year: 2025,
+      month: 11, // 0-indexed, so 11 = December
+      policeUnits: [
         { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 37 },
         { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: null, casesPerUnit: 15 },
         { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'in-progress', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 1), casesPerUnit: 5 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 25), casesPerUnit: 26 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 25), casesPerUnit: 4 }
+        { name: 'Thames Valley Police', state: 'in-progress', sentToPoliceDate: new Date(2026, 0, 1), casesPerUnit: 1 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2026, 0, 1), casesPerUnit: 1 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2026, 0, 1), casesPerUnit: 5 },
+        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 25), casesPerUnit: 26 },
+        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 25), casesPerUnit: 4 }
       ]
     }
   ];

@@ -68,10 +68,11 @@
 
 {% endset %}
 
+<section aria-labelledby="app-filter-heading">
 <div class="app-filter">
   <div class="app-filter__header">
     <div class="app-filter__header-title">
-      <h2 class="govuk-heading-m">Filter</h2>
+      <h2 class="govuk-heading-m" id="app-filter-heading">Filter</h2>
     </div>
     <div class="app-filter__header-action">
 
@@ -82,7 +83,7 @@
       <div class="app-filter__selected">
         <div class="app-filter__selected-heading">
           <div class="app-filter__heading-title">
-            <h2 class="govuk-heading-m govuk-!-margin-bottom-1">Selected filters</h2>
+            <h3 class="govuk-heading-m govuk-!-margin-bottom-1">Selected filters</h3>
             <p class="govuk-body"><a class="govuk-link govuk-link--no-visited-state" href="/cases/clear-filters">Clear filters</a></p>
           </div>
         </div>
@@ -106,3 +107,4 @@
     </div>
   </div>
 </div>
+</section>

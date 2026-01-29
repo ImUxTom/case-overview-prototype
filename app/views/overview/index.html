@@ -11,13 +11,32 @@
         {{ pageName }}
       </h1>
 
-      {% include "_includes/overview/cases.njk" %}
+      {% if data.user.role == "Manager" %}
+        {% include "_includes/overview/cases.njk" %}
+      {% endif %}
 
-      {% include "_includes/overview/directions.njk" %}
+      {% if data.user.role == "Prosecutor" or data.user.role == "Paralegal officer" %}
+        {% include "_includes/overview/directions.njk" %}
+      {% endif %}
+
+      {% if data.user.role == "Casework assistant" %}
+        <h2 class="govuk-heading-m">Tasks assigned to units you belong to</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>
+            <a href="#">15 tasks assigned to the admin pool teams that belong to the units that you belong to</a>
+          </li>
+          <li>
+            <a href="#">30 priority charging tasks (owner = nothing) and task = the 2 tasks</a>
+          </li>
+        </ul>
+      {% endif %}
+
 
       {% include "_includes/overview/tasks.njk" %}
 
-      {% include "_includes/overview/prosecutors.njk" %}
+      {% if data.user.role == "Manager" %}
+        {% include "_includes/overview/prosecutors.njk" %}
+      {% endif %}
 
     </div>
   </div>

@@ -29,6 +29,10 @@
       <span class="govuk-caption-l">{{_case.reference}}</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
+      {{ govukButton({
+        text: "Mark as complete"
+      }) }}
+
        {{ govukSummaryList({
         rows: [
           {

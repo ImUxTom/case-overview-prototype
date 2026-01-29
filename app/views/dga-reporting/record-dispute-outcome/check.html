@@ -3,7 +3,7 @@
 {% set secondaryNavId = 'dga' %}
 {% set pageName = 'Check details and record dispute outcome' %}
 
-{% set baseUrl = "/dga-reviews/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + failureReason.id + "/record-dispute-outcome" %}
+{% set baseUrl = "/dga-reporting/" + monthKey + "/" + policeUnitId + "/" + case.id + "/" + failureReason.id + "/record-dispute-outcome" %}
 
 {% block beforeContent %}
   {{ govukBackLink({

@@ -6,7 +6,7 @@ const { calculateLegacyOutcome, isFinalFailure } = require('../helpers/dgaLegacy
 module.exports = router => {
 
   // Step 1: Select outcome
-  router.get('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -27,7 +27,7 @@ module.exports = router => {
 
     const failureReason = caseData.dga.failureReasons[0]
 
-    res.render('dga-reviews/record-dispute-outcome/index', {
+    res.render('dga-reporting/record-dispute-outcome/index', {
       case: caseData,
       failureReason: failureReason,
       selectedDisputed: req.session.data.recordOutcome?.disputed,
@@ -36,7 +36,7 @@ module.exports = router => {
     })
   })
 
-  router.post('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome', (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome', (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = req.params.policeUnitId
     const caseId = req.params.caseId
@@ -49,14 +49,14 @@ module.exports = router => {
       _.set(req, 'session.data.recordOutcome.cpsAccepted', null)
       _.set(req, 'session.data.recordOutcome.explanation', null)
       _.set(req, 'session.data.recordOutcome.methods', null)
-      return res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/check`)
+      return res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/check`)
     }
 
-    res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/cps-accepted`)
+    res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/cps-accepted`)
   })
 
   // Step 1b: Did CPS accept the dispute? (only if disputed)
-  router.get('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/cps-accepted', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/cps-accepted', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -77,7 +77,7 @@ module.exports = router => {
 
     const failureReason = caseData.dga.failureReasons[0]
 
-    res.render('dga-reviews/record-dispute-outcome/cps-accepted', {
+    res.render('dga-reporting/record-dispute-outcome/cps-accepted', {
       case: caseData,
       failureReason: failureReason,
       selectedCpsAccepted: req.session.data.recordOutcome?.cpsAccepted,
@@ -86,7 +86,7 @@ module.exports = router => {
     })
   })
 
-  router.post('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/cps-accepted', (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/cps-accepted', (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = req.params.policeUnitId
     const caseId = req.params.caseId
@@ -95,11 +95,11 @@ module.exports = router => {
 
     _.set(req, 'session.data.recordOutcome.cpsAccepted', cpsAccepted)
 
-    res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/reason`)
+    res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/reason`)
   })
 
   // Step 2a: Add details (only if disputed)
-  router.get('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/reason', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/reason', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -120,7 +120,7 @@ module.exports = router => {
 
     const failureReason = caseData.dga.failureReasons[0]
 
-    res.render('dga-reviews/record-dispute-outcome/reason', {
+    res.render('dga-reporting/record-dispute-outcome/reason', {
       case: caseData,
       failureReason: failureReason,
       details: req.session.data.recordOutcome?.explanation,
@@ -129,7 +129,7 @@ module.exports = router => {
     })
   })
 
-  router.post('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/reason', (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/reason', (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = req.params.policeUnitId
     const caseId = req.params.caseId
@@ -138,11 +138,11 @@ module.exports = router => {
 
     _.set(req, 'session.data.recordOutcome.explanation', details)
 
-    res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/method`)
+    res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/method`)
   })
 
   // Step 2b: Select methods (only if disputed)
-  router.get('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/method', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/method', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -163,7 +163,7 @@ module.exports = router => {
 
     const failureReason = caseData.dga.failureReasons[0]
 
-    res.render('dga-reviews/record-dispute-outcome/method', {
+    res.render('dga-reporting/record-dispute-outcome/method', {
       case: caseData,
       failureReason: failureReason,
       selectedMethods: req.session.data.recordOutcome?.methods || [],
@@ -172,7 +172,7 @@ module.exports = router => {
     })
   })
 
-  router.post('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/method', (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/method', (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = req.params.policeUnitId
     const caseId = req.params.caseId
@@ -191,11 +191,11 @@ module.exports = router => {
 
     _.set(req, 'session.data.recordOutcome.methods', methods)
 
-    res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/check`)
+    res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}/${failureReasonId}/record-dispute-outcome/check`)
   })
 
   // Step 3: Check answers
-  router.get('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/check', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/check', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -231,7 +231,7 @@ module.exports = router => {
       legacyOutcome = calculateLegacyOutcome(simulatedReasons)
     }
 
-    res.render('dga-reviews/record-dispute-outcome/check', {
+    res.render('dga-reporting/record-dispute-outcome/check', {
       case: caseData,
       failureReason: failureReason,
       monthKey,
@@ -240,7 +240,7 @@ module.exports = router => {
     })
   })
 
-  router.post('/dga-reviews/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/check', async (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/:caseId/:failureReasonId/record-dispute-outcome/check', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const caseId = parseInt(req.params.caseId)
@@ -308,7 +308,7 @@ module.exports = router => {
 
     req.flash('success', 'Outcome recorded')
 
-    res.redirect(`/dga-reviews/${monthKey}/${policeUnitId}/${caseId}`)
+    res.redirect(`/dga-reporting/${monthKey}/${policeUnitId}/${caseId}`)
   })
 
 }

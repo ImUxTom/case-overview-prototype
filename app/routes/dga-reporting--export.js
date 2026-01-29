@@ -25,7 +25,7 @@ function getWeeksForMonth (year, month) {
 
 module.exports = router => {
   // Show week selection page for export
-  router.get('/dga-reviews/:month/:policeUnitId/export', async (req, res) => {
+  router.get('/dga-reporting/:month/:policeUnitId/export', async (req, res) => {
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)
     const [year, month] = monthKey.split('-').map(Number)
@@ -39,7 +39,7 @@ module.exports = router => {
       text: week.label
     }))
 
-    res.render('dga-reviews/export/index', {
+    res.render('dga-reporting/export/index', {
       monthKey,
       monthName,
       policeUnitId,
@@ -50,7 +50,7 @@ module.exports = router => {
   })
 
   // Export cases for selected weeks
-  router.post('/dga-reviews/:month/:policeUnitId/export', async (req, res) => {
+  router.post('/dga-reporting/:month/:policeUnitId/export', async (req, res) => {
     const ExcelJS = require('exceljs')
     const monthKey = req.params.month
     const policeUnitId = parseInt(req.params.policeUnitId)

@@ -2,9 +2,10 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "_components/checkbox-filter/macro.njk" import appCheckboxFilter %}
 
+<section aria-labelledby="app-filter-heading">
 <div class="app-filter">
   <div class="app-filter__header">
-    <h2 class="govuk-heading-m">Filter</h2>
+    <h2 class="govuk-heading-m" id="app-filter-heading">Filter</h2>
     <div class="app-filter__header-action"></div>
   </div>
 
@@ -12,7 +13,7 @@
     {% if selectedFilters.categories.length %}
       <div class="app-filter__selected">
         <div class="app-filter__heading-group">
-          <h2 class="govuk-heading-m">Selected filters</h2>
+          <h3 class="govuk-heading-m">Selected filters</h3>
           <p><a class="govuk-link govuk-link--no-visited-state" href="/directions/clear-filters">Clear filters</a></p>
         </div>
 
@@ -111,3 +112,4 @@
     </div>
   </div>
 </div>
+</section>

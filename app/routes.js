@@ -23,9 +23,9 @@ require('./routes/prosecutors--add-specialist-area')(router)
 require('./routes/paralegal-officers')(router)
 
 // DGA reporting routes
-require('./routes/dga-reviews--export')(router)
-require('./routes/dga-reviews')(router)
-require('./routes/dga-reviews--record-dispute-outcome')(router)
+require('./routes/dga-reporting--export')(router)
+require('./routes/dga-reporting')(router)
+require('./routes/dga-reporting--record-dispute-outcome')(router)
 
 // Case routes
 require('./routes/cases')(router)
