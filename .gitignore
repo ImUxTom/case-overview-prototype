@@ -8,11 +8,12 @@ migrate.log
 usage-data-config.json
 .claude/
 .mcp.json
+.playwright-mcp
 
 # General ignores
 .DS_Store
 .idea
-design-history/
+/design-history/
 
 /prisma/data/
 .drafts
