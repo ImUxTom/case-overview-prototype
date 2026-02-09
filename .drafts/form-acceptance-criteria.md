@@ -41,9 +41,9 @@ References:
 When there are errors:
 
 - The `<title>` element will be prefixed with "Error: "
-- The error summary will appear at the top of the main section and be focused automatically
+- The error summary will appear at the top of the main section and be focused automatically as soon as it’s shown.
 - Each error in the summary will link to the input. It’s different depending on the input type and error.
-- Each field will be in the error state.
+- Each field will be in the error state and show the same error message
 
 References:
 
