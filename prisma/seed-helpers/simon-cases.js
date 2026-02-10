@@ -149,7 +149,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createSTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, stlGenerator } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(SIMON_UNITS_ARRAY);
@@ -191,8 +191,18 @@ async function createSTLCase(prisma, user, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -225,7 +235,7 @@ async function createSTLCase(prisma, user, taskConfig, config) {
 }
 
 async function createCTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, hearingType, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(SIMON_UNITS_ARRAY);
@@ -268,8 +278,18 @@ async function createCTLCase(prisma, user, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -317,7 +337,7 @@ async function createCTLCase(prisma, user, taskConfig, config) {
 }
 
 async function createManyStatementsCase(prisma, user, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities, availableOperationNames } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -357,8 +377,18 @@ async function createManyStatementsCase(prisma, user, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: SIMON_UNITS.NORTH_YORKSHIRE_MAGISTRATES_COURT } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -455,7 +485,7 @@ async function createManyStatementsCase(prisma, user, config) {
 }
 
 async function seedSimonCases(prisma, dependencies, config) {
-  const { defenceLawyers, victims, availableOperationNames } = dependencies;
+  const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
   const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
 
   const simonWhatley = await prisma.user.findFirst({
@@ -477,6 +507,7 @@ async function seedSimonCases(prisma, dependencies, config) {
     types,
     complexities,
     taskNames,
+    policeUnits,
     ukCities,
     availableOperationNames
   };

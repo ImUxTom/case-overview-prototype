@@ -135,7 +135,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createCaseWithTask(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, hasCTL, hearingType, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement([RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_UNITS.WESSEX_RASSO]);
@@ -180,8 +180,18 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -261,7 +271,7 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
 }
 
 async function createManyWitnessesCase(prisma, user, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -301,8 +311,18 @@ async function createManyWitnessesCase(prisma, user, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: RACHAEL_UNITS.WESSEX_CROWN_COURT } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -347,7 +367,7 @@ async function createManyWitnessesCase(prisma, user, config) {
 }
 
 async function seedRachaelCases(prisma, dependencies, config) {
-  const { defenceLawyers, victims, availableOperationNames } = dependencies;
+  const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
   const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
 
   const rachaelHarvey = await prisma.user.findFirst({
@@ -369,6 +389,7 @@ async function seedRachaelCases(prisma, dependencies, config) {
     types,
     complexities,
     taskNames,
+    policeUnits,
     ukCities,
     availableOperationNames
   };

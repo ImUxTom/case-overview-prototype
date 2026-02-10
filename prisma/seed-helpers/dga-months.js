@@ -1,5 +1,8 @@
 const { faker } = require('@faker-js/faker');
 const { generateCaseReference } = require('./identifiers');
+const complexities = require('../../app/data/complexities');
+const types = require('../../app/data/types');
+const ukCities = require('../../app/data/uk-cities');
 
 // Helper: Calculate deadline as end of month + 6 weeks
 function calculateDeadline(reviewDate) {
@@ -130,9 +133,20 @@ async function seedDGAMonths(prisma, defendants) {
         const newCase = await prisma.case.create({
           data: {
             reference: generateCaseReference(),
+            complexity: faker.helpers.arrayElement(complexities),
+            type: faker.helpers.arrayElement(types),
             unitId: cpsUnitId,
             policeUnitId: policeUnitId,
-            defendants: { connect: { id: faker.helpers.arrayElement(defendants).id } }
+            defendants: { connect: { id: faker.helpers.arrayElement(defendants).id } },
+            location: {
+              create: {
+                name: faker.company.name(),
+                line1: faker.location.streetAddress(),
+                line2: faker.location.secondaryAddress(),
+                town: faker.helpers.arrayElement(ukCities),
+                postcode: faker.location.zipCode("WD# #SF"),
+              },
+            },
           }
         });
 

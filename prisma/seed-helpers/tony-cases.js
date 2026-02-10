@@ -63,7 +63,7 @@ async function getAdminPoolTeamForUnit(prisma, unitId) {
 }
 
 async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, stlGenerator, units } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -111,8 +111,18 @@ async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -138,7 +148,7 @@ async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
 }
 
 async function createPACECaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, paceGenerator, units } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -186,8 +196,18 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -213,7 +233,7 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
 }
 
 async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
   const { name, hearingType, units, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -262,8 +282,18 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -307,8 +337,8 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
 }
 
 async function seedTonyCases(prisma, dependencies, config) {
-  const { defenceLawyers, victims, availableOperationNames } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities } = config;
+  const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
+  const { charges, firstNames, lastNames, pleas, types, complexities, ukCities } = config;
 
   const fullConfig = {
     defenceLawyers,
@@ -319,6 +349,8 @@ async function seedTonyCases(prisma, dependencies, config) {
     victims,
     types,
     complexities,
+    policeUnits,
+    ukCities,
     availableOperationNames
   };
 

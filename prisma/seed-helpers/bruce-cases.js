@@ -183,7 +183,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, generateFn, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, ukCities } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -218,8 +218,18 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
+      policeUnit: { connect: { id: faker.helpers.arrayElement(policeUnits).id } },
       defendants: { connect: { id: defendant.id } },
-      victims: { connect: victimIds }
+      victims: { connect: victimIds },
+      location: {
+        create: {
+          name: faker.company.name(),
+          line1: faker.location.streetAddress(),
+          line2: faker.location.secondaryAddress(),
+          town: faker.helpers.arrayElement(ukCities),
+          postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
     }
   });
 
@@ -262,7 +272,7 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
 }
 
 async function seedBruceCases(prisma, dependencies, config) {
-  const { defenceLawyers, victims } = dependencies;
+  const { defenceLawyers, victims, policeUnits } = dependencies;
   const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
 
   const bruceBanner = await prisma.user.findFirst({
@@ -284,6 +294,7 @@ async function seedBruceCases(prisma, dependencies, config) {
     types,
     complexities,
     taskNames,
+    policeUnits,
     ukCities
   };
 

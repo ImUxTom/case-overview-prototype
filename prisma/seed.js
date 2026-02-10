@@ -172,7 +172,7 @@ async function main() {
   step("Rachael Harvey's cases");
   const rachaelCasesCount = await seedRachaelCases(
     prisma,
-    { defenceLawyers, victims, availableOperationNames },
+    { defenceLawyers, victims, policeUnits, availableOperationNames },
     { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }
   );
   done(rachaelCasesCount);
@@ -180,7 +180,7 @@ async function main() {
   step("Simon Whatley's cases");
   const simonCasesCount = await seedSimonCases(
     prisma,
-    { defenceLawyers, victims, availableOperationNames },
+    { defenceLawyers, victims, policeUnits, availableOperationNames },
     { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }
   );
   done(simonCasesCount);
@@ -188,23 +188,23 @@ async function main() {
   step("Kirsty Priest's cases");
   const kirstyCasesCount = await seedKirstyCases(
     prisma,
-    { defenceLawyers, victims, availableOperationNames },
-    { charges, firstNames, lastNames, pleas, types, complexities }
+    { defenceLawyers, victims, policeUnits, availableOperationNames },
+    { charges, firstNames, lastNames, pleas, types, complexities, ukCities }
   );
   done(kirstyCasesCount);
 
   step("Tony Stark's cases");
   const tonyCasesCount = await seedTonyCases(
     prisma,
-    { defenceLawyers, victims, availableOperationNames },
-    { charges, firstNames, lastNames, pleas, types, complexities }
+    { defenceLawyers, victims, policeUnits, availableOperationNames },
+    { charges, firstNames, lastNames, pleas, types, complexities, ukCities }
   );
   done(tonyCasesCount);
 
   step("Bruce Banner's cases");
   const bruceCasesCount = await seedBruceCases(
     prisma,
-    { defenceLawyers, victims },
+    { defenceLawyers, victims, policeUnits },
     { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities }
   );
   done(bruceCasesCount);

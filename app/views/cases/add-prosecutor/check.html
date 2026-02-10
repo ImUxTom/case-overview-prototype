@@ -21,21 +21,38 @@
         rows: [
           {
             key: {
-              text: "Prosecutor"
+              text: "Do you want to assign " + recommendedProsecutorName + "?"
             },
             value: {
-              html: prosecutor.firstName + ' ' + prosecutor.lastName
+              text: "Yes" if acceptRecommendation === "yes" else "No, I want to choose another prosecutor"
             },
             actions: {
               items: [
                 {
-                  href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
+                  href: "/cases/" + _case.id + "/add-prosecutor",
                   text: "Change",
-                  visuallyHiddenText: "Prosecutor"
+                  visuallyHiddenText: "whether to assign " + recommendedProsecutorName
                 }
               ]
             }
-          }
+          },
+          {
+            key: {
+              text: "Prosecutor"
+            },
+            value: {
+              text: prosecutor.firstName + " " + prosecutor.lastName
+            },
+            actions: {
+              items: [
+                {
+                  href: "/cases/" + _case.id + "/add-prosecutor/choose",
+                  text: "Change",
+                  visuallyHiddenText: "prosecutor"
+                }
+              ]
+            }
+          } if acceptRecommendation === "no"
         ]
       }) }}
 
