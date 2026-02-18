@@ -25,6 +25,7 @@ model User {
   specialistAreas       Specialism[]             @relation("UserSpecialistAreas")
   preferredAreas        Specialism[]             @relation("UserPreferredAreas")
   restrictedAreas       Specialism[]             @relation("UserRestrictedAreas")
+  recentCases           RecentCase[]
 }
 
 model ActivityLog {
@@ -150,6 +151,7 @@ model Case {
   activityLogs      ActivityLog[]
   prosecutors       CaseProsecutor[]
   paralegalOfficers CaseParalegalOfficer[]
+  recentCases       RecentCase[]
 }
 
 model DGA {
@@ -425,4 +427,16 @@ model CaseParalegalOfficer {
 
   @@unique([caseId, userId])
   @@map("case_paralegal_officers")
+}
+
+model RecentCase {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caseId   Int
+  case     Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  openedAt DateTime @default(now())
+
+  @@unique([userId, caseId])
+  @@map("recent_cases")
 }

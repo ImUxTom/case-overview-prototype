@@ -13,7 +13,6 @@ usage-data-config.json
 # General ignores
 .DS_Store
 .idea
-/design-history/
 
 /prisma/data/
 .drafts

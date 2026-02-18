@@ -331,6 +331,19 @@ module.exports = router => {
       })
     }
 
+    const recentCases = await prisma.recentCase.findMany({
+      where: { userId: currentUser.id },
+      orderBy: { openedAt: 'desc' },
+      take: 5,
+      include: {
+        case: {
+          include: {
+            defendants: true
+          }
+        }
+      }
+    })
+
     res.render('overview/index', {
       unassignedCaseCount,
       incompleteProfileCount,
@@ -351,7 +364,8 @@ module.exports = router => {
       dueTomorrowDirectionCount,
       overdueDirectionCount,
       prosecutorCaseCount,
-      paralegalOfficerCaseCount
+      paralegalOfficerCaseCount,
+      recentCases
     })
   })
 

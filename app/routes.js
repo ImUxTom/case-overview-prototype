@@ -1,6 +1,8 @@
 const govukPrototypeKit = require('govuk-prototype-kit')
 const router = govukPrototypeKit.requests.setupRouter()
 const flash = require('connect-flash')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 const checkSignedIn = require('./middleware/checkSignedIn')
 const setLocals = require('./middleware/setLocals')
 
@@ -26,6 +28,20 @@ require('./routes/paralegal-officers')(router)
 require('./routes/dga-reporting--export')(router)
 require('./routes/dga-reporting')(router)
 require('./routes/dga-reporting--record-dispute-outcome')(router)
+
+// Record recent case views
+router.get('/cases/:caseId*', async (req, res, next) => {
+  const caseId = parseInt(req.params.caseId)
+  const userId = req.session.data.user.id
+  if (caseId && userId) {
+    await prisma.recentCase.upsert({
+      where: { userId_caseId: { userId, caseId } },
+      update: { openedAt: new Date() },
+      create: { userId, caseId }
+    })
+  }
+  next()
+})
 
 // Case routes
 require('./routes/cases')(router)

@@ -41,3 +41,7 @@ Many of these issues were flagged in the last service assessment and we committe
 ## Hypothesis
 
 If we improve the task list, then users will be able to process cases more quickly, helping meet SLAs, reducing costs, and meeting the Service Standard — including making sure the service is accessible to everyone.
+
+====
+
+Our users have to use spreadsheet to keep on top of what they have to do on a case. Task list isn't cutting it. The cost of switching, maintaining and using spreadsheets outside of the service must be huge.
