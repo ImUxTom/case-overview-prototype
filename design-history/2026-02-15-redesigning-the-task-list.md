@@ -42,12 +42,39 @@ Tasks are grouped by severity so the most urgent work is always at the top:
 Each task card shows:
 
 - task name (as a link)
+- urgent tag (where applicable)
 - URN
-- defendant name
+- operation name (where applicable)
+- defendant
 - due date
-- time limits and hearing dates where relevant
+- custody time limit (where applicable)
+- statutory time limit (where applicable)
+- PACE clock (where applicable)
+- reason for marking as urgent (where applicable)
+- owner
+- unit
+- reminder type (where applicable)
+- latest note (where applicable)
+- hearing date and type (where applicable)
 
 We only show fields that have values, so cards do not show empty rows.
+
+Dates are shown with a bracketed status to help users judge urgency at a glance. For due date, custody time limit, statutory time limit, and hearing date:
+
+- past dates show "(overdue)"
+- a date that falls today shows "(today)"
+- a date that falls tomorrow shows "(tomorrow)"
+- dates further ahead show the number of days remaining, for example "(4 days)" or "(11 days)"
+
+Due dates can also show "(critically overdue)" for tasks that are significantly past due.
+
+The PACE clock is measured in hours rather than days:
+
+- "(expired)"
+- "(ends in less than 1 hour)"
+- "(ends in less than 2 hours)"
+- "(ends in less than 3 hours)"
+- "(ends in more than 3 hours)"
 
 ![The task list for Rachael Harvey showing 9 tasks filtered to her as the owner, grouped under Critically overdue, Overdue, Due soon, and Not due yet headings. Each task card shows relevant context including URN, defendant, due date, time limits, and hearing dates where applicable.](redesigning-the-task-list/rachel-default-filters.png)
 

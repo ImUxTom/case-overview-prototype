@@ -135,7 +135,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createCaseWithTask(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, hasCTL, hearingType, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement([RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_UNITS.WESSEX_RASSO]);
@@ -173,6 +173,18 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -190,6 +202,11 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -271,7 +288,7 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
 }
 
 async function createManyWitnessesCase(prisma, user, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -304,6 +321,18 @@ async function createManyWitnessesCase(prisma, user, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: '99RH250001/1',
@@ -321,6 +350,11 @@ async function createManyWitnessesCase(prisma, user, config) {
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -368,7 +402,7 @@ async function createManyWitnessesCase(prisma, user, config) {
 
 async function seedRachaelCases(prisma, dependencies, config) {
   const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
+  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities, documentNames, documentTypes } = config;
 
   const rachaelHarvey = await prisma.user.findFirst({
     where: { firstName: 'Rachael', lastName: 'Harvey' }
@@ -391,7 +425,9 @@ async function seedRachaelCases(prisma, dependencies, config) {
     taskNames,
     policeUnits,
     ukCities,
-    availableOperationNames
+    availableOperationNames,
+    documentNames,
+    documentTypes
   };
 
   // Create specific task cases

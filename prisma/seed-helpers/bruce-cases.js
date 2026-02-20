@@ -183,7 +183,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, generateFn, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities, documentNames, documentTypes } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -212,6 +212,18 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
 
   const victimIds = faker.helpers.arrayElements(victims, faker.number.int({ min: 1, max: 2 })).map(v => ({ id: v.id }));
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -228,6 +240,11 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -273,7 +290,7 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
 
 async function seedBruceCases(prisma, dependencies, config) {
   const { defenceLawyers, victims, policeUnits } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
+  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities, documentNames, documentTypes } = config;
 
   const bruceBanner = await prisma.user.findFirst({
     where: { firstName: "Bruce", lastName: "Banner" }
@@ -295,7 +312,9 @@ async function seedBruceCases(prisma, dependencies, config) {
     complexities,
     taskNames,
     policeUnits,
-    ukCities
+    ukCities,
+    documentNames,
+    documentTypes
   };
 
   const units = [BRUCE_UNITS.WESSEX_CROWN_COURT, BRUCE_UNITS.WESSEX_RASSO];

@@ -181,12 +181,47 @@ async function getProsecutorListData() {
     const michaelChen = prosecutors.splice(michaelChenIndex, 1)[0]
     prosecutors.unshift(michaelChen)
 
-    const otherProsecutors = prosecutors.slice(1).filter(p => p.totalCases > 10)
-    prosecutors = [michaelChen, ...otherProsecutors.slice(0, 3)]
+    const otherProsecutors = prosecutors.slice(1).filter(p => p.totalCases <= 10)
+
+    const caseLoadProfiles = [
+      { total: 11, ctl: 1, stl: 0, basic: 4, basicPlus: 3, standard: 2, high: 1, complex: 1 },
+      { total: 13, ctl: 1, stl: 1, basic: 5, basicPlus: 3, standard: 2, high: 2, complex: 1 },
+      { total: 15, ctl: 2, stl: 1, basic: 5, basicPlus: 4, standard: 3, high: 2, complex: 1 },
+      { total: 17, ctl: 2, stl: 1, basic: 6, basicPlus: 4, standard: 3, high: 2, complex: 2 },
+      { total: 20, ctl: 2, stl: 2, basic: 7, basicPlus: 5, standard: 4, high: 2, complex: 2 },
+      { total: 22, ctl: 3, stl: 2, basic: 8, basicPlus: 5, standard: 4, high: 3, complex: 2 },
+      { total: 24, ctl: 3, stl: 2, basic: 8, basicPlus: 6, standard: 5, high: 3, complex: 2 },
+      { total: 27, ctl: 3, stl: 3, basic: 9, basicPlus: 7, standard: 6, high: 3, complex: 2 },
+      { total: 29, ctl: 4, stl: 3, basic: 10, basicPlus: 7, standard: 6, high: 4, complex: 2 },
+      { total: 31, ctl: 4, stl: 3, basic: 10, basicPlus: 8, standard: 7, high: 4, complex: 2 },
+      { total: 33, ctl: 4, stl: 4, basic: 11, basicPlus: 8, standard: 7, high: 4, complex: 3 },
+      { total: 36, ctl: 5, stl: 4, basic: 12, basicPlus: 9, standard: 8, high: 5, complex: 2 },
+      { total: 38, ctl: 5, stl: 5, basic: 13, basicPlus: 9, standard: 8, high: 5, complex: 3 },
+      { total: 40, ctl: 6, stl: 5, basic: 14, basicPlus: 10, standard: 8, high: 5, complex: 3 },
+    ]
+
+    const enrichedOthers = otherProsecutors.slice(0, 14).map((prosecutor, i) => {
+      const p = caseLoadProfiles[i]
+      return {
+        ...prosecutor,
+        _count: { caseProsecutors: p.total },
+        basicCases: Array(p.basic).fill({}),
+        basicPlusCases: Array(p.basicPlus).fill({}),
+        standardCases: Array(p.standard).fill({}),
+        highCases: Array(p.high).fill({}),
+        complexCases: Array(p.complex).fill({}),
+        ctlCases: Array(p.ctl).fill({}),
+        stlCases: Array(p.stl).fill({}),
+        totalCases: p.total,
+        ctlCaseCount: p.ctl
+      }
+    })
+
+    prosecutors = [michaelChen, ...enrichedOthers]
   } else {
     prosecutors[0].didInitialReview = true
     prosecutors[0].recommended = true
-    prosecutors = prosecutors.slice(0, 5)
+    prosecutors = prosecutors.slice(0, 15)
   }
 
   return prosecutors.map(prosecutor => {
@@ -283,11 +318,13 @@ module.exports = router => {
     const caseId = parseInt(req.params.caseId)
     const prosecutorId = parseInt(req.session.data.assignProsecutor.prosecutor)
 
-    // Create CaseProsecutor record
+    const existingCount = await prisma.caseProsecutor.count({ where: { caseId } })
+
     await prisma.caseProsecutor.create({
       data: {
         caseId: caseId,
-        userId: prosecutorId
+        userId: prosecutorId,
+        isLead: existingCount === 0
       }
     })
 

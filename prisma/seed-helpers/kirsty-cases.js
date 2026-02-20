@@ -27,7 +27,7 @@ const KIRSTY_CTL_TASKS = [
 ];
 
 async function createSTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, stlGenerator } = taskConfig;
 
   const statutoryTimeLimit = stlGenerator();
@@ -61,6 +61,18 @@ async function createSTLCase(prisma, user, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -80,13 +92,19 @@ async function createSTLCase(prisma, user, taskConfig, config) {
           postcode: faker.location.zipCode("WD# #SF"),
         },
       },
+      documents: {
+        createMany: {
+          data: documentsData,
+        },
+      },
     }
   });
 
   await prisma.caseProsecutor.create({
     data: {
       caseId: _case.id,
-      userId: user.id
+      userId: user.id,
+      isLead: true
     }
   });
 
@@ -112,7 +130,7 @@ async function createSTLCase(prisma, user, taskConfig, config) {
 }
 
 async function createCTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, hearingType, isReminder } = taskConfig;
 
   const custodyTimeLimit = faker.date.soon({ days: 14 });
@@ -147,6 +165,18 @@ async function createCTLCase(prisma, user, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -166,13 +196,19 @@ async function createCTLCase(prisma, user, taskConfig, config) {
           postcode: faker.location.zipCode("WD# #SF"),
         },
       },
+      documents: {
+        createMany: {
+          data: documentsData,
+        },
+      },
     }
   });
 
   await prisma.caseProsecutor.create({
     data: {
       caseId: _case.id,
-      userId: user.id
+      userId: user.id,
+      isLead: true
     }
   });
 
@@ -214,7 +250,7 @@ async function createCTLCase(prisma, user, taskConfig, config) {
 
 async function seedKirstyCases(prisma, dependencies, config) {
   const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities, ukCities } = config;
+  const { charges, firstNames, lastNames, pleas, types, complexities, ukCities, documentNames, documentTypes } = config;
 
   const kirstyPriest = await prisma.user.findFirst({
     where: { firstName: 'Kirsty', lastName: 'Priest' }
@@ -236,7 +272,9 @@ async function seedKirstyCases(prisma, dependencies, config) {
     complexities,
     policeUnits,
     ukCities,
-    availableOperationNames
+    availableOperationNames,
+    documentNames,
+    documentTypes
   };
 
   // Create STL cases (pre-charge, no hearing)

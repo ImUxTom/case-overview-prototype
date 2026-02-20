@@ -408,11 +408,12 @@ model Note {
 }
 
 model CaseProsecutor {
-  id     Int  @id @default(autoincrement())
+  id     Int     @id @default(autoincrement())
   caseId Int
-  case   Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case   Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isLead Boolean @default(false)
 
   @@unique([caseId, userId])
   @@map("case_prosecutors")

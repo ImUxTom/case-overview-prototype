@@ -8,9 +8,16 @@ const types = require('../data/types')
 module.exports = router => {
 
   router.get("/prosecutors", async (req, res) => {
+    const userUnitIds = req.session.data.user.units.map(u => u.unitId)
+
     let prosecutors = await prisma.user.findMany({
       where: {
-        role: 'Prosecutor'
+        role: 'Prosecutor',
+        units: {
+          some: {
+            unitId: { in: userUnitIds }
+          }
+        }
       },
       include: {
         units: {

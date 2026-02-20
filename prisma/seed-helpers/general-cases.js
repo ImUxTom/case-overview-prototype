@@ -281,11 +281,12 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
       if (unitProsecutors.length > 0) {
         const assignedProsecutors = faker.helpers.arrayElements(unitProsecutors, Math.min(numProsecutors, unitProsecutors.length));
-        for (const prosecutor of assignedProsecutors) {
+        for (const [index, prosecutor] of assignedProsecutors.entries()) {
           await prisma.caseProsecutor.create({
             data: {
               caseId: createdCase.id,
-              userId: prosecutor.id
+              userId: prosecutor.id,
+              isLead: index === 0
             }
           });
         }

@@ -13,35 +13,10 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      
-      <h1 class="govuk-heading-l">Overview</h1>
-      
-      {% set prosecutorValue %}
-        {% if _case.prosecutors.length %}
-          <ul class="govuk-list govuk-list--bullet">
-            {% for cp in _case.prosecutors %}
-              <li>{{cp.user.firstName}} {{cp.user.lastName}}</li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          Unassigned
-        {% endif %}
-      {% endset %}
 
-      {% set paralegalOfficerValue %}
-        {% if _case.paralegalOfficers.length %}
-          <ul class="govuk-list govuk-list--bullet">
-            {% for cpo in _case.paralegalOfficers %}
-              <li>{{cpo.user.firstName}} {{cpo.user.lastName}}</li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          Unassigned
-        {% endif %}
-      {% endset %}
+      <h1 class="govuk-heading-l">Overview</h1>
 
       {% set defendantValue %}
-        
         {% if _case.defendants.length %}
           <ul class="govuk-list govuk-list--bullet">
             {% for defendant in _case.defendants %}
@@ -59,116 +34,45 @@
         {{appAddress({ address: _case.location })}}
       {% endset %}
 
-
-      {% set prosecutorActions = [
-        {
-          href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
-          text: "Add",
-          visuallyHiddenText: "Prosecutor"
-        }
-      ] %}
-      {% if _case.prosecutors.length %}
-        {% set prosecutorActions = [
-          {
-            href: "/cases/:caseId/add-prosecutor" | replace(':caseId', _case.id),
-            text: "Add",
-            visuallyHiddenText: "Prosecutor"
-          },
-          {
-            href: "#" | replace(':caseId', _case.id),
-            text: "Change",
-            visuallyHiddenText: "Prosecutor"
-          }
-        ] %}
-      {% endif %}
-
-      {% set paralegalOfficerActions = [
-        {
-          href: "/cases/:caseId/add-paralegal-officer" | replace(':caseId', _case.id),
-          text: "Add",
-          visuallyHiddenText: "Paralegal officer"
-        }
-      ] %}
-      {% if _case.paralegalOfficers.length %}
-        {% set paralegalOfficerActions = [
-          {
-            href: "/cases/:caseId/add-paralegal-officer" | replace(':caseId', _case.id),
-            text: "Add",
-            visuallyHiddenText: "Paralegal officer"
-          },
-          {
-            href: "#" | replace(':caseId', _case.id),
-            text: "Change",
-            visuallyHiddenText: "Paralegal officer"
-          }
-        ] %}
-      {% endif %}
-
-
       {{ govukSummaryList({
         rows: [
           {
-            key: { 
-              text: "Reference" 
+            key: {
+              text: "URN"
             },
-            value: { 
-              html: _case.reference 
-            }
-          },
-          {
-            key: { 
-              text: "Operation name" 
-            },
-            value: { 
-              html: _case.operationName 
-            }
-          } if _case.operationName,
-          {
-            key: { 
-              text: "Location" 
-            },
-            value: { 
-              html: locationValue 
-            }
-          },
-          {
-            key: { 
-              text: "Unit" 
-            },
-            value: { 
-              html: _case.unit.name 
+            value: {
+              html: _case.reference
             }
           },
           {
             key: {
-              html: 'Court type'
+              text: "Operation name"
             },
             value: {
-              html: _case.courtType
+              html: _case.operationName
             }
-          } if 1==2,
+          } if _case.operationName,
           {
-            key: { 
-              text: "Priority" 
+            key: {
+              text: "Location"
             },
-            value: { 
-              html: _case.priority 
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/:caseId/edit-priority" | replace(':caseId', _case.id),
-                  text: "Change",
-                  visuallyHiddenText: "Priority"
-                }
-              ]
+            value: {
+              html: locationValue
             }
-          } if 1==2,
+          },
           {
-            key: { 
-              text: "Complexity" 
+            key: {
+              text: "Unit"
             },
-            value: { 
+            value: {
+              html: _case.unit.name
+            }
+          },
+          {
+            key: {
+              text: "Complexity"
+            },
+            value: {
               html: _case.complexity + '<div class="govuk-!-margin-top-1"><a href="/cases/:caseId/complexity-calculation">How we calculated complexity</a></div>' | replace(':caseId', _case.id)
             },
             actions: {
@@ -182,63 +86,57 @@
             }
           },
           {
-            key: { 
-              text: "Defendants" 
+            key: {
+              text: "Defendants"
             },
-            value: { 
+            value: {
               html: defendantValue
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/:caseId/edit-defendants" | replace(':caseId', _case.id),
-                  text: "Change",
-                  visuallyHiddenText: "Defendants"
-                }
-              ]
             }
-          },
-          {
-            key: {
-              text: "Prosecutors"
-            },
-            value: {
-              html: prosecutorValue
-            },
-            actions: {
-              items: prosecutorActions
-            }
-          },
-          {
-            key: {
-              text: "Paralegal officers"
-            },
-            value: {
-              html: paralegalOfficerValue
-            },
-            actions: {
-              items: paralegalOfficerActions
-            }
-          },
-          {
-            key: {
-              text: "Hearing"
-            },
-            value: {
-              html: _case.hearings[0].startDate | isoDateString | govukDateTime
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/:caseId/edit-hearing" | replace(':caseId', _case.id),
-                  text: "Change",
-                  visuallyHiddenText: "Hearing"
-                }
-              ]
-            }
-          } if _case.hearings and _case.hearings.length > 0
+          }
         ]
       }) }}
+
+      <h2 class="govuk-heading-m">Prosecutors</h2>
+
+      <p><a href="/cases/{{ _case.id }}/add-prosecutor">Add prosecutor</a></p>
+
+      {% if _case.prosecutors.length %}
+        <div class="app-list">
+          {% for cp in _case.prosecutors %}
+            <div class="app-list__item">
+              <p class="govuk-body govuk-!-margin-bottom-0">
+                {{ cp.user.firstName }} {{ cp.user.lastName }}{% if _case.prosecutors.length > 1 and cp.isLead %} (lead){% endif %}
+              </p>
+              <div class="app-list__actions">
+                <a href="/cases/{{ _case.id }}/prosecutors/{{ cp.id }}/remove" class="govuk-link govuk-link--no-visited-state">Remove</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no assigned prosecutors.</p>
+      {% endif %}
+
+      <h2 class="govuk-heading-m">Paralegal officers</h2>
+
+      <p><a href="/cases/{{ _case.id }}/add-paralegal-officer">Add paralegal officer</a></p>
+
+      {% if _case.paralegalOfficers.length %}
+        <div class="app-list">
+          {% for cpo in _case.paralegalOfficers %}
+            <div class="app-list__item">
+              <p class="govuk-body govuk-!-margin-bottom-0">
+                {{ cpo.user.firstName }} {{ cpo.user.lastName }}
+              </p>
+              <div class="app-list__actions">
+                <a href="/cases/{{ _case.id }}/paralegal-officers/{{ cpo.id }}/remove" class="govuk-link govuk-link--no-visited-state">Remove</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>There are no paralegal officers assigned to this case.</p>
+      {% endif %}
 
     </div>
   </div>

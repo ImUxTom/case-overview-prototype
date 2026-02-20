@@ -149,7 +149,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 }
 
 async function createSTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, stlGenerator } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(SIMON_UNITS_ARRAY);
@@ -184,6 +184,18 @@ async function createSTLCase(prisma, user, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -203,13 +215,19 @@ async function createSTLCase(prisma, user, taskConfig, config) {
           postcode: faker.location.zipCode("WD# #SF"),
         },
       },
+      documents: {
+        createMany: {
+          data: documentsData,
+        },
+      },
     }
   });
 
   await prisma.caseProsecutor.create({
     data: {
       caseId: _case.id,
-      userId: user.id
+      userId: user.id,
+      isLead: true
     }
   });
 
@@ -235,7 +253,7 @@ async function createSTLCase(prisma, user, taskConfig, config) {
 }
 
 async function createCTLCase(prisma, user, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, hearingType, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(SIMON_UNITS_ARRAY);
@@ -271,6 +289,18 @@ async function createCTLCase(prisma, user, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -290,13 +320,19 @@ async function createCTLCase(prisma, user, taskConfig, config) {
           postcode: faker.location.zipCode("WD# #SF"),
         },
       },
+      documents: {
+        createMany: {
+          data: documentsData,
+        },
+      },
     }
   });
 
   await prisma.caseProsecutor.create({
     data: {
       caseId: _case.id,
-      userId: user.id
+      userId: user.id,
+      isLead: true
     }
   });
 
@@ -337,7 +373,7 @@ async function createCTLCase(prisma, user, taskConfig, config) {
 }
 
 async function createManyStatementsCase(prisma, user, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, taskNames, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -370,6 +406,18 @@ async function createManyStatementsCase(prisma, user, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: '99SW100001/1',
@@ -389,13 +437,19 @@ async function createManyStatementsCase(prisma, user, config) {
           postcode: faker.location.zipCode("WD# #SF"),
         },
       },
+      documents: {
+        createMany: {
+          data: documentsData,
+        },
+      },
     }
   });
 
   await prisma.caseProsecutor.create({
     data: {
       caseId: _case.id,
-      userId: user.id
+      userId: user.id,
+      isLead: true
     }
   });
 
@@ -486,7 +540,7 @@ async function createManyStatementsCase(prisma, user, config) {
 
 async function seedSimonCases(prisma, dependencies, config) {
   const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities } = config;
+  const { charges, firstNames, lastNames, pleas, types, complexities, taskNames, ukCities, documentNames, documentTypes } = config;
 
   const simonWhatley = await prisma.user.findFirst({
     where: { firstName: 'Simon', lastName: 'Whatley' }
@@ -509,7 +563,9 @@ async function seedSimonCases(prisma, dependencies, config) {
     taskNames,
     policeUnits,
     ukCities,
-    availableOperationNames
+    availableOperationNames,
+    documentNames,
+    documentTypes
   };
 
   // Create STL cases (pre-charge, no hearing)

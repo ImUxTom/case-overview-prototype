@@ -305,6 +305,9 @@ module.exports = router => {
         prosecutors: {
           include: {
             user: true
+          },
+          orderBy: {
+            isLead: 'desc'
           }
         },
         paralegalOfficers: {

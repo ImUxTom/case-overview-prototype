@@ -63,7 +63,7 @@ async function getAdminPoolTeamForUnit(prisma, unitId) {
 }
 
 async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, stlGenerator, units } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -104,6 +104,18 @@ async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -121,6 +133,11 @@ async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -148,7 +165,7 @@ async function createSTLCaseForAdminPool(prisma, taskConfig, config) {
 }
 
 async function createPACECaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, paceGenerator, units } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -189,6 +206,18 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -206,6 +235,11 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -233,7 +267,7 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
 }
 
 async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
-  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames } = config;
+  const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
   const { name, hearingType, units, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
@@ -275,6 +309,18 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
     ? availableOperationNames.pop()
     : null;
 
+  const numDocuments = faker.number.int({ min: 5, max: 15 });
+  const documentsData = [];
+  for (let d = 0; d < numDocuments; d++) {
+    const baseName = faker.helpers.arrayElement(documentNames);
+    documentsData.push({
+      name: `${baseName} ${d + 1}`,
+      description: faker.helpers.arrayElement(['This is a random description', 'This is another random description', faker.lorem.sentence()]),
+      type: faker.helpers.arrayElement(documentTypes),
+      size: faker.number.int({ min: 50, max: 5000 }),
+    });
+  }
+
   const _case = await prisma.case.create({
     data: {
       reference: generateCaseReference(),
@@ -292,6 +338,11 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
           line2: faker.location.secondaryAddress(),
           town: faker.helpers.arrayElement(ukCities),
           postcode: faker.location.zipCode("WD# #SF"),
+        },
+      },
+      documents: {
+        createMany: {
+          data: documentsData,
         },
       },
     }
@@ -338,7 +389,7 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
 
 async function seedTonyCases(prisma, dependencies, config) {
   const { defenceLawyers, victims, policeUnits, availableOperationNames } = dependencies;
-  const { charges, firstNames, lastNames, pleas, types, complexities, ukCities } = config;
+  const { charges, firstNames, lastNames, pleas, types, complexities, ukCities, documentNames, documentTypes } = config;
 
   const fullConfig = {
     defenceLawyers,
@@ -351,7 +402,9 @@ async function seedTonyCases(prisma, dependencies, config) {
     complexities,
     policeUnits,
     ukCities,
-    availableOperationNames
+    availableOperationNames,
+    documentNames,
+    documentTypes
   };
 
   let count = 0;

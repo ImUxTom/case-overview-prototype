@@ -47,6 +47,8 @@ router.get('/cases/:caseId*', async (req, res, next) => {
 require('./routes/cases')(router)
 require('./routes/case--add-prosecutor')(router)
 require('./routes/case--add-paralegal-officer')(router)
+require('./routes/case--prosecutors')(router)
+require('./routes/case--paralegal-officers')(router)
 require('./routes/case--overview')(router)
 require('./routes/case--notes--add-note')(router)
 require('./routes/case--notes')(router)
