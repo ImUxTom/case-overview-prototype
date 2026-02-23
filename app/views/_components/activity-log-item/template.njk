@@ -584,6 +584,22 @@
       </p>
     {% endif %}
 
+    {% if params.event.title == 'Complexity updated' %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "Complexity" },
+              value: { text: params.event.meta.complexity }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
     {% if params.event.title == 'Task marked as urgent' %}
       <div class="app-activity-log__box">
         {% set urgentTaskRows = [] %}
