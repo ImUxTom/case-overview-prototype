@@ -65,19 +65,22 @@ function getProsecutorHintText(prosecutor) {
   return `<ul class="govuk-list govuk-list--bullet govuk-hint govuk-!-margin-bottom-0">${hintParts.join("")}</ul>`
 }
 
-async function getRecommendedProsecutor() {
+async function getRecommendedProsecutor(excludedIds = []) {
+  const excludeFilter = excludedIds.length ? { NOT: { id: { in: excludedIds } } } : {}
+
   let prosecutor = await prisma.user.findFirst({
     where: {
       role: 'Prosecutor',
       firstName: 'Michael',
-      lastName: 'Chen'
+      lastName: 'Chen',
+      ...excludeFilter
     },
     select: { id: true, firstName: true, lastName: true }
   })
 
   if (!prosecutor) {
     prosecutor = await prisma.user.findFirst({
-      where: { role: 'Prosecutor' },
+      where: { role: 'Prosecutor', ...excludeFilter },
       select: { id: true, firstName: true, lastName: true }
     })
   }
@@ -85,10 +88,11 @@ async function getRecommendedProsecutor() {
   return prosecutor
 }
 
-async function getProsecutorListData() {
+async function getProsecutorListData(excludedIds = []) {
   let prosecutors = await prisma.user.findMany({
     where: {
-      role: 'Prosecutor'
+      role: 'Prosecutor',
+      ...(excludedIds.length && { NOT: { id: { in: excludedIds } } })
     },
     select: {
       id: true,
@@ -244,11 +248,19 @@ async function getProsecutorListData() {
 module.exports = router => {
 
   router.get("/cases/:caseId/add-prosecutor", async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+
     const _case = await prisma.case.findUnique({
-      where: { id: parseInt(req.params.caseId) }
+      where: { id: caseId }
     })
 
-    const recommendedProsecutor = await getRecommendedProsecutor()
+    const assigned = await prisma.caseProsecutor.findMany({
+      where: { caseId },
+      select: { userId: true }
+    })
+    const excludedIds = assigned.map(a => a.userId)
+
+    const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
 
     res.render("cases/add-prosecutor/index", {
       _case,
@@ -260,7 +272,14 @@ module.exports = router => {
     const answer = req.session.data.assignProsecutor?.acceptRecommendation
 
     if (answer === 'yes') {
-      const recommendedProsecutor = await getRecommendedProsecutor()
+      const caseId = parseInt(req.params.caseId)
+      const assigned = await prisma.caseProsecutor.findMany({
+        where: { caseId },
+        select: { userId: true }
+      })
+      const excludedIds = assigned.map(a => a.userId)
+
+      const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
       req.session.data.assignProsecutor.prosecutor = `${recommendedProsecutor.id}`
       res.redirect(`/cases/${req.params.caseId}/add-prosecutor/check`)
     } else {
@@ -269,11 +288,19 @@ module.exports = router => {
   })
 
   router.get("/cases/:caseId/add-prosecutor/choose", async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+
     const _case = await prisma.case.findUnique({
-      where: { id: parseInt(req.params.caseId) }
+      where: { id: caseId }
     })
 
-    const prosecutorItems = await getProsecutorListData()
+    const assigned = await prisma.caseProsecutor.findMany({
+      where: { caseId },
+      select: { userId: true }
+    })
+    const excludedIds = assigned.map(a => a.userId)
+
+    const prosecutorItems = await getProsecutorListData(excludedIds)
 
     res.render("cases/add-prosecutor/choose", {
       _case,
@@ -286,11 +313,19 @@ module.exports = router => {
   })
 
   router.get("/cases/:caseId/add-prosecutor/check", async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+
     const _case = await prisma.case.findUnique({
-      where: { id: parseInt(req.params.caseId) },
+      where: { id: caseId },
     })
 
-    const recommendedProsecutor = await getRecommendedProsecutor()
+    const assigned = await prisma.caseProsecutor.findMany({
+      where: { caseId },
+      select: { userId: true }
+    })
+    const excludedIds = assigned.map(a => a.userId)
+
+    const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
     const acceptRecommendation = req.session.data.assignProsecutor.acceptRecommendation
 
     // get the prosecutor being assigned

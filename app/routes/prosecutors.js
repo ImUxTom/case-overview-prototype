@@ -80,6 +80,7 @@ module.exports = router => {
         specialistAreas: true,
         preferredAreas: true,
         restrictedAreas: true,
+        workingPattern: true,
         _count: {
           select: {
             caseProsecutors: true

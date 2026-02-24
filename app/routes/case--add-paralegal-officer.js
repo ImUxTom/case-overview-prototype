@@ -16,8 +16,9 @@ module.exports = router => {
     })
 
     const assignedParalegalOfficers = _.get(req.session.data, 'editParalegalOfficers.paralegalOfficers') || _case.paralegalOfficers.map(cpo => `${cpo.user.id}`)
+    const excludedIds = _case.paralegalOfficers.map(cpo => cpo.user.id)
 
-    // Get all users with role "Paralegal officer" from this case's unit
+    // Get all users with role "Paralegal officer" from this case's unit, excluding already-assigned
     let paralegalOfficers = await prisma.user.findMany({
       where: {
         role: 'Paralegal officer',
@@ -25,7 +26,8 @@ module.exports = router => {
           some: {
             unitId: _case.unitId
           }
-        }
+        },
+        ...(excludedIds.length && { NOT: { id: { in: excludedIds } } })
       },
       select: {
         id: true,

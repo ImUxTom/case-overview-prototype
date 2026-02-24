@@ -14,6 +14,7 @@ model User {
   firstName             String
   lastName              String
   role                  String
+  workingPattern        WorkingPatternDay[]
   notes                 Note[]
   activityLogs          ActivityLog[]
   tasks                 Task[]
@@ -440,4 +441,12 @@ model RecentCase {
 
   @@unique([userId, caseId])
   @@map("recent_cases")
+}
+
+model WorkingPatternDay {
+  id     Int    @id @default(autoincrement())
+  day    String
+  hours  String
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

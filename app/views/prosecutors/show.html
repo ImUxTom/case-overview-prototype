@@ -69,6 +69,18 @@
         {% endif %}
       {% endset %}
 
+      {% set workingPatternValue %}
+        {% if prosecutor.workingPattern and prosecutor.workingPattern.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for item in prosecutor.workingPattern %}
+              <li>{{item.day}}: {{item.hours}} {{ "hour" if item.hours == "1" else "hours" }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          No working pattern
+        {% endif %}
+      {% endset %}
+
       {% set units %}
         {% if prosecutor.units.length %}
           <ul class="govuk-list govuk-list--bullet">
@@ -134,20 +146,20 @@
                   visuallyHiddenText: "Units"
                 }
               ]
-            }
+            } if 1==2
           },
           {
             key: {
               text: "Working pattern"
             },
             value: {
-              html: 'Monday, Tuesday, Wednesday, Thursday'
+              html: workingPatternValue
             },
             actions: {
               items: [
                 {
-                  href: "/prosecutors/:prosecutorId/edit-working-pattern" | replace(':prosecutorId', prosecutor.id),
-                  text: "Change",
+                  href: ("/prosecutors/:prosecutorId/edit-working-pattern" if prosecutor.workingPattern and prosecutor.workingPattern.length else "/prosecutors/:prosecutorId/add-working-pattern") | replace(':prosecutorId', prosecutor.id),
+                  text: "Change" if prosecutor.workingPattern and prosecutor.workingPattern.length else "Add",
                   visuallyHiddenText: "Working pattern"
                 }
               ]
@@ -158,68 +170,61 @@
 
       <h2 class="govuk-heading-m">Specialist areas</h2>
 
-      {% if prosecutor.specialistAreas.length == 0 and prosecutor.preferredAreas.length == 0 and prosecutor.restrictedAreas.length == 0 %}
-        {{ govukButton({
-          text: "Add specialist areas",
-          href: '/prosecutors/:prosecutorId/specialist-areas/new' | replace(':prosecutorId', prosecutor.id)
-        }) }}
-      {% else %}
-        {{ govukSummaryList({
-          rows: [
-            {
-              key: {
-                text: "Specialist areas"
-              },
-              value: {
-                html: specialistAreas
-              },
-              actions: {
-                items: [
-                  {
-                    href: "/prosecutors/:prosecutorId/edit-preferences/specialist-areas" | replace(':prosecutorId', prosecutor.id),
-                    text: "Change",
-                    visuallyHiddenText: "Specialist areas"
-                  }
-                ]
-              }
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: {
+              text: "Specialist areas"
             },
-            {
-              key: {
-                text: "Preferred areas"
-              },
-              value: {
-                html: preferredAreas
-              },
-              actions: {
-                items: [
-                  {
-                    href: "/prosecutors/:prosecutorId/edit-preferences/preferred-areas" | replace(':prosecutorId', prosecutor.id),
-                    text: "Change",
-                    visuallyHiddenText: "Preferred areas"
-                  }
-                ]
-              }
+            value: {
+              html: specialistAreas
             },
-            {
-              key: {
-                text: "Restriced areas"
-              },
-              value: {
-                html: restrictedAreas
-              },
-              actions: {
-                items: [
-                  {
-                    href: "/prosecutors/:prosecutorId/edit-preferences/restricted-areas" | replace(':prosecutorId', prosecutor.id),
-                    text: "Change",
-                    visuallyHiddenText: "Restricted areas"
-                  }
-                ]
-              }
+            actions: {
+              items: [
+                {
+                  href: "/prosecutors/:prosecutorId/edit-specialist-areas" | replace(':prosecutorId', prosecutor.id),
+                  text: "Change",
+                  visuallyHiddenText: "Specialist areas"
+                }
+              ]
             }
-          ]
-        }) }}
-      {% endif %}
+          },
+          {
+            key: {
+              text: "Preferred areas"
+            },
+            value: {
+              html: preferredAreas
+            },
+            actions: {
+              items: [
+                {
+                  href: "/prosecutors/:prosecutorId/edit-preferred-areas" | replace(':prosecutorId', prosecutor.id),
+                  text: "Change",
+                  visuallyHiddenText: "Preferred areas"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Restricted areas"
+            },
+            value: {
+              html: restrictedAreas
+            },
+            actions: {
+              items: [
+                {
+                  href: "/prosecutors/:prosecutorId/edit-restricted-areas" | replace(':prosecutorId', prosecutor.id),
+                  text: "Change",
+                  visuallyHiddenText: "Restricted areas"
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
 
       <h2 class="govuk-heading-m">Leave</h2>
 

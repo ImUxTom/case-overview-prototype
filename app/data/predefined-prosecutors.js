@@ -14,6 +14,12 @@ module.exports = [
     role: 'Prosecutor',
     specialistAreas: ['Hate crime'],
     preferredAreas: [],
-    restrictedAreas: ['Youth justice', 'Youth RASSO', 'Youth specialist']
+    restrictedAreas: ['Youth justice', 'Youth RASSO', 'Youth specialist'],
+    workingPattern: [
+      { day: 'Monday', hours: '9' },
+      { day: 'Tuesday', hours: '9' },
+      { day: 'Wednesday', hours: '9' },
+      { day: 'Thursday', hours: '9' }
+    ]
   }
 ]

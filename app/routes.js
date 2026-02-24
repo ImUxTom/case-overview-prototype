@@ -22,6 +22,11 @@ require('./routes/tasks')(router)
 require('./routes/directions')(router)
 require('./routes/prosecutors')(router)
 require('./routes/prosecutors--add-specialist-area')(router)
+require('./routes/prosecutors--add-working-pattern')(router)
+require('./routes/prosecutors--edit-working-pattern')(router)
+require('./routes/prosecutors--edit-specialist-areas')(router)
+require('./routes/prosecutors--edit-preferred-areas')(router)
+require('./routes/prosecutors--edit-restricted-areas')(router)
 require('./routes/paralegal-officers')(router)
 
 // DGA reporting routes

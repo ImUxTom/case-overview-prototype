@@ -31,6 +31,9 @@ async function seedProsecutors(prisma) {
           : undefined,
         restrictedAreas: prosecutorData.restrictedAreas
           ? { connect: prosecutorData.restrictedAreas.map((name) => ({ name })) }
+          : undefined,
+        workingPattern: prosecutorData.workingPattern
+          ? { create: prosecutorData.workingPattern }
           : undefined
       },
       include: {

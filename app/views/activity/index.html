@@ -22,7 +22,8 @@
           {% for event in events %}
             {{ appActivityLogItem({
               event: event,
-              eventTitle: event.title + ' (' + event.case.reference + ')'
+              eventTitle: event.title,
+              showUrn: true
             }) }}
           {% endfor %}
         </div>
