@@ -235,3 +235,11 @@ $statuses: (
 .govuk-header__product-name {
   display: none; // Temp
 }
+
+.app-prosecutor-card {
+  // border: 1px solid $govuk-border-colour;
+  padding: govuk-spacing(4);
+  margin-bottom: govuk-spacing(6);
+  background: govuk-tint(govuk-colour("light-grey"), 0);
+  // border-left: 5px solid govuk-colour("mid-grey");
+}

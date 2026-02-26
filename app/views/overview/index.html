@@ -2,21 +2,21 @@
 
 {% set navId = 'overview' %}
 {% set pageName = "Overview" %}
-{% set pageName = "Complete your casework tasks" %}
+{# {% set pageName = "Complete your casework tasks" %} #}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
 
-      {{ govukNotificationBanner({
+      {# {{ govukNotificationBanner({
         text: "You must not use this service, unless you have gone through the onboarding process."
-      })}}
+      })}} #}
 
       <h1 class="govuk-heading-l">
         {{ pageName }}
       </h1>
 
-      <ul class="govuk-list govuk-list--bulle govuk-list--spaced govuk-!-margin-bottom-7">
+      {# <ul class="govuk-list govuk-list--bulle govuk-list--spaced govuk-!-margin-bottom-7">
         <li>
           <a href="">View your tasks</a>
         </li>
@@ -35,11 +35,11 @@
         <li>
           <a href="">Correspondence drafter</a>
         </li>
-      </ul>
+      </ul> #}
 
 
       {% if data.user.role == "Manager" %}
-        {# {% include "_includes/overview/cases.njk" %} #}
+        {% include "_includes/overview/cases.njk" %}
       {% endif %}
 
       {% if data.user.role == "Prosecutor" or data.user.role == "Paralegal officer" %}
@@ -54,7 +54,7 @@
       {% include "_includes/overview/tasks.njk" %}
 
       {% if data.user.role == "Manager" %}
-        {# {% include "_includes/overview/prosecutors.njk" %} #}
+        {% include "_includes/overview/prosecutors.njk" %}
       {% endif %}
 
       {% include "_includes/overview/recent-cases.njk" %}

@@ -28,24 +28,26 @@
         {% if prosecutor.complexCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.complexCases ~ ' complex']) %}{% endif %}
         {% set breakdownValue = breakdown | join(', ') %}
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-5">
-          {{ prosecutor.name }}{% if prosecutor.recommended %} (most suitable){% endif %}
-        </h2>
-        {{ govukSummaryList({
-          classes: 'govuk-!-margin-bottom-4',
-          rows: [
-            { key: { text: 'Initial review' }, value: { text: 'Yes' } } if prosecutor.didInitialReview,
-            { key: { text: 'Specialist areas' }, value: { text: prosecutor.specialistAreas | join(', ') } } if prosecutor.specialistAreas.length,
-            { key: { text: 'Cases' }, value: { text: 'No cases' if prosecutor.totalCases == 0 else prosecutor.totalCases ~ ' case' ~ ('s' if prosecutor.totalCases > 1) } },
-            { key: { text: 'Case breakdown' }, value: { text: breakdownValue } } if breakdownValue
-          ]
-        }) }}
-        <form method="post">
-          <input type="hidden" name="assignProsecutor[prosecutor]" value="{{ prosecutor.value }}">
-          <button class="govuk-button" type="submit">
-            Select prosecutor <span class="govuk-visually-hidden">{{ prosecutor.name }}</span>
-          </button>
-        </form>
+        <div class="app-prosecutor-card">
+          <h2 class="govuk-heading-m">
+            {{ prosecutor.name }}{% if prosecutor.recommended %} (most suitable){% endif %}
+          </h2>
+          {{ govukSummaryList({
+            classes: 'govuk-!-margin-bottom-4',
+            rows: [
+              { key: { text: 'Initial review' }, value: { text: 'Yes' } } if prosecutor.didInitialReview,
+              { key: { text: 'Specialist areas' }, value: { text: prosecutor.specialistAreas | join(', ') } } if prosecutor.specialistAreas.length,
+              { key: { text: 'Cases' }, value: { text: 'No cases' if prosecutor.totalCases == 0 else prosecutor.totalCases ~ ' case' ~ ('s' if prosecutor.totalCases > 1) } },
+              { key: { text: 'Case breakdown' }, value: { text: breakdownValue } } if breakdownValue
+            ]
+          }) }}
+          <form method="post">
+            <input type="hidden" name="assignProsecutor[prosecutor]" value="{{ prosecutor.value }}">
+            <button class="govuk-button govuk-!-margin-bottom-0" type="submit">
+              Select prosecutor <span class="govuk-visually-hidden">{{ prosecutor.name }}</span>
+            </button>
+          </form>
+        </div>
       {% endfor %}
     </div>
   </div>
