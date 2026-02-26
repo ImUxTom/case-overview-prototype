@@ -2,68 +2,6 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-function getProsecutorHintText(prosecutor) {
-  total = prosecutor._count.caseProsecutors
-  let hintParts = []
-
-  if(prosecutor.didInitialReview) {
-    hintParts.push(
-      `<li>Initial review prosecutor</li>`
-    )
-  }
-
-
-  if (prosecutor.specialistAreas.length) {
-    hintParts.push(
-      `<li>${prosecutor.specialistAreas.map(a => a.name).join(", ")}</li>`
-    )
-  }
-
-  let caseLoadBreakdown = ''
-  if (total === 0) {
-    caseLoadBreakdown = "No cases"
-  } else {
-    if (prosecutor.ctlCases && prosecutor.ctlCases.length > 0) {
-      hintParts.push(`<li>${total} case${total > 1 ? "s" : ""}</li>`)
-    }
-
-    // Collect only levels that have > 0
-    let breakdown = []
-
-    if (prosecutor.ctlCases && prosecutor.ctlCases.length > 0) {
-      breakdown.push(`${prosecutor.ctlCases.length} CTL`)
-    }
-
-    if (prosecutor.stlCases && prosecutor.stlCases.length > 0) {
-      breakdown.push(`${prosecutor.stlCases.length} STL`)
-    }
-
-    if (prosecutor.basicCases && prosecutor.basicCases.length > 0) {
-      breakdown.push(`${prosecutor.basicCases.length} basic`)
-    }
-    if (prosecutor.basicPlusCases && prosecutor.basicPlusCases.length > 0) {
-      breakdown.push(`${prosecutor.basicPlusCases.length} basic plus`)
-    }
-    if (prosecutor.standardCases && prosecutor.standardCases.length > 0) {
-      breakdown.push(`${prosecutor.standardCases.length} standard`)
-    }
-    if (prosecutor.highCases && prosecutor.highCases.length > 0) {
-      breakdown.push(`${prosecutor.highCases.length} high`)
-    }
-    if (prosecutor.complexCases && prosecutor.complexCases.length > 0) {
-      breakdown.push(`${prosecutor.complexCases.length} complex`)
-    }
-
-    if (breakdown.length) {
-      caseLoadBreakdown += `${breakdown.join(", ")}`
-    }
-
-  }
-
-  hintParts.push(`<li>${caseLoadBreakdown}</li>`)
-
-  return `<ul class="govuk-list govuk-list--bullet govuk-hint govuk-!-margin-bottom-0">${hintParts.join("")}</ul>`
-}
 
 async function getRecommendedProsecutor(excludedIds = []) {
   const excludeFilter = excludedIds.length ? { NOT: { id: { in: excludedIds } } } : {}
@@ -229,17 +167,20 @@ async function getProsecutorListData(excludedIds = []) {
   }
 
   return prosecutors.map(prosecutor => {
-    let text = `${prosecutor.firstName} ${prosecutor.lastName}`
-    if(prosecutor.recommended) {
-      text += ` (most suitable)`
-    }
-
     return {
-      text: text,
+      name: `${prosecutor.firstName} ${prosecutor.lastName}`,
+      recommended: prosecutor.recommended || false,
       value: `${prosecutor.id}`,
-      hint: {
-        html: getProsecutorHintText(prosecutor)
-      }
+      didInitialReview: prosecutor.didInitialReview || false,
+      specialistAreas: prosecutor.specialistAreas.map(a => a.name),
+      totalCases: prosecutor._count.caseProsecutors,
+      ctlCases: prosecutor.ctlCases?.length || 0,
+      stlCases: prosecutor.stlCases?.length || 0,
+      basicCases: prosecutor.basicCases?.length || 0,
+      basicPlusCases: prosecutor.basicPlusCases?.length || 0,
+      standardCases: prosecutor.standardCases?.length || 0,
+      highCases: prosecutor.highCases?.length || 0,
+      complexCases: prosecutor.complexCases?.length || 0
     }
   })
 }

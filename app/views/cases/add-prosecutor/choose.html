@@ -14,24 +14,39 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <span class="govuk-caption-l">{{_case.reference}} - assign prosecutor</span>
-      <form method="post">
-        {{ govukRadios({
-          name: "assignProsecutor[prosecutor]",
-          fieldset: {
-            legend: {
-              text: pageName,
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          value: data.assignProsecutor.prosecutor,
-          items: prosecutorItems
-        }) }}
+      <h1 class="govuk-heading-l govuk-!-margin-bottom-7">{{ pageName }}</h1>
 
-        {{ govukButton({
-          text: "Continue"
+      {% for prosecutor in prosecutorItems %}
+
+        {% set breakdown = [] %}
+        {% if prosecutor.ctlCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.ctlCases ~ ' CTL']) %}{% endif %}
+        {% if prosecutor.stlCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.stlCases ~ ' STL']) %}{% endif %}
+        {% if prosecutor.basicCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.basicCases ~ ' basic']) %}{% endif %}
+        {% if prosecutor.basicPlusCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.basicPlusCases ~ ' basic plus']) %}{% endif %}
+        {% if prosecutor.standardCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.standardCases ~ ' standard']) %}{% endif %}
+        {% if prosecutor.highCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.highCases ~ ' high']) %}{% endif %}
+        {% if prosecutor.complexCases > 0 %}{% set breakdown = breakdown.concat([prosecutor.complexCases ~ ' complex']) %}{% endif %}
+        {% set breakdownValue = breakdown | join(', ') %}
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-5">
+          {{ prosecutor.name }}{% if prosecutor.recommended %} (most suitable){% endif %}
+        </h2>
+        {{ govukSummaryList({
+          classes: 'govuk-!-margin-bottom-4',
+          rows: [
+            { key: { text: 'Initial review' }, value: { text: 'Yes' } } if prosecutor.didInitialReview,
+            { key: { text: 'Specialist areas' }, value: { text: prosecutor.specialistAreas | join(', ') } } if prosecutor.specialistAreas.length,
+            { key: { text: 'Cases' }, value: { text: 'No cases' if prosecutor.totalCases == 0 else prosecutor.totalCases ~ ' case' ~ ('s' if prosecutor.totalCases > 1) } },
+            { key: { text: 'Case breakdown' }, value: { text: breakdownValue } } if breakdownValue
+          ]
         }) }}
-      </form>
+        <form method="post">
+          <input type="hidden" name="assignProsecutor[prosecutor]" value="{{ prosecutor.value }}">
+          <button class="govuk-button" type="submit">
+            Select prosecutor <span class="govuk-visually-hidden">{{ prosecutor.name }}</span>
+          </button>
+        </form>
+      {% endfor %}
     </div>
   </div>
 {% endblock %}
