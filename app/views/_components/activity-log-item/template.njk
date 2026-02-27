@@ -718,6 +718,54 @@
       </p>
     {% endif %}
 
+    {% if params.event.title == 'Specialist areas updated' or params.event.title == 'Preferred areas updated' or params.event.title == 'Restricted areas updated' %}
+      {% set areasLabel = 'Specialist areas' if params.event.title == 'Specialist areas updated' else ('Preferred areas' if params.event.title == 'Preferred areas updated' else 'Restricted areas') %}
+      {% set areasHtml %}
+        {% if params.event.meta.areas and params.event.meta.areas.length %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for area in params.event.meta.areas %}
+              <li>{{ area }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          None
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: areasLabel },
+              value: { html: areasHtml }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/prosecutors/{{ params.event.recordId }}">View prosecutor</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.title == 'Paralegal officer assigned' or params.event.title == 'Paralegal officer removed' %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Paralegal officer" },
+              value: { text: params.event.meta.paralegalOfficer.firstName + ' ' + params.event.meta.paralegalOfficer.lastName }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
     {% if params.event.title == 'Task marked as not urgent' %}
       <div class="app-activity-log__box">
         {% set notUrgentTaskRows = [] %}

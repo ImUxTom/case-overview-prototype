@@ -188,45 +188,50 @@ async function getProsecutorListData(excludedIds = []) {
 
 module.exports = router => {
 
-  router.get("/cases/:caseId/add-prosecutor", async (req, res) => {
-    const caseId = parseInt(req.params.caseId)
-
-    const _case = await prisma.case.findUnique({
-      where: { id: caseId }
-    })
-
-    const assigned = await prisma.caseProsecutor.findMany({
-      where: { caseId },
-      select: { userId: true }
-    })
-    const excludedIds = assigned.map(a => a.userId)
-
-    const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
-
-    res.render("cases/add-prosecutor/index", {
-      _case,
-      recommendedProsecutorName: `${recommendedProsecutor.firstName} ${recommendedProsecutor.lastName}`
-    })
+  // Hidden for now - skipping the recommendation step and going straight to choose
+  router.get("/cases/:caseId/add-prosecutor", (req, res) => {
+    res.redirect(`/cases/${req.params.caseId}/add-prosecutor/choose`)
   })
 
-  router.post("/cases/:caseId/add-prosecutor", async (req, res) => {
-    const answer = req.session.data.assignProsecutor?.acceptRecommendation
+  // router.get("/cases/:caseId/add-prosecutor", async (req, res) => {
+  //   const caseId = parseInt(req.params.caseId)
+  //
+  //   const _case = await prisma.case.findUnique({
+  //     where: { id: caseId }
+  //   })
+  //
+  //   const assigned = await prisma.caseProsecutor.findMany({
+  //     where: { caseId },
+  //     select: { userId: true }
+  //   })
+  //   const excludedIds = assigned.map(a => a.userId)
+  //
+  //   const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
+  //
+  //   res.render("cases/add-prosecutor/index", {
+  //     _case,
+  //     recommendedProsecutorName: `${recommendedProsecutor.firstName} ${recommendedProsecutor.lastName}`
+  //   })
+  // })
 
-    if (answer === 'yes') {
-      const caseId = parseInt(req.params.caseId)
-      const assigned = await prisma.caseProsecutor.findMany({
-        where: { caseId },
-        select: { userId: true }
-      })
-      const excludedIds = assigned.map(a => a.userId)
-
-      const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
-      req.session.data.assignProsecutor.prosecutor = `${recommendedProsecutor.id}`
-      res.redirect(`/cases/${req.params.caseId}/add-prosecutor/check`)
-    } else {
-      res.redirect(`/cases/${req.params.caseId}/add-prosecutor/choose`)
-    }
-  })
+  // router.post("/cases/:caseId/add-prosecutor", async (req, res) => {
+  //   const answer = req.session.data.assignProsecutor?.acceptRecommendation
+  //
+  //   if (answer === 'yes') {
+  //     const caseId = parseInt(req.params.caseId)
+  //     const assigned = await prisma.caseProsecutor.findMany({
+  //       where: { caseId },
+  //       select: { userId: true }
+  //     })
+  //     const excludedIds = assigned.map(a => a.userId)
+  //
+  //     const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
+  //     req.session.data.assignProsecutor.prosecutor = `${recommendedProsecutor.id}`
+  //     res.redirect(`/cases/${req.params.caseId}/add-prosecutor/check`)
+  //   } else {
+  //     res.redirect(`/cases/${req.params.caseId}/add-prosecutor/choose`)
+  //   }
+  // })
 
   router.get("/cases/:caseId/add-prosecutor/choose", async (req, res) => {
     const caseId = parseInt(req.params.caseId)
@@ -264,17 +269,7 @@ module.exports = router => {
       where: { id: caseId },
     })
 
-    const assigned = await prisma.caseProsecutor.findMany({
-      where: { caseId },
-      select: { userId: true }
-    })
-    const excludedIds = assigned.map(a => a.userId)
-
-    const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
-    const acceptRecommendation = req.session.data.assignProsecutor.acceptRecommendation
-
-    // get the prosecutor being assigned
-    let prosecutor = await prisma.user.findUnique({
+    const prosecutor = await prisma.user.findUnique({
       where: { id: parseInt(req.session.data.assignProsecutor.prosecutor) },
       include: {
         caseProsecutors: {
@@ -288,9 +283,7 @@ module.exports = router => {
 
     res.render("cases/add-prosecutor/check", {
       _case,
-      prosecutor,
-      acceptRecommendation,
-      recommendedProsecutorName: `${recommendedProsecutor.firstName} ${recommendedProsecutor.lastName}`
+      prosecutor
     })
   })
 

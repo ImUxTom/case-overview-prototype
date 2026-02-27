@@ -21,23 +21,6 @@
         rows: [
           {
             key: {
-              text: "Do you want to assign " + recommendedProsecutorName + "?"
-            },
-            value: {
-              text: "Yes" if acceptRecommendation === "yes" else "No, I want to choose another prosecutor"
-            },
-            actions: {
-              items: [
-                {
-                  href: "/cases/" + _case.id + "/add-prosecutor",
-                  text: "Change",
-                  visuallyHiddenText: "whether to assign " + recommendedProsecutorName
-                }
-              ]
-            }
-          },
-          {
-            key: {
               text: "Prosecutor"
             },
             value: {
@@ -52,7 +35,7 @@
                 }
               ]
             }
-          } if acceptRecommendation === "no"
+          }
         ]
       }) }}
 

@@ -42,13 +42,16 @@ module.exports = router => {
       }
     })
 
+    const preferredAreas = await prisma.specialism.findMany({ where: { id: { in: preferredIds } } })
+
     await prisma.activityLog.create({
       data: {
         userId: req.session.data.user.id,
         model: 'User',
         recordId: prosecutorId,
         action: 'UPDATE',
-        title: 'Preferred areas updated'
+        title: 'Preferred areas updated',
+        meta: { areas: preferredAreas.map(s => s.name) }
       }
     })
 
