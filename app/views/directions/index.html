@@ -95,7 +95,7 @@
               {% if direction.case.custodyTimeLimit %}
                 {% set ctlValue %}
                   {{ direction.case.custodyTimeLimit | isoDateString | govukDateTime }}
-                  <span>({{ direction.case.custodyTimeLimit | daysUntil }})</span>
+                  <span>({{ direction.case.custodyTimeLimit | timeLimitStatus }})</span>
                 {% endset %}
               {% endif %}
 

@@ -143,7 +143,7 @@
                         text: 'Custody time limit'
                       },
                       value: {
-                        html: (task.case.custodyTimeLimit | isoDateString | govukDateTime) + ' (' + (task.case.custodyTimeLimit | daysUntil) + ')'
+                        html: (task.case.custodyTimeLimit | isoDateString | govukDateTime) + ' (' + (task.case.custodyTimeLimit | timeLimitStatus) + ')'
                       }
                     } if task.case.custodyTimeLimit,
                     {
@@ -151,7 +151,7 @@
                         text: 'Statutory time limit'
                       },
                       value: {
-                        html: (task.case.statutoryTimeLimit | isoDateString | govukDateTime) + ' (' + (task.case.statutoryTimeLimit | daysUntil) + ')'
+                        html: (task.case.statutoryTimeLimit | isoDateString | govukDateTime) + ' (' + (task.case.statutoryTimeLimit | timeLimitStatus) + ')'
                       }
                     } if task.case.statutoryTimeLimit,
                     {

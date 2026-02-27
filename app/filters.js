@@ -68,6 +68,21 @@ addFilter('daysUntil', date => {
   return `${diffDays} days`
 })
 
+addFilter('timeLimitStatus', date => {
+  const now = DateTime.now().startOf('day')
+  const targetDate = DateTime.fromJSDate(new Date(date)).startOf('day')
+  const diffDays = Math.ceil(targetDate.diff(now, 'days').days)
+
+  if (diffDays < 0) {
+    return 'expired'
+  } else if (diffDays === 0) {
+    return 'today'
+  } else if (diffDays === 1) {
+    return 'tomorrow'
+  }
+  return `${diffDays} days`
+})
+
 addFilter('paceClockStatus', date => {
   const now = DateTime.now()
   const paceClock = DateTime.fromJSDate(new Date(date))

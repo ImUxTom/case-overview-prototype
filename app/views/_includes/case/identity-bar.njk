@@ -15,10 +15,10 @@
 {% set descriptionHtml %}
   
   {% if _case.custodyTimeLimit %}
-    <span class="govuk-!-display-block">Custody time limit ends {{ _case.custodyTimeLimit | isoDateString | govukDate }} ({{ _case.custodyTimeLimit | daysUntil }})</span>
+    <span class="govuk-!-display-block">Custody time limit ends {{ _case.custodyTimeLimit | isoDateString | govukDate }} ({{ _case.custodyTimeLimit | timeLimitStatus }})</span>
   {% endif %}
   {% if _case.statutoryTimeLimit %}
-    <span class="govuk-!-display-block">Statutory time limit ends {{ _case.statutoryTimeLimit | isoDateString | govukDate }} ({{ _case.statutoryTimeLimit | daysUntil }})</span>
+    <span class="govuk-!-display-block">Statutory time limit ends {{ _case.statutoryTimeLimit | isoDateString | govukDate }} ({{ _case.statutoryTimeLimit | timeLimitStatus }})</span>
   {% endif %}
   {% if _case.paceClock %}
     {% set paceStatus = _case.paceClock | paceClockStatus %}

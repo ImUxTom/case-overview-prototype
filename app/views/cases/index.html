@@ -162,11 +162,11 @@
                   } if _case.hearings and _case.hearings.length > 0 and 1 == 2,
                   {
                     key: { html: 'Custody time limit' },
-                    value: { html: (_case.custodyTimeLimit | isoDateString | govukDate) + ' (' + (_case.custodyTimeLimit | daysUntil) + ')' }
+                    value: { html: (_case.custodyTimeLimit | isoDateString | govukDate) + ' (' + (_case.custodyTimeLimit | timeLimitStatus) + ')' }
                   } if _case.custodyTimeLimit,
                   {
                     key: { html: 'Statutory time limit' },
-                    value: { html: (_case.statutoryTimeLimit | isoDateString | govukDate) + ' (' + (_case.statutoryTimeLimit | daysUntil) + ')' }
+                    value: { html: (_case.statutoryTimeLimit | isoDateString | govukDate) + ' (' + (_case.statutoryTimeLimit | timeLimitStatus) + ')' }
                   } if _case.statutoryTimeLimit,
                   {
                     key: { html: 'PACE clock' },
