@@ -2,7 +2,6 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-
 async function getRecommendedProsecutor(excludedIds = []) {
   const excludeFilter = excludedIds.length ? { NOT: { id: { in: excludedIds } } } : {}
 
@@ -11,15 +10,15 @@ async function getRecommendedProsecutor(excludedIds = []) {
       role: 'Prosecutor',
       firstName: 'Michael',
       lastName: 'Chen',
-      ...excludeFilter
+      ...excludeFilter,
     },
-    select: { id: true, firstName: true, lastName: true }
+    select: { id: true, firstName: true, lastName: true },
   })
 
   if (!prosecutor) {
     prosecutor = await prisma.user.findFirst({
       where: { role: 'Prosecutor', ...excludeFilter },
-      select: { id: true, firstName: true, lastName: true }
+      select: { id: true, firstName: true, lastName: true },
     })
   }
 
@@ -30,7 +29,7 @@ async function getProsecutorListData(excludedIds = []) {
   let prosecutors = await prisma.user.findMany({
     where: {
       role: 'Prosecutor',
-      ...(excludedIds.length && { NOT: { id: { in: excludedIds } } })
+      ...(excludedIds.length && { NOT: { id: { in: excludedIds } } }),
     },
     select: {
       id: true,
@@ -38,16 +37,16 @@ async function getProsecutorListData(excludedIds = []) {
       lastName: true,
       units: {
         include: {
-          unit: true
-        }
+          unit: true,
+        },
       },
       specialistAreas: true,
       preferredAreas: true,
       restrictedAreas: true,
       _count: {
         select: {
-          caseProsecutors: true
-        }
+          caseProsecutors: true,
+        },
       },
       caseProsecutors: {
         include: {
@@ -59,16 +58,16 @@ async function getProsecutorListData(excludedIds = []) {
                 select: {
                   charges: {
                     select: {
-                      custodyTimeLimit: true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                      custodyTimeLimit: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   })
 
   prosecutors = prosecutors.map((prosecutor, index) => {
@@ -85,21 +84,21 @@ async function getProsecutorListData(excludedIds = []) {
         stlCases: Array(2).fill({}),
         totalCases: 10,
         ctlCaseCount: 2,
-        stlCaseCount: 2
+        stlCaseCount: 2,
       }
     }
 
-    const cases = prosecutor.caseProsecutors?.map(cp => cp.case) || []
+    const cases = prosecutor.caseProsecutors?.map((cp) => cp.case) || []
 
-    const ctlCases = cases.filter(c => {
-      return c.defendants.some(d => d.charges.some(ch => ch.custodyTimeLimit !== null))
+    const ctlCases = cases.filter((c) => {
+      return c.defendants.some((d) => d.charges.some((ch) => ch.custodyTimeLimit !== null))
     })
 
-    const basicCases = cases.filter(c => c.complexity === "Basic")
-    const basicPlusCases = cases.filter(c => c.complexity === "BasicPlus")
-    const standardCases = cases.filter(c => c.complexity === "Standard")
-    const highCases = cases.filter(c => c.complexity === "High")
-    const complexCases = cases.filter(c => c.complexity === "Complex")
+    const basicCases = cases.filter((c) => c.complexity === 'Basic')
+    const basicPlusCases = cases.filter((c) => c.complexity === 'BasicPlus')
+    const standardCases = cases.filter((c) => c.complexity === 'Standard')
+    const highCases = cases.filter((c) => c.complexity === 'High')
+    const complexCases = cases.filter((c) => c.complexity === 'Complex')
 
     return {
       ...prosecutor,
@@ -110,20 +109,22 @@ async function getProsecutorListData(excludedIds = []) {
       complexCases,
       ctlCases,
       totalCases: prosecutor._count.caseProsecutors,
-      ctlCaseCount: ctlCases.length
+      ctlCaseCount: ctlCases.length,
     }
   })
 
   prosecutors.sort((a, b) => a.totalCases - b.totalCases || a.ctlCaseCount - b.ctlCaseCount)
 
-  const michaelChenIndex = prosecutors.findIndex(p => p.firstName === 'Michael' && p.lastName === 'Chen')
+  const michaelChenIndex = prosecutors.findIndex(
+    (p) => p.firstName === 'Michael' && p.lastName === 'Chen',
+  )
   if (michaelChenIndex !== -1) {
     prosecutors[michaelChenIndex].didInitialReview = true
     prosecutors[michaelChenIndex].recommended = true
     const michaelChen = prosecutors.splice(michaelChenIndex, 1)[0]
     prosecutors.unshift(michaelChen)
 
-    const otherProsecutors = prosecutors.slice(1).filter(p => p.totalCases <= 10)
+    const otherProsecutors = prosecutors.slice(1).filter((p) => p.totalCases <= 10)
 
     const caseLoadProfiles = [
       { total: 11, ctl: 1, stl: 0, basic: 4, basicPlus: 3, standard: 2, high: 1, complex: 1 },
@@ -155,7 +156,7 @@ async function getProsecutorListData(excludedIds = []) {
         ctlCases: Array(p.ctl).fill({}),
         stlCases: Array(p.stl).fill({}),
         totalCases: p.total,
-        ctlCaseCount: p.ctl
+        ctlCaseCount: p.ctl,
       }
     })
 
@@ -166,13 +167,13 @@ async function getProsecutorListData(excludedIds = []) {
     prosecutors = prosecutors.slice(0, 15)
   }
 
-  return prosecutors.map(prosecutor => {
+  return prosecutors.map((prosecutor) => {
     return {
       name: `${prosecutor.firstName} ${prosecutor.lastName}`,
       recommended: prosecutor.recommended || false,
       value: `${prosecutor.id}`,
       didInitialReview: prosecutor.didInitialReview || false,
-      specialistAreas: prosecutor.specialistAreas.map(a => a.name),
+      specialistAreas: prosecutor.specialistAreas.map((a) => a.name),
       totalCases: prosecutor._count.caseProsecutors,
       ctlCases: prosecutor.ctlCases?.length || 0,
       stlCases: prosecutor.stlCases?.length || 0,
@@ -180,89 +181,46 @@ async function getProsecutorListData(excludedIds = []) {
       basicPlusCases: prosecutor.basicPlusCases?.length || 0,
       standardCases: prosecutor.standardCases?.length || 0,
       highCases: prosecutor.highCases?.length || 0,
-      complexCases: prosecutor.complexCases?.length || 0
+      complexCases: prosecutor.complexCases?.length || 0,
     }
   })
 }
 
-
-module.exports = router => {
-
-  // Hidden for now - skipping the recommendation step and going straight to choose
-  router.get("/cases/:caseId/add-prosecutor", (req, res) => {
-    res.redirect(`/cases/${req.params.caseId}/add-prosecutor/choose`)
-  })
-
-  // router.get("/cases/:caseId/add-prosecutor", async (req, res) => {
-  //   const caseId = parseInt(req.params.caseId)
-  //
-  //   const _case = await prisma.case.findUnique({
-  //     where: { id: caseId }
-  //   })
-  //
-  //   const assigned = await prisma.caseProsecutor.findMany({
-  //     where: { caseId },
-  //     select: { userId: true }
-  //   })
-  //   const excludedIds = assigned.map(a => a.userId)
-  //
-  //   const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
-  //
-  //   res.render("cases/add-prosecutor/index", {
-  //     _case,
-  //     recommendedProsecutorName: `${recommendedProsecutor.firstName} ${recommendedProsecutor.lastName}`
-  //   })
-  // })
-
-  // router.post("/cases/:caseId/add-prosecutor", async (req, res) => {
-  //   const answer = req.session.data.assignProsecutor?.acceptRecommendation
-  //
-  //   if (answer === 'yes') {
-  //     const caseId = parseInt(req.params.caseId)
-  //     const assigned = await prisma.caseProsecutor.findMany({
-  //       where: { caseId },
-  //       select: { userId: true }
-  //     })
-  //     const excludedIds = assigned.map(a => a.userId)
-  //
-  //     const recommendedProsecutor = await getRecommendedProsecutor(excludedIds)
-  //     req.session.data.assignProsecutor.prosecutor = `${recommendedProsecutor.id}`
-  //     res.redirect(`/cases/${req.params.caseId}/add-prosecutor/check`)
-  //   } else {
-  //     res.redirect(`/cases/${req.params.caseId}/add-prosecutor/choose`)
-  //   }
-  // })
-
-  router.get("/cases/:caseId/add-prosecutor/choose", async (req, res) => {
+module.exports = (router) => {
+  router.get('/cases/:caseId/add-prosecutor', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
 
     const _case = await prisma.case.findUnique({
-      where: { id: caseId }
+      where: { id: caseId },
     })
 
     const assigned = await prisma.caseProsecutor.findMany({
       where: { caseId },
-      select: { userId: true }
+      select: { userId: true },
     })
-    const excludedIds = assigned.map(a => a.userId)
+    const excludedIds = assigned.map((a) => a.userId)
 
     const selectedProsecutorId = req.session.data.assignProsecutor?.prosecutor
-    const prosecutorItems = (await getProsecutorListData(excludedIds)).map(p => ({
+    const prosecutorItems = (await getProsecutorListData(excludedIds)).map((p) => ({
       ...p,
-      selected: p.value === selectedProsecutorId
+      selected: p.value === selectedProsecutorId,
     }))
 
-    res.render("cases/add-prosecutor/choose", {
+    res.render('cases/add-prosecutor/index', {
       _case,
-      prosecutorItems
+      prosecutorItems,
     })
   })
 
-  router.post("/cases/:caseId/add-prosecutor/choose", async (req, res) => {
+  router.post('/cases/:caseId/add-prosecutor', async (req, res) => {
     res.redirect(`/cases/${req.params.caseId}/add-prosecutor/check`)
   })
 
-  router.get("/cases/:caseId/add-prosecutor/check", async (req, res) => {
+  router.get('/cases/:caseId/add-prosecutor/choose', (req, res) => {
+    res.redirect(`/cases/${req.params.caseId}/add-prosecutor`)
+  })
+
+  router.get('/cases/:caseId/add-prosecutor/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
 
     const _case = await prisma.case.findUnique({
@@ -274,20 +232,20 @@ module.exports = router => {
       include: {
         caseProsecutors: {
           include: {
-            case: { select: { id: true, complexity: true } }
-          }
+            case: { select: { id: true, complexity: true } },
+          },
         },
         _count: { select: { caseProsecutors: true } },
       },
     })
 
-    res.render("cases/add-prosecutor/check", {
+    res.render('cases/add-prosecutor/check', {
       _case,
-      prosecutor
+      prosecutor,
     })
   })
 
-  router.post("/cases/:caseId/add-prosecutor/check", async (req, res) => {
+  router.post('/cases/:caseId/add-prosecutor/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const prosecutorId = parseInt(req.session.data.assignProsecutor.prosecutor)
 
@@ -297,15 +255,14 @@ module.exports = router => {
       data: {
         caseId: caseId,
         userId: prosecutorId,
-        isLead: existingCount === 0
-      }
+        isLead: existingCount === 0,
+      },
     })
 
     const prosecutor = await prisma.user.findUnique({
       where: { id: prosecutorId },
-      select: { id: true, firstName: true, lastName: true }
+      select: { id: true, firstName: true, lastName: true },
     })
-
 
     await prisma.activityLog.create({
       data: {
@@ -313,16 +270,15 @@ module.exports = router => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Prosecutor assigned',
+        title: 'Prosecutor added to case',
         caseId: caseId,
-        meta: { prosecutor }
-      }
+        meta: { prosecutor },
+      },
     })
 
     delete req.session.data.assignProsecutor
 
-    req.flash('success', 'Prosecutor assigned')
+    req.flash('success', 'Prosecutor added to case')
     res.redirect(`/cases/${req.params.caseId}`)
   })
-
 }

@@ -60,7 +60,7 @@ function getPossibleEvents(context) {
   const possible = [];
 
   if (context.fullCase.prosecutors && context.fullCase.prosecutors.length > 0) {
-    possible.push('Prosecutor assigned');
+    possible.push('Prosecutor added to case');
   }
 
   if (context.fullCase.witnesses && context.fullCase.witnesses.length > 0) {
@@ -90,7 +90,7 @@ function getPossibleEvents(context) {
 
 // Event generators: One function per event type
 const eventGenerators = {
-  'Prosecutor assigned': (context, randomUser, eventDate) => {
+  'Prosecutor added to case': (context, randomUser, eventDate) => {
     const prosecutorAssignment = faker.helpers.arrayElement(context.fullCase.prosecutors);
     const prosecutor = prosecutorAssignment.user;
 
@@ -98,7 +98,7 @@ const eventGenerators = {
       userId: randomUser.id,
       caseId: context.fullCase.id,
       action: 'UPDATE',
-      title: 'Prosecutor assigned',
+      title: 'Prosecutor added to case',
       model: 'Case',
       recordId: context.fullCase.id,
       createdAt: eventDate,

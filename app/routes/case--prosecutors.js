@@ -38,13 +38,13 @@ module.exports = router => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Prosecutor removed',
+        title: 'Prosecutor removed from case',
         caseId: caseId,
         meta: { prosecutor: caseProsecutor.user }
       }
     })
 
-    req.flash('success', 'Prosecutor removed')
+    req.flash('success', 'Prosecutor removed from case')
     res.redirect(`/cases/${caseId}`)
   })
 

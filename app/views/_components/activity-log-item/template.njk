@@ -70,7 +70,7 @@
       </p>
     {% endif %}
 
-    {% if params.event.title == 'Prosecutor assigned' %}
+    {% if params.event.title == 'Prosecutor added to case' %}
       <div class="app-activity-log__box">
         {{ govukSummaryList({
           rows: [
@@ -90,7 +90,7 @@
       </p>
     {% endif %}
 
-    {% if params.event.title == 'Prosecutor removed' %}
+    {% if params.event.title == 'Prosecutor removed from case' %}
       <div class="app-activity-log__box">
         {{ govukSummaryList({
           rows: [
@@ -746,7 +746,7 @@
       </p>
     {% endif %}
 
-    {% if params.event.title == 'Paralegal officer assigned' or params.event.title == 'Paralegal officer removed' %}
+    {% if params.event.title == 'Paralegal officer added to case' or params.event.title == 'Paralegal officer removed from case' %}
       <div class="app-activity-log__box">
         {{ govukSummaryList({
           rows: [
