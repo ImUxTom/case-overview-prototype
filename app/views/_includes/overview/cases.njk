@@ -21,11 +21,10 @@
           <a href="/cases/shortcut/dga" class="govuk-link--no-visited-state">
             {{ latestDGAMonth.count }}
             {% if latestDGAMonth.count == 1 %}
-              non-compliant DGA case needs
+              case awaiting DGA dispute outcome
             {% else %}
-              non-compliant DGA cases need
+              cases awaiting DGA dispute outcome
             {% endif %}
-            outcomes recorded by {{ latestDGAMonth.deadline | isoDateString | govukDate }}
           </a>
         </li>
       {% endif %}
