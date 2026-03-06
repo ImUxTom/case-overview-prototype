@@ -1,5 +1,5 @@
 {% extends "_layouts/main.html" %}
-{% set navId = 'cases' %}
+{% set navId = 'dga' %}
 {% set secondaryNavId = 'dga' %}
 {% set pageName = monthName %}
 
@@ -37,7 +37,7 @@
 
           <div class="govuk-button-group govuk-!-margin-bottom-1">
             <a href="/dga-reporting/{{ monthKey }}/{{ policeUnit.id }}/export" class="govuk-link govuk-link--no-visited-state">Export cases that had a DGA</a>
-            <a href="/dga-reporting/{{ monthKey }}/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Record outcomes for cases that failed DGA</a>
+            <a href="/cases/shortcut/dga-police-unit/{{ policeUnit.id }}" class="govuk-link govuk-link--no-visited-state">Record outcomes for cases that failed DGA</a>
           </div>
           
           {# {{ govukSummaryList({

@@ -15,7 +15,7 @@
     },
     maxHeight: true,
     items: prosecutorItems,
-    values: data.caseListFilters.prosecutors,
+    values: selectedProsecutorFilters,
     selectedItems: selectedProsecutorItems
   }) }}
 
@@ -34,7 +34,7 @@
     },
     maxHeight: true,
     items: paralegalOfficerItems,
-    values: data.caseListFilters.paralegalOfficers,
+    values: selectedParalegalOfficerFilters,
     selectedItems: selectedParalegalOfficerItems
   }) }}
 
@@ -53,6 +53,20 @@
   }) if unitItems.length > 1}}
 
   {{ govukCheckboxes({
+    idPrefix: "caseListFilters[policeUnit]",
+    name: "caseListFilters[policeUnit]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "Police unit",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: policeUnitItems,
+    values: data.caseListFilters.policeUnit
+  }) if policeUnitItems.length }}
+
+  {# {{ govukCheckboxes({
     idPrefix: "caseListFilters[complexities]",
     name: "caseListFilters[complexities]",
     classes: "govuk-checkboxes--small",
@@ -64,7 +78,23 @@
     },
     items: complexityItems,
     values: data.caseListFilters.complexities
-  }) }}
+  }) }} #}
+
+  {% if data.user.role == "Manager" %}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[dga]",
+      name: "caseListFilters[dga]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "DGA",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: dgaItems,
+      values: data.caseListFilters.dga
+    }) }}
+  {% endif %}
 
 {% endset %}
 

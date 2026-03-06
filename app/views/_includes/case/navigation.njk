@@ -26,6 +26,10 @@
     text: "Material",
     current: secondaryNavId == 'documents'
   }, {
+    text: "DGA",
+    href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
+    current: secondaryNavId == 'dga'
+  } if _case.dga, {
     text: "Notes",
     href: "/cases/:caseId/notes" | replace(':caseId', _case.id),
     current: secondaryNavId == 'notes'

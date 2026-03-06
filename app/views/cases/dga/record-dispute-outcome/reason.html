@@ -1,0 +1,37 @@
+{% extends "_layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set secondaryNavId = 'dga' %}
+{% set pageName = 'Reason for outcome' %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "/cases/" + case.id + "/dga/" + failureReason.id + "/record-dispute-outcome/cps-accepted"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ case.reference }}</span>
+      <h1 class="govuk-heading-l">Enter a reason for the outcome</h1>
+
+      {% include "_includes/record-dispute-outcome/failure-reason-inset.njk" %}
+
+      <form method="post">
+        {{ govukCharacterCount({
+          label: {
+            text: pageName,
+            classes: "govuk-label--m"
+          },
+          name: "recordOutcome[explanation]",
+          id: "recordOutcome-explanation",
+          maxlength: 200,
+          value: details
+        }) }}
+
+        {{ govukButton({ text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

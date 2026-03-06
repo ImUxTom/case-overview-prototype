@@ -1,13 +1,14 @@
 .app-filter-layout {
-  @include govuk-clearfix;
+  @include govuk-media-query($from: desktop) {
+    display: flex;
+    align-items: flex-start;
+    gap: govuk-spacing(6);
+  }
 }
 
 .app-filter-layout__filter {
-  // box-shadow: 0 0 0 1px govuk-colour("mid-grey"); // Extends the inset border left full height of the filters on mobile
-
   @include govuk-media-query($from: desktop) {
-    float: left;
-    margin-right: govuk-spacing(6);
+    flex-shrink: 0;
     max-width: 310px;
     min-width: 260px;
     width: 100%;
@@ -15,14 +16,12 @@
 }
 
 .app-filter-layout__filter:focus {
-
   outline: $govuk-focus-width solid $govuk-focus-colour;
   outline-offset: 0;
 
   @include govuk-media-query(desktop) {
     outline: none;
   }
-
 }
 
 @include govuk-media-query($until: desktop) {
@@ -36,7 +35,7 @@
 }
 
 .app-filter-layout__content {
-  overflow: hidden;
-  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
 }
 

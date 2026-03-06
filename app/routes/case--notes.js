@@ -17,7 +17,8 @@ module.exports = router => {
             charges: true
           }
         },
-        witnesses: true
+        witnesses: true,
+        dga: true
       }
     })
 

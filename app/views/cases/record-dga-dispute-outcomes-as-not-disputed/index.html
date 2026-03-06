@@ -1,0 +1,45 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Confirm that you want to record DGA dispute outcomes as not disputed" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      <div class="app-list">
+        {% for _case in caseItems %}
+          <div class="app-list__item">
+            <div class="app-list__content">
+              <h2 class="govuk-heading-s govuk-!-margin-bottom-1">{{ _case.reference }}</h2>
+              {{
+                govukSummaryList({
+                  classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                  rows: [
+                    {
+                      key: { text: 'Number of failure reasons to record as not disputed' },
+                      value: { text: _case.unresolvedFailureReasons }
+                    }
+                  ]
+                })
+              }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <form method="post">
+        {{ govukButton({ text: "Record DGA dispute outcomes as not disputed" }) }}
+      </form>
+      <p><a href="/cases">Cancel</a></p>
+    </div>
+  </div>
+{% endblock %}
