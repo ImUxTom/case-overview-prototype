@@ -1,12 +1,10 @@
-App.Header = function (params) {
-  this.$module = params.module
+App.AccountNavigation = function (module) {
+  this.$module = module
   this.$menuButton = this.$module.querySelector('.govuk-js-header-toggle')
   this.$menu = this.$menuButton && this.$module.querySelector('#' + this.$menuButton.getAttribute('aria-controls'))
   this.menuIsOpen = false
   this.mql = null
-}
 
-App.Header.prototype.init = function () {
   if (!this.$module || !this.$menuButton || !this.$menu) {
     return
   }
@@ -29,7 +27,7 @@ App.Header.prototype.init = function () {
   }
 }
 
-App.Header.prototype.syncState = function () {
+App.AccountNavigation.prototype.syncState = function () {
   if (this.mql.matches) {
     this.$menu.removeAttribute('hidden')
     this.$menuButton.setAttribute('hidden', '')
@@ -45,7 +43,7 @@ App.Header.prototype.syncState = function () {
   }
 }
 
-App.Header.prototype.handleMenuButtonClick = function () {
+App.AccountNavigation.prototype.handleMenuButtonClick = function () {
   this.menuIsOpen = !this.menuIsOpen
   this.syncState()
 }

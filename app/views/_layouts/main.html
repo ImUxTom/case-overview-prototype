@@ -22,10 +22,20 @@
   <script>
     var App = {}
   </script>
-  <script src="/public/javascripts/components/header.js"></script>
+  <script src="/public/javascripts/components/account-navigation.js"></script>
   <script src="/public/javascripts/components/filter-toggle-button.js"></script>
   <script src="/public/javascripts/components/list-filter.js"></script>
   <script src="/public/javascripts/components/button-menu.js"></script>
   <script src="/public/javascripts/components/text-expander.js"></script>
   <script src="/public/javascripts/components/checkbox-selector.js"></script>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    var $header = document.querySelector('[data-module="app-header"]')
+    if ($header) {
+      new App.AccountNavigation($header)
+    }
+  </script>
 {% endblock %}
