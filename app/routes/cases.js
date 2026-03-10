@@ -38,6 +38,13 @@ module.exports = (router) => {
     res.redirect('/cases')
   })
 
+  router.get('/cases/shortcut/dga-police-unit-recorded/:policeUnitId', (req, res) => {
+    resetFilters(req)
+    _.set(req, 'session.data.caseListFilters.dga', ['DGA dispute outcome recorded'])
+    _.set(req, 'session.data.caseListFilters.policeUnit', [req.params.policeUnitId])
+    res.redirect('/cases')
+  })
+
   router.get('/cases', async (req, res) => {
     const currentUser = req.session.data.user
 
@@ -646,6 +653,16 @@ module.exports = (router) => {
   router.get('/cases/clear-search', (req, res) => {
     _.set(req, 'session.data.caseSearch.keywords', '')
     res.redirect('/cases')
+  })
+
+  router.get('/cases/select-all', (req, res) => {
+    req.session.data.applyAction = { cases: req.session.data.caseListAllIds || [] }
+    res.redirect('/cases?page=' + (req.query.page || 1))
+  })
+
+  router.get('/cases/deselect-all', (req, res) => {
+    req.session.data.applyAction = {}
+    res.redirect('/cases?page=' + (req.query.page || 1))
   })
 
   router.post('/cases', async (req, res) => {

@@ -82,10 +82,11 @@
       {% if cases.length %}
         <form method="post" action="/cases?page={{ pagination.pageNumber }}">
           <div class="govuk-button-group app-list-actions govuk-!-margin-top-4">
-            {% if data.applyAction.cases and data.applyAction.cases.length %}
+            {% if data.applyAction.cases and data.applyAction.cases.length == totalCases %}
               {{
                 govukButton({
-                  text: "Deselect all",
+                  textx: "Deselect all " + totalCases + " cases",
+                  text: "Deselect all cases",
                   classes: "govuk-button--secondary",
                   href: "/cases/deselect-all?page=" + pagination.pageNumber
                 })
@@ -93,7 +94,7 @@
             {% else %}
               {{
                 govukButton({
-                  text: "Select all",
+                  text: "Select all " + totalCases + " cases",
                   classes: "govuk-button--secondary",
                   href: "/cases/select-all?page=" + pagination.pageNumber
                 })
