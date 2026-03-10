@@ -2,7 +2,9 @@
 
 {% set navId = 'cases' %}
 
-{% set pageName = "Do you want to record DGA dispute outcomes as not disputed for all :totalCasesCount cases?" | replace(':totalCasesCount', totalCasesCount) %}
+{% set question = "Do you want to record DGA dispute outcomes as not disputed for all :totalCasesCount cases?" | replace(':totalCasesCount', totalCasesCount) %}
+
+{% set pageName = question %}
 
 {% block beforeContent %}
   {{
@@ -16,29 +18,26 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
+      <h1 class="govuk-heading-l">Decide if you want to record DGA dispute outcomes as not disputed for all cases</h1>
+      <p class="govuk-body">There are {{ totalCasesCount }} cases in total awaiting DGA dispute outcomes, but you selected {{ selectedCasesCount }} cases.</p>
       <form method="post">
         {{
           govukRadios({
               name: "selection",
               fieldset: {
                 legend: {
-                  text: pageName,
-                  isPageHeading: true,
-                  classes: "govuk-fieldset__legend--l"
+                  text: question,
+                  classes: "govuk-fieldset__legend--m"
                 }
-              },
-              hint: {
-                text: "There are :totalCasesCount cases in
-          total that are awaiting DGA dispute outcomes but you only selected :selectedCasesCount cases." | replace(':selectedCasesCount', selectedCasesCount) | replace(':totalCasesCount', totalCasesCount)
               },
               items: [
                 {
                   value: "all",
-                  text: "All " + totalCasesCount + " cases"
+                  text: "Yes, record all " + totalCasesCount + " cases as not disputed"
                 },
                 {
                   value: "selected",
-                  text: "The " + selectedCasesCount + " cases I selected"
+                  text: "No, record the " + selectedCasesCount + " cases I selected as not disputed"
                 }
               ]
             })

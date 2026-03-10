@@ -57,6 +57,13 @@
       })
     }}
 
+    {# {{
+      govukButton({
+        text: "Record all 36 casesDGA dispute outcomes as not disputed",
+        classes: 'govuk-button--secondary'
+      })
+    }} #}
+
     <a class="govuk-link govuk-link--no-visited-state" href="/dga-reporting">
       Director’s Guidance Assessment (DGA) reporting
     </a>
@@ -93,172 +100,176 @@
             }}
           </div>
 
-          <div class="govuk-form-group{% if inlineErrors.applyAction.cases %} govuk-form-group--error{% endif %}">
-          {% call govukFieldset({
-            legend: { text: "Select cases", classes: "govuk-visually-hidden" }
-          }) %}
-            {% if inlineErrors.applyAction.cases %}
-              {{ govukErrorMessage({ text: inlineErrors.applyAction.cases.text }) }}
-            {% endif %}
-            <div class="app-list app-list--with-checkboxes" id="app-case-list">
-            {% for _case in cases %}
-              <div class="app-list__item">
-                {{
-                  govukCheckboxes({
-                    classes: "govuk-checkboxes--small app-list__checkbox",
-                    idPrefix: "applyAction.cases",
-                    name: "applyAction[cases]",
-                    items: [{
-                      value: _case.id ~ '',
-                      html: '&nbsp;<span class="govuk-visually-hidden">' + _case.reference + '</span>'
-                    }],
-                    values: data.applyAction.cases
-                  })
-                }}
+          <div
+            class="govuk-form-group{% if inlineErrors.applyAction.cases %}govuk-form-group--error{% endif %}"
+          >
+            {%
+              call govukFieldset({
+                legend: { text: "Select cases", classes: "govuk-visually-hidden" }
+              })
+            %}
+              {% if inlineErrors.applyAction.cases %}
+                {{ govukErrorMessage({ text: inlineErrors.applyAction.cases.text }) }}
+              {% endif %}
+              <div class="app-list app-list--with-checkboxes" id="app-case-list">
+                {% for _case in cases %}
+                  <div class="app-list__item">
+                    {{
+                      govukCheckboxes({
+                        classes: "govuk-checkboxes--small app-list__checkbox",
+                        idPrefix: "applyAction.cases",
+                        name: "applyAction[cases]",
+                        items: [{
+                          value: _case.id ~ '',
+                          html: '&nbsp;<span class="govuk-visually-hidden">' + _case.reference + '</span>'
+                        }],
+                        values: data.applyAction.cases
+                      })
+                    }}
 
 
-                {% set defendantsValue %}
-                  {{ _case.defendants[0].firstName }}
-                  {{ _case.defendants[0].lastName }}
-                  {% if _case.defendants.length > 1 %}
-                    and {{ _case.defendants.length - 1 }} more
-                  {% endif %}
-                {% endset %}
+                    {% set defendantsValue %}
+                      {{ _case.defendants[0].firstName }}
+                      {{ _case.defendants[0].lastName }}
+                      {% if _case.defendants.length > 1 %}
+                        and {{ _case.defendants.length - 1 }} more
+                      {% endif %}
+                    {% endset %}
 
-                <div class="app-list__content">
-                  <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-                    <div>
-                      <a href="/cases/{{ _case.id }}" class="govuk-link--no-visited-state">
-                        {{ defendantsValue }}
-                      </a>
+                    <div class="app-list__content">
+                      <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+                        <div>
+                          <a href="/cases/{{ _case.id }}" class="govuk-link--no-visited-state">
+                            {{ defendantsValue }}
+                          </a>
+                        </div>
+                      </h2>
+
+                      {% set prosecutorValue %}
+                        {% if _case.prosecutors.length %}
+                          {{ _case.prosecutors[0].user.firstName }}
+                          {{ _case.prosecutors[0].user.lastName }}
+                          {% if _case.prosecutors.length > 1 %}
+                            and {{ _case.prosecutors.length - 1 }} more
+                          {% endif %}
+                        {% else %}
+                          Unassigned
+                        {% endif %}
+                      {% endset %}
+
+
+                      {% set paralegalOfficerValue %}
+                        {% if _case.paralegalOfficers.length %}
+                          {{ _case.paralegalOfficers[0].user.firstName }}
+                          {{ _case.paralegalOfficers[0].user.lastName }}
+                          {% if _case.paralegalOfficers.length > 1 %}
+                            and {{ _case.paralegalOfficers.length - 1 }} more
+                          {% endif %}
+                        {% else %}
+                          Unassigned
+                        {% endif %}
+                      {% endset %}
+
+                      {{
+                        govukSummaryList({
+                          classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
+                          rows: [
+                            {
+                              key: {
+                                html: 'URN'
+                              },
+                              value: {
+                                html: _case.reference
+                              }
+                            },
+                            {
+                              key: {
+                                html: 'Operation name'
+                              },
+                              value: {
+                                html: _case.operationName
+                              }
+                            } if _case.operationName,
+                            {
+                              key: {
+                                html: 'Unit'
+                              },
+                              value: {
+                                html: _case.unit.name
+                              }
+                            },
+                            {
+                              key: {
+                                html: 'Court type'
+                              },
+                              value: {
+                                html: _case.courtType
+                              }
+                            } if 1==2,
+                            {
+                              key: {
+                                html: 'Complexity'
+                              },
+                              value: {
+                                html: _case.complexity
+                              }
+                            },
+                            {
+                              key: {
+                                html: 'Prosecutor'
+                              },
+                              value: {
+                                html: prosecutorValue
+                              }
+                            },
+                            {
+                              key: {
+                                html: 'Paralegal officer'
+                              },
+                              value: {
+                                html: paralegalOfficerValue
+                              }
+                            },
+                            {
+                              key: {
+                                html: 'Hearing type'
+                              },
+                              value: {
+                                html: _case.type
+                              }
+                            } if 1==2,
+                            {
+                              key: {
+                                html: 'Hearing date'
+                              },
+                              value: {
+                                html: _case.hearings[0].startDate | isoDateString | govukDateTime
+                              }
+                            } if _case.hearings and _case.hearings.length > 0 and 1 == 2,
+                            {
+                              key: { html: 'Custody time limit' },
+                              value: { html: (_case.custodyTimeLimit | isoDateString | govukDate) + ' (' + (_case.custodyTimeLimit | timeLimitStatus) + ')' }
+                            } if _case.custodyTimeLimit,
+                            {
+                              key: { html: 'Statutory time limit' },
+                              value: { html: (_case.statutoryTimeLimit | isoDateString | govukDate) + ' (' + (_case.statutoryTimeLimit | timeLimitStatus) + ')' }
+                            } if _case.statutoryTimeLimit,
+                            {
+                              key: { html: 'PACE clock' },
+                              value: { html: (_case.paceClock | isoDateString | govukDateTime) + ' (' + (_case.paceClock | paceClockStatus) + ')' }
+                            } if _case.paceClock,
+                            {
+                              key: { html: 'DGA reporting deadline' },
+                              value: { html: _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDate }
+                            } if _case.needsDgaOutcome and _case.dga.recordDisputeOutcomesDeadline
+                          ]
+                        })
+                      }}
                     </div>
-                  </h2>
-
-                  {% set prosecutorValue %}
-                    {% if _case.prosecutors.length %}
-                      {{ _case.prosecutors[0].user.firstName }}
-                      {{ _case.prosecutors[0].user.lastName }}
-                      {% if _case.prosecutors.length > 1 %}
-                        and {{ _case.prosecutors.length - 1 }} more
-                      {% endif %}
-                    {% else %}
-                      Unassigned
-                    {% endif %}
-                  {% endset %}
-
-
-                  {% set paralegalOfficerValue %}
-                    {% if _case.paralegalOfficers.length %}
-                      {{ _case.paralegalOfficers[0].user.firstName }}
-                      {{ _case.paralegalOfficers[0].user.lastName }}
-                      {% if _case.paralegalOfficers.length > 1 %}
-                        and {{ _case.paralegalOfficers.length - 1 }} more
-                      {% endif %}
-                    {% else %}
-                      Unassigned
-                    {% endif %}
-                  {% endset %}
-
-                  {{
-                    govukSummaryList({
-                      classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
-                      rows: [
-                        {
-                          key: {
-                            html: 'URN'
-                          },
-                          value: {
-                            html: _case.reference
-                          }
-                        },
-                        {
-                          key: {
-                            html: 'Operation name'
-                          },
-                          value: {
-                            html: _case.operationName
-                          }
-                        } if _case.operationName,
-                        {
-                          key: {
-                            html: 'Unit'
-                          },
-                          value: {
-                            html: _case.unit.name
-                          }
-                        },
-                        {
-                          key: {
-                            html: 'Court type'
-                          },
-                          value: {
-                            html: _case.courtType
-                          }
-                        } if 1==2,
-                        {
-                          key: {
-                            html: 'Complexity'
-                          },
-                          value: {
-                            html: _case.complexity
-                          }
-                        },
-                        {
-                          key: {
-                            html: 'Prosecutor'
-                          },
-                          value: {
-                            html: prosecutorValue
-                          }
-                        },
-                        {
-                          key: {
-                            html: 'Paralegal officer'
-                          },
-                          value: {
-                            html: paralegalOfficerValue
-                          }
-                        },
-                        {
-                          key: {
-                            html: 'Hearing type'
-                          },
-                          value: {
-                            html: _case.type
-                          }
-                        } if 1==2,
-                        {
-                          key: {
-                            html: 'Hearing date'
-                          },
-                          value: {
-                            html: _case.hearings[0].startDate | isoDateString | govukDateTime
-                          }
-                        } if _case.hearings and _case.hearings.length > 0 and 1 == 2,
-                        {
-                          key: { html: 'Custody time limit' },
-                          value: { html: (_case.custodyTimeLimit | isoDateString | govukDate) + ' (' + (_case.custodyTimeLimit | timeLimitStatus) + ')' }
-                        } if _case.custodyTimeLimit,
-                        {
-                          key: { html: 'Statutory time limit' },
-                          value: { html: (_case.statutoryTimeLimit | isoDateString | govukDate) + ' (' + (_case.statutoryTimeLimit | timeLimitStatus) + ')' }
-                        } if _case.statutoryTimeLimit,
-                        {
-                          key: { html: 'PACE clock' },
-                          value: { html: (_case.paceClock | isoDateString | govukDateTime) + ' (' + (_case.paceClock | paceClockStatus) + ')' }
-                        } if _case.paceClock,
-                        {
-                          key: { html: 'DGA reporting deadline' },
-                          value: { html: _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDate }
-                        } if _case.needsDgaOutcome and _case.dga.recordDisputeOutcomesDeadline
-                      ]
-                    })
-                  }}
-                </div>
+                  </div>
+                {% endfor %}
               </div>
-            {% endfor %}
-            </div>
-          {% endcall %}
+            {% endcall %}
           </div>
         </form>
       {% else %}
