@@ -64,9 +64,9 @@
       })
     }} #}
 
-    <a class="govuk-link govuk-link--no-visited-state" href="/dga-reporting">
+    {# <a class="govuk-link govuk-link--no-visited-state" href="/dga-reporting">
       Director’s Guidance Assessment (DGA) reporting
-    </a>
+    </a> #}
   </div>
 
   <div class="app-filter-layout">
@@ -118,7 +118,7 @@
           </div>
 
           <div
-            class="govuk-form-group{% if inlineErrors.applyAction.cases %} govuk-form-group--error{% endif %}"
+            class="govuk-form-group{% if inlineErrors.applyAction.cases %}govuk-form-group--error{% endif %}"
           >
             {%
               call govukFieldset({
