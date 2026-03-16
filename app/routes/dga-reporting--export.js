@@ -62,6 +62,8 @@ module.exports = router => {
     // Parse the month key
     const [year, month] = monthKey.split('-').map(Number)
 
+    const shareOutsideCps = req.body.export.shareOutsideCps === 'yes'
+
     // Get selected weeks
     const selectedWeeks = req.body.export.weeks
 
@@ -128,7 +130,7 @@ module.exports = router => {
       { header: 'Did the police dispute this failure?', key: 'disputed', width: 35 },
       { header: 'Did CPS accept the dispute?', key: 'cpsAccepted', width: 30 },
       { header: 'Contact methods', key: 'discussionMethods', width: 20 },
-      { header: 'Comments', key: 'comments', width: 30 }
+      ...(!shareOutsideCps ? [{ header: 'Comments', key: 'comments', width: 30 }] : [])
     ]
 
     // Style the header row
@@ -160,7 +162,7 @@ module.exports = router => {
             disputed: failureReason.didPoliceDisputeFailure || '',
             cpsAccepted: failureReason.didCpsAcceptDispute || '',
             discussionMethods: failureReason.discussionMethods || '',
-            comments: failureReason.details || ''
+            ...(!shareOutsideCps && { comments: failureReason.details || '' })
           })
         })
       }

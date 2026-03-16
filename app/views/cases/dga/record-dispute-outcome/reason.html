@@ -4,10 +4,12 @@
 {% set pageName = 'Reason for outcome' %}
 
 {% block beforeContent %}
-  {{ govukBackLink({
-    text: "Back",
-    href: "/cases/" + case.id + "/dga/" + failureReason.id + "/record-dispute-outcome/cps-accepted"
-  }) }}
+  {{
+    govukBackLink({
+      text: "Back",
+      href: "/cases/" + case.id + "/dga/" + failureReason.id + "/record-dispute-outcome/cps-accepted"
+    })
+  }}
 {% endblock %}
 
 {% block content %}
@@ -19,16 +21,18 @@
       {% include "_includes/record-dispute-outcome/failure-reason-inset.njk" %}
 
       <form method="post">
-        {{ govukCharacterCount({
-          label: {
-            text: pageName,
-            classes: "govuk-label--m"
-          },
-          name: "recordOutcome[reasonForOutcome]",
-          id: "recordOutcome-reasonForOutcome",
-          maxlength: 200,
-          value: reasonForOutcome
-        }) }}
+        {{
+          govukCharacterCount({
+            label: {
+              text: pageName,
+              classes: "govuk-label--m"
+            },
+            name: "recordOutcome[reasonForOutcome]",
+            id: "recordOutcome-reasonForOutcome",
+            maxlength: 200,
+            value: reasonForOutcome
+          })
+        }}
 
         {{ govukButton({ text: "Continue" }) }}
       </form>
