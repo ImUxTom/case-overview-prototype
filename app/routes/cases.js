@@ -62,6 +62,14 @@ module.exports = (router) => {
     res.redirect('/cases')
   })
 
+  router.get('/cases/shortcut/dga-police-unit-all/:month/:policeUnitId', (req, res) => {
+    resetFilters(req)
+    _.set(req, 'session.data.caseListFilters.dga', ['Awaiting outcome', 'Outcome recorded'])
+    _.set(req, 'session.data.caseListFilters.dgaMonth', [req.params.month])
+    _.set(req, 'session.data.caseListFilters.policeUnit', [req.params.policeUnitId])
+    res.redirect('/cases')
+  })
+
   router.get('/cases', async (req, res) => {
     const currentUser = req.session.data.user
 

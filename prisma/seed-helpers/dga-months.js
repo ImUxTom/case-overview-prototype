@@ -47,8 +47,8 @@ function calculateDeadline(reviewDate) {
   const deadline = new Date(endOfMonth);
   deadline.setDate(deadline.getDate() + 42);
 
-  // Set time to 11:59pm
-  deadline.setHours(23, 59, 0, 0);
+  // Set time to 11:59pm UTC
+  deadline.setUTCHours(23, 59, 0, 0);
 
   return deadline;
 }
@@ -115,19 +115,33 @@ async function seedDGAMonths(prisma, defendants) {
   // Build month configs dynamically based on today's date.
   // The active month is the most recent month within its 6-week recording window.
   // The two months before it are shown as fully completed.
+  // The frozen month is 3 months before the active month — its deadline has passed with outcomes unrecorded.
   const active = getActiveDGAMonth();
   const prev1 = offsetMonth(active.year, active.month, -1);
   const prev2 = offsetMonth(active.year, active.month, -2);
+  const frozen = offsetMonth(active.year, active.month, -3);
 
   // Completed months: sentToPoliceDate is early in the month following the review month
   const sent2 = { met: new Date(prev2.year, prev2.month + 1, 5), thames: new Date(prev2.year, prev2.month + 1, 3), westMids: new Date(prev2.year, prev2.month + 1, 1) };
   const sent1 = { met: new Date(prev1.year, prev1.month + 1, 5), thames: new Date(prev1.year, prev1.month + 1, 3), westMids: new Date(prev1.year, prev1.month + 1, 1) };
+  const sentFrozen = { met: new Date(frozen.year, frozen.month + 1, 5), thames: new Date(frozen.year, frozen.month + 1, 3) };
 
   // Active month: some units sent to police on day 1 of following month, some on day 25 of active month
   const activeSentFollowingMonth = new Date(active.year, active.month + 1, 1);
   const activeSentWithinMonth = new Date(active.year, active.month, 25);
 
   const monthConfigs = [
+    {
+      name: `${monthNames[frozen.month]} ${frozen.year}`,
+      year: frozen.year,
+      month: frozen.month,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: sentFrozen.met, casesPerUnit: 20 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: sentFrozen.met, casesPerUnit: 5 },
+        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: sentFrozen.thames, casesPerUnit: 10 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: sentFrozen.thames, casesPerUnit: 3 }
+      ]
+    },
     {
       name: `${monthNames[prev2.month]} ${prev2.year}`,
       year: prev2.year,

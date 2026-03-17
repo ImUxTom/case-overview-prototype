@@ -25,9 +25,16 @@ module.exports = router => {
     const outcomesCompleted = _case.dga?.failureReasons?.filter(fr => fr.didPoliceDisputeFailure !== null).length || 0
     const outcomesRemaining = outcomesTotal - outcomesCompleted
 
+    const hasDeadlinePassed = !!(
+      _case.dga?.recordDisputeOutcomesDeadline &&
+      new Date() > new Date(_case.dga.recordDisputeOutcomesDeadline) &&
+      outcomesRemaining > 0
+    )
+
     res.render('cases/dga/index', {
       _case,
       outcomesRemaining,
+      hasDeadlinePassed,
       reportStatus: getDgaReportStatus(_case)
     })
   })

@@ -16,12 +16,17 @@
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       {% if outcomesRemaining > 0 and _case.dga.recordDisputeOutcomesDeadline %}
-        <p class="govuk-body">
-          You have {{ outcomesRemaining }} {{ outcomesRemaining | pluralize("outcome") }}
-          to record by
-          {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.
-        </p>
+        {% if hasDeadlinePassed %}
+          <p class="govuk-body">The deadline for recording outcomes passed on {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.</p>
+        {% else %}
+          <p class="govuk-body">
+            You must record {{ outcomesRemaining }} {{ outcomesRemaining | pluralize("outcome") }}
+            by {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.
+          </p>
+        {% endif %}
       {% endif %}
+
+      {% set deadlineDateText = _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime %}
 
       {% for reason in _case.dga.failureReasons %}
         <div>
@@ -32,12 +37,20 @@
           {% endif %}
 
           {% if not reason.didPoliceDisputeFailure %}
-            {{
-              govukButton({
-                text: "Record dispute outcome",
-                href: "/cases/" + _case.id + "/dga/" + reason.id + "/record-dispute-outcome"
-              })
-            }}
+            {% if hasDeadlinePassed %}
+              {{
+                govukInsetText({
+                  text: "Outcome not recorded. The deadline passed on " + deadlineDateText + "."
+                })
+              }}
+            {% else %}
+              {{
+                govukButton({
+                  text: "Record dispute outcome",
+                  href: "/cases/" + _case.id + "/dga/" + reason.id + "/record-dispute-outcome"
+                })
+              }}
+            {% endif %}
           {% else %}
             {% set methodsHtml %}
               {% if reason.discussionMethods %}
@@ -58,7 +71,7 @@
                   {
                     key: { text: "Did the police dispute this failure?" },
                     value: { text: reason.didPoliceDisputeFailure },
-                    actions: {
+                    actions: {} if hasDeadlinePassed else {
                       items: [{
                         href: baseUrl,
                         text: "Change",
@@ -69,7 +82,7 @@
                   {
                     key: { text: "Did CPS accept the dispute?" },
                     value: { text: reason.didCpsAcceptDispute },
-                    actions: {
+                    actions: {} if hasDeadlinePassed else {
                       items: [{
                         href: baseUrl + "/cps-accepted",
                         text: "Change",
@@ -80,7 +93,7 @@
                   {
                     key: { text: "Reason for outcome" },
                     value: { text: reason.reasonForOutcome if reason.reasonForOutcome else "-" },
-                    actions: {
+                    actions: {} if hasDeadlinePassed else {
                       items: [{
                         href: baseUrl + "/reason",
                         text: "Change",
@@ -91,7 +104,7 @@
                   {
                     key: { text: "How did you discuss this dispute with the police?" },
                     value: { html: methodsHtml },
-                    actions: {
+                    actions: {} if hasDeadlinePassed else {
                       items: [{
                         href: baseUrl + "/method",
                         text: "Change",

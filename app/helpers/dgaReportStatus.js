@@ -4,9 +4,12 @@
  * @param {number} totalCount - Total number of items
  * @returns {string} - 'Completed', 'In progress', or 'Not started'
  */
-function getCompletionStatus(completedCount, totalCount) {
+function getCompletionStatus(completedCount, totalCount, deadline) {
   if (completedCount === totalCount && totalCount > 0) {
     return 'Completed'
+  }
+  if (deadline && new Date() > new Date(deadline)) {
+    return 'Deadline passed'
   }
   if (completedCount > 0) {
     return 'In progress'

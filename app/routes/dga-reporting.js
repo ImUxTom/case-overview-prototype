@@ -72,7 +72,7 @@ module.exports = router => {
     const months = Array.from(monthsMap.values())
       .map(month => ({
         ...month,
-        status: getCompletionStatus(month.completedCases, month.nonCompliantCases)
+        status: getCompletionStatus(month.completedCases, month.nonCompliantCases, month.deadline)
       }))
       .sort((a, b) => b.date - a.date)
 
@@ -194,6 +194,11 @@ module.exports = router => {
       }
     })
 
+    // Get month details
+    const monthName = startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+    const deadline = dgaCases.find(c => c.dga?.recordDisputeOutcomesDeadline)?.dga?.recordDisputeOutcomesDeadline
+    const isDeadlinePassed = !!(deadline && new Date() > new Date(deadline))
+
     // Convert to array, add status, and sort alphabetically by police unit name
     // Status is based on non-compliant cases only (compliant cases don't need outcomes recorded)
     const policeUnits = Array.from(policeUnitsMap.values())
@@ -201,6 +206,8 @@ module.exports = router => {
         let status
         if (unit.nonCompliantCases === 0 || unit.completedCases === unit.nonCompliantCases) {
           status = 'Completed'
+        } else if (isDeadlinePassed) {
+          status = 'Deadline passed'
         } else if (unit.hasAnyProgress) {
           status = 'In progress'
         } else {
@@ -211,14 +218,11 @@ module.exports = router => {
       })
       .sort((a, b) => a.name.localeCompare(b.name))
 
-    // Get month details
-    const monthName = startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-    const deadline = dgaCases.find(c => c.dga?.recordDisputeOutcomesDeadline)?.dga?.recordDisputeOutcomesDeadline
-
     res.render('dga-reporting/month', {
       monthKey,
       monthName,
       deadline,
+      isDeadlinePassed,
       policeUnits,
       totalCases: dgaCases.length
     })
