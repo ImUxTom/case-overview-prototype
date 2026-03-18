@@ -17,11 +17,19 @@
 
       {% if _case.dga.recordDisputeOutcomesDeadline %}
         {% if hasDeadlinePassed %}
-          <p class="govuk-body">The deadline for recording outcomes passed on {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.</p>
+          <p class="govuk-body">
+            The deadline for recording outcomes passed on
+            {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.
+          </p>
         {% elif outcomesRemaining > 0 %}
           <p class="govuk-body">
-            You must record {{ outcomesRemaining }} {{ outcomesRemaining | pluralize("outcome") }}
+            {{ outcomesRemaining }} {{ outcomesRemaining | pluralize("outcome") }} must be recorded
             by {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.
+          </p>
+        {% else %}
+          <p class="govuk-body">
+            The deadline for recording outcomes is
+            {{ _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDateTime }}.
           </p>
         {% endif %}
       {% endif %}
@@ -64,7 +72,7 @@
               {% endif %}
             {% endset %}
 
-            {% set baseUrl = "/cases/" + _case.id + "/dga/" + reason.id + "/record-dispute-outcome" %}
+            {% set baseUrl = "/cases/" + _case.id + "/dga/" + reason.id + "/update-dispute-outcome" %}
             {{
               govukSummaryList({
                 rows: [
@@ -73,7 +81,7 @@
                     value: { text: reason.didPoliceDisputeFailure },
                     actions: {} if hasDeadlinePassed else {
                       items: [{
-                        href: baseUrl,
+                        href: baseUrl + "?from=check",
                         text: "Change",
                         visuallyHiddenText: "did the police dispute this failure"
                       }]
@@ -84,7 +92,7 @@
                     value: { text: reason.didCpsAcceptDispute },
                     actions: {} if hasDeadlinePassed else {
                       items: [{
-                        href: baseUrl + "/cps-accepted",
+                        href: baseUrl + "/cps-accepted?from=check",
                         text: "Change",
                         visuallyHiddenText: "did CPS accept the dispute"
                       }]
@@ -95,7 +103,7 @@
                     value: { text: reason.reasonForOutcome if reason.reasonForOutcome else "-" },
                     actions: {} if hasDeadlinePassed else {
                       items: [{
-                        href: baseUrl + "/reason",
+                        href: baseUrl + "/reason?from=check",
                         text: "Change",
                         visuallyHiddenText: "reason for outcome"
                       }]
@@ -106,7 +114,7 @@
                     value: { html: methodsHtml },
                     actions: {} if hasDeadlinePassed else {
                       items: [{
-                        href: baseUrl + "/method",
+                        href: baseUrl + "/method?from=check",
                         text: "Change",
                         visuallyHiddenText: "how you discussed this dispute with the police"
                       }]

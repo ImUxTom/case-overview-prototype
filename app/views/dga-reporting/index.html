@@ -24,9 +24,9 @@
 
               {% if hasStatusLine %}
                 <p class="govuk-body govuk-!-margin-bottom-0">
-                  You must record {{ casesNeedingOutcomes }}
-                  {{ casesNeedingOutcomes | pluralize("outcome") }}
-                  by {{ month.deadline | isoDateString | govukDateTime }}.
+                  Outcomes for {{ casesNeedingOutcomes }}
+                  {{ casesNeedingOutcomes | pluralize("case") }}
+                  must be recorded by {{ month.deadline | isoDateString | govukDateTime }}.
                 </p>
               {% endif %}
             </div>

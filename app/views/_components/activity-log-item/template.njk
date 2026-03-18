@@ -17,7 +17,7 @@
     </p>
   </div>
   <div class="app-activity-log__description">
-    {% if params.event.title == 'DGA dispute outcome recorded' %}
+    {% if params.event.title == 'DGA dispute outcome recorded' or params.event.title == 'DGA dispute outcome updated' %}
       {% set methodsHtml %}
         {% if params.event.meta.discussionMethods %}
           <ul class="govuk-list govuk-list--bullet">
@@ -43,7 +43,7 @@
               value: { text: params.event.meta.policeUnit }
             },
             {
-              key: { text: "Month" },
+              key: { text: "Reporting month" },
               value: { text: params.event.meta.monthName }
             },
             {
@@ -66,7 +66,44 @@
         }) }}
       </div>
       <p class="app-log-card__note--link">
-        <a class="govuk-link" href="/dga-reporting/{{ params.event.meta.monthKey }}/{{ params.event.meta.policeUnitId }}/{{ params.event.case.id }}">View outcome</a>
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/dga">View outcome</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.title == 'DGA reporting month exported' %}
+      {% set weeksHtml %}
+        {% if params.event.meta.weeks %}
+          <ul class="govuk-list govuk-list--bullet">
+            {% for week in params.event.meta.weeks %}
+              <li>{{ week }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "Are you sharing this export outside the CPS?" },
+              value: { text: params.event.meta.shareOutsideCps }
+            },
+            {
+              key: { text: "Police force" },
+              value: { text: params.event.meta.policeUnit }
+            },
+            {
+              key: { text: "Reporting month" },
+              value: { text: params.event.meta.monthName }
+            },
+            {
+              key: { text: "Time period" },
+              value: { html: weeksHtml }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/dga-reporting/{{ params.event.meta.monthKey }}">View reporting month</a>
       </p>
     {% endif %}
 

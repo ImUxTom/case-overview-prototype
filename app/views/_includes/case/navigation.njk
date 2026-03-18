@@ -5,11 +5,8 @@
     text: "Overview",
     href: "/cases/:caseId" | replace(':caseId', _case.id),
     current: secondaryNavId == 'overview'
-  }, {
-    text: "DGA reporting",
-    href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
-    current: secondaryNavId == 'dga'
-  } if _case.dga,{
+  },
+  {
     text: "Directions",
     href: "/cases/:caseId/directions" | replace(':caseId', _case.id),
     current: secondaryNavId == 'directions'
@@ -18,6 +15,11 @@
     href: "/cases/:caseId/tasks" | replace(':caseId', _case.id),
     current: secondaryNavId == 'tasks'
   }, {
+    text: "DGA reporting",
+    href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
+    current: secondaryNavId == 'dga'
+  } if _case.dga and _case.dga.recordDisputeOutcomesDeadline,
+  {
     text: "Defendants",
     href: "/cases/:caseId/defendants" | replace(':caseId', _case.id),
     current: secondaryNavId == 'defendants'

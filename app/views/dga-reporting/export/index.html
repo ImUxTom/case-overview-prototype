@@ -15,7 +15,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-l">{{ policeUnit.name }}</span>
+      <span class="govuk-caption-l">{{ monthName }} - {{ policeUnit.name }}</span>
       <h1 class="govuk-heading-l">Export cases that had a DGA</h1>
 
       <form method="post">
@@ -49,7 +49,7 @@
             name: "export[weeks]",
             fieldset: {
               legend: {
-                text: 'Time period to export for February 2026',
+                text: 'Time period',
                 classes: "govuk-fieldset__legend--m"
               }
             },

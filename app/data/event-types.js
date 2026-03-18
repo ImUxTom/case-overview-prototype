@@ -2,6 +2,8 @@ module.exports = [
   'Case note added',
   'Complexity updated',
   'DGA dispute outcome recorded',
+  'DGA dispute outcome updated',
+  'DGA reporting month exported',
   'Direction completed',
   'Direction note added',
   'Leave added',

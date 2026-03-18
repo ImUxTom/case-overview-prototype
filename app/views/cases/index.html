@@ -292,7 +292,7 @@
                             {
                               key: { html: 'DGA reporting deadline' },
                               value: { html: _case.dga.recordDisputeOutcomesDeadline | isoDateString | govukDate }
-                            } if _case.needsDgaOutcome and _case.dga.recordDisputeOutcomesDeadline
+                            } if _case.dga and _case.dga.recordDisputeOutcomesDeadline
                           ]
                         })
                       }}

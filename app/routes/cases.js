@@ -64,7 +64,6 @@ module.exports = (router) => {
 
   router.get('/cases/shortcut/dga-police-unit-all/:month/:policeUnitId', (req, res) => {
     resetFilters(req)
-    _.set(req, 'session.data.caseListFilters.dga', ['Awaiting outcome', 'Outcome recorded'])
     _.set(req, 'session.data.caseListFilters.dgaMonth', [req.params.month])
     _.set(req, 'session.data.caseListFilters.policeUnit', [req.params.policeUnitId])
     res.redirect('/cases')
@@ -347,6 +346,7 @@ module.exports = (router) => {
               gte: new Date(year, month - 1, 1),
               lte: new Date(year, month, 0, 23, 59, 59, 999),
             },
+            failureReasons: { some: {} },
           },
         }
       })

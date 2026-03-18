@@ -169,9 +169,8 @@ module.exports = router => {
     })
 
     // Generate filename with month and police unit name
-    const monthName = new Date(year, month - 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-      .toLowerCase()
-      .replace(' ', '-')
+    const readableMonthName = new Date(year, month - 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+    const monthName = readableMonthName.toLowerCase().replace(' ', '-')
     const safePoliceUnitName = policeUnitName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -186,5 +185,23 @@ module.exports = router => {
     // Write to response
     await workbook.xlsx.write(res)
     res.end()
+
+    await prisma.activityLog.create({
+      data: {
+        userId: currentUser.id,
+        model: 'PoliceUnit',
+        recordId: policeUnitId,
+        action: 'EXPORT',
+        title: 'DGA reporting month exported',
+        meta: {
+          policeUnit: policeUnitName,
+          policeUnitId,
+          monthName: readableMonthName,
+          monthKey,
+          shareOutsideCps: shareOutsideCps ? 'Yes' : 'No',
+          weeks: selectedWeekData.map(w => w.label)
+        }
+      }
+    })
   })
 }
