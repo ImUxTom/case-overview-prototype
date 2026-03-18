@@ -41,7 +41,7 @@
               value: { text: data.updateOutcome.didPoliceDisputeFailure },
               actions: {
                 items: [{
-                  href: baseUrl + "?from=check",
+                  href: baseUrl + "?returnUrl=check",
                   text: "Change",
                   visuallyHiddenText: "did the police dispute this failure"
                 }]
@@ -52,7 +52,7 @@
               value: { text: data.updateOutcome.didCpsAcceptDispute },
               actions: {
                 items: [{
-                  href: baseUrl + "/cps-accepted?from=check",
+                  href: baseUrl + "/cps-accepted?returnUrl=check",
                   text: "Change",
                   visuallyHiddenText: "did CPS accept the dispute"
                 }]
@@ -63,7 +63,7 @@
               value: { text: data.updateOutcome.reasonForOutcome },
               actions: {
                 items: [{
-                  href: baseUrl + "/reason?from=check",
+                  href: baseUrl + "/reason?returnUrl=check",
                   text: "Change",
                   visuallyHiddenText: "reason for outcome"
                 }]
@@ -74,7 +74,7 @@
               value: { html: methodsHtml },
               actions: {
                 items: [{
-                  href: baseUrl + "/method?from=check",
+                  href: baseUrl + "/method?returnUrl=check",
                   text: "Change",
                   visuallyHiddenText: "how you discussed this dispute with the police"
                 }]

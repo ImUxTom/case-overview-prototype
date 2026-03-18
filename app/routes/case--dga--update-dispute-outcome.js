@@ -18,7 +18,7 @@ async function fetchCase(caseId, failureReasonId) {
   })
 }
 
-function seedSession(req, failureReason) {
+function populateSession(req, failureReason) {
   if (req.session.data.updateOutcome) return
   req.session.data.updateOutcome = {
     didPoliceDisputeFailure: failureReason.didPoliceDisputeFailure,
@@ -39,9 +39,9 @@ module.exports = router => {
     const caseData = await fetchCase(caseId, failureReasonId)
     const failureReason = caseData.dga.failureReasons[0]
 
-    seedSession(req, failureReason)
+    populateSession(req, failureReason)
 
-    if (req.query.from === 'check') {
+    if (req.query.returnUrl === 'check') {
       req.session.data.updateOutcomeFrom = 'check'
     }
 
@@ -83,9 +83,9 @@ module.exports = router => {
     const caseData = await fetchCase(caseId, failureReasonId)
     const failureReason = caseData.dga.failureReasons[0]
 
-    seedSession(req, failureReason)
+    populateSession(req, failureReason)
 
-    if (req.query.from === 'check') {
+    if (req.query.returnUrl === 'check') {
       req.session.data.updateOutcomeFrom = 'check'
     }
 
@@ -118,9 +118,9 @@ module.exports = router => {
     const caseData = await fetchCase(caseId, failureReasonId)
     const failureReason = caseData.dga.failureReasons[0]
 
-    seedSession(req, failureReason)
+    populateSession(req, failureReason)
 
-    if (req.query.from === 'check') {
+    if (req.query.returnUrl === 'check') {
       req.session.data.updateOutcomeFrom = 'check'
     }
 
@@ -153,9 +153,9 @@ module.exports = router => {
     const caseData = await fetchCase(caseId, failureReasonId)
     const failureReason = caseData.dga.failureReasons[0]
 
-    seedSession(req, failureReason)
+    populateSession(req, failureReason)
 
-    if (req.query.from === 'check') {
+    if (req.query.returnUrl === 'check') {
       req.session.data.updateOutcomeFrom = 'check'
     }
 
@@ -200,7 +200,7 @@ module.exports = router => {
 
     const failureReason = caseData.dga.failureReasons.find(fr => fr.id === failureReasonId)
 
-    seedSession(req, failureReason)
+    populateSession(req, failureReason)
 
     const allFailureReasons = caseData.dga.failureReasons
 
