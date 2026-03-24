@@ -7,7 +7,7 @@ Legal managers can update a DGA dispute outcome by clicking a change link on the
 
 ## How it works
 
-The update flow has the same structure and pages as [recording a dispute outcome](../2026-03-23-recording-a-dga-dispute-outcome/). The key difference is that each page is pre-populated with the previously recorded answers.
+The update flow is similar to the flow for [recording a dispute outcome](../2026-03-23-recording-a-dga-dispute-outcome/). The difference is that each page is pre-populated with the previously recorded answers and the content says ‘Update dispute outcome’ where it would have said ‘Record dispute outcome’.
 
 ![The "Did the police dispute this failure?" page with "Yes" already selected. The caption reads "88D289230/3 - update dispute outcome".](updating-a-dga-dispute-outcome/prepopulated.png)
 
