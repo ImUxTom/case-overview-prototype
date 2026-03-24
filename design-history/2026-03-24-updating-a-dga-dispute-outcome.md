@@ -1,5 +1,5 @@
 ---
-title: Updating a DGA dispute outcome
+title: Updating a DGA dispute outcome iteration
 date: 2026-03-24
 ---
 
