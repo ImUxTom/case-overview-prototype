@@ -18,7 +18,9 @@ We added two new filter groups:
 - DGA dispute outcome - filter by "Awaiting outcome" or "Outcome recorded"
 - DGA reporting month - filter by the reporting month, for example, February 2025
 
-Users can apply these filters manually, or arrive with them pre-selected by clicking a "Record dispute outcomes" button from the DGA reporting month page. When arriving via that route, the case list is automatically filtered to by police force, reporting month, and status.
+Users can apply these filters manually, or arrive with them pre-selected by clicking a "Record dispute outcomes" button from the DGA reporting month page. 
+
+When coming from the month page, the case list is filtered by police force, reporting month, and outcome status.
 
 Cases with a DGA dispute outcome show the DGA reporting deadline, so users can see when outcomes need to be recorded without leaving the case list.
 

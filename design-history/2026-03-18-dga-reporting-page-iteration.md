@@ -5,15 +5,19 @@ date: 2026-03-18
 
 We previously [designed a page for DGA reporting](https://cps-new-design-history-2189687bc35a.herokuapp.com/manage-cases/reporting-on-cases-that-failed-dga/).
 
-We've iterated the page as part of a wider redesign of DGA reporting.
+We’ve iterated the page as part of a wider redesign of DGA reporting.
 
 ## What we changed
 
 ### Removed status tags
 
-The previous design showed a status tag next to each month - either "Not started", "In progress", or "Completed".
+The previous design showed a status tag next to each police unit. They were:
 
-We removed the tags because they didn't add value. A status of "Not started" or "In progress" is already implicit in the deadline message. A status of "Completed" is implicit when no deadline message appears.
+- Not started
+- In progress
+- Completed"
+
+We removed the tags because they did not add value. A status of "Not started" or "In progress" is already implicit in the deadline message. A status of "Completed" is implicit when no deadline message appears.
 
 ### Replaced status tags with a deadline message
 

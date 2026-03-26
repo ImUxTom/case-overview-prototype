@@ -2,7 +2,7 @@
   @include govuk-media-query($from: desktop) {
     display: flex;
     align-items: flex-start;
-    gap: govuk-spacing(6);
+    gap: govuk-spacing(4);
   }
 }
 

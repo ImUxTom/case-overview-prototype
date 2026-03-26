@@ -52,7 +52,7 @@ router.get('/cases/:caseId*', async (req, res, next) => {
 
 // Case routes
 require('./routes/cases')(router)
-require('./routes/cases--select-all')(router)
+// require('./routes/cases--select-all')(router)
 require('./routes/cases--record-dga-dispute-outcomes-as-not-disputed')(router)
 require('./routes/case--dga')(router)
 require('./routes/case--dga--record-dispute-outcome')(router)

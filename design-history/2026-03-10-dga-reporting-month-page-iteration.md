@@ -1,25 +1,29 @@
 ---
 title: DGA reporting month page iteration
-date: 2026-03-18
+date: 2026-03-10
 ---
 
 We previously [designed a page to view the DGA reporting month](https://cps-new-design-history-2189687bc35a.herokuapp.com/manage-cases/reporting-on-cases-that-failed-dga/).
 
-We've iterated the page as part of a wider redesign of DGA reporting.
+We’ve iterated the page as part of a wider redesign of DGA reporting.
 
 ## What we changed
 
 ### Removed status tags from police forces
 
-The previous design showed a status tag next to each police unit - either "Not started", "In progress", or "Completed".
+The previous design showed a status tag next to each police unit. They were:
 
-We removed the tags for the same reason as on the DGA reporting page: they are unnecessary because the state of each unit is already clear from the content below the heading.
+- Not started
+- In progress
+- Completed"
+
+We removed the tags because they did not add value. The state of each unit is already clear from the content below the heading — either a count of outstanding cases with a button to act, or a confirmation that all outcomes have been recorded.
 
 ### Replaced status tags with specific counts and actions
 
 For police forces with outcomes still to record, the page now shows exactly how many cases need attention and a "Record dispute outcomes" button.
 
-The button links to the case list, pre-filtered to show only that police force's cases with outstanding DGA outcomes. This is a significant change from the previous design, which linked to a dedicated DGA case list embedded within the reporting hub. Reusing the case list means users work in a consistent way.
+The button links to the case list, pre-filtered to show only that police force’s cases with outstanding DGA outcomes. This is a significant change from the previous design, which linked to a dedicated DGA case list embedded within the reporting hub. Reusing the case list means users work in a consistent way.
 
 For police forces where all outcomes have been recorded, the page shows inset text confirming the count - for example, "Outcomes have been recorded for all 26 cases." - with a link to view those cases in the filtered case list.
 
