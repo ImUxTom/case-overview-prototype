@@ -9,6 +9,8 @@ const Validator = require('../helpers/validator')
 const rules = require('../helpers/rules')
 const dgaStatuses = ['Awaiting outcome', 'Outcome recorded']
 
+const caseStatuses = ['Ready for triage', 'Ready to assign', 'Ready to review', 'Rejected']
+
 function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.dga', null)
   _.set(req, 'session.data.caseListFilters.dgaMonth', null)
@@ -19,6 +21,7 @@ function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.types', null)
   _.set(req, 'session.data.caseListFilters.prosecutors', null)
   _.set(req, 'session.data.caseListFilters.paralegalOfficers', null)
+  _.set(req, 'session.data.caseListFilters.statuses', null)
 }
 
 module.exports = (router) => {
@@ -93,6 +96,7 @@ module.exports = (router) => {
       _.set(req.session.data.caseListFilters, 'paralegalOfficers', [currentUser.id.toString()])
     }
 
+    let selectedStatusFilters = _.get(req.session.data.caseListFilters, 'statuses', [])
     let selectedDgaFilters = _.get(req.session.data.caseListFilters, 'dga', [])
     let selectedDgaMonthFilters = _.get(req.session.data.caseListFilters, 'dgaMonth', [])
     let selectedCtlFilters = _.get(req.session.data.caseListFilters, 'isCTL', [])
@@ -205,6 +209,16 @@ module.exports = (router) => {
       selectedFilters.categories.push({
         heading: { text: 'Paralegal officer' },
         items: selectedParalegalOfficerItems,
+      })
+    }
+
+    // Status filter display
+    if (selectedStatusFilters?.length) {
+      selectedFilters.categories.push({
+        heading: { text: 'Status' },
+        items: selectedStatusFilters.map(function (value) {
+          return { text: value, href: '/cases/remove-status/' + value }
+        }),
       })
     }
 
@@ -389,6 +403,9 @@ module.exports = (router) => {
       }
     }
 
+    if (selectedStatusFilters?.length) {
+      where.AND.push({ status: { in: selectedStatusFilters } })
+    }
     if (selectedComplexityFilters?.length) {
       where.AND.push({ complexity: { in: selectedComplexityFilters } })
     }
@@ -539,6 +556,8 @@ module.exports = (router) => {
       }
     })
 
+    let statusItems = caseStatuses.map((s) => ({ value: s, text: s }))
+
     let ctlItems = ['Has custody time limit', 'Does not have custody time limit'].map((ctl) => ({
       text: ctl,
       value: ctl,
@@ -659,6 +678,8 @@ module.exports = (router) => {
     res.render('cases/index', {
       totalCases,
       cases,
+      statusItems,
+      selectedStatusFilters,
       dgaItems,
       dgaMonthItems,
       selectedDgaMonthFilters,
@@ -678,6 +699,12 @@ module.exports = (router) => {
       pagination,
       showMarkAsNotDisputed,
     })
+  })
+
+  router.get('/cases/remove-status/:status', (req, res) => {
+    const currentFilters = _.get(req, 'session.data.caseListFilters.statuses', [])
+    _.set(req, 'session.data.caseListFilters.statuses', _.pull(currentFilters, req.params.status))
+    res.redirect('/cases')
   })
 
   router.get('/cases/remove-dga/:dga', (req, res) => {

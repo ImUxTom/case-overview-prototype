@@ -31,10 +31,6 @@
   display: inline-block;
   vertical-align: top;
 
-  .govuk-tag {
-    @include govuk-font(16);
-  }
-
   .govuk-breadcrumbs {
     display: inline-block;
     margin-right: 10px;
@@ -80,6 +76,7 @@
   @include govuk-media-query($from: tablet) {
     display: inline-block;
     vertical-align: middle;
+    margin-top: govuk-spacing(2);
   }
 
 }

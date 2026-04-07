@@ -1,3 +1,10 @@
+{% set statusTagHtml %}
+  {{ govukTag({
+    text: _case.status,
+    classes: (_case.status | caseStatusTagClass) + ' govuk-!-margin-left-2'
+  }) }}
+{% endset %}
+
 {% set identityTitle %}
   <span class="govuk-!-margin-right-1">{{_case.reference}}</span>
   <b>
@@ -10,6 +17,7 @@
       {% endif %}
     {% endif %}
   </b>
+  {{statusTagHtml | safe}}
 {% endset %}
 
 {% set descriptionHtml %}
@@ -30,6 +38,74 @@
   {% endif %}
 {% endset %}
 
+{% if _case.status == 'Ready for triage' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Accept case',
+          href: '/cases/' + _case.id + '/accept'
+        },
+        {
+          text: 'Reject case',
+          href: '/cases/' + _case.id + '/reject',
+          classes: 'govuk-button--secondary'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Placeholder action',
+          href: '#',
+          classes: 'govuk-button--secondary'
+        },
+        {
+          text: 'Another action',
+          href: '#',
+          classes: 'govuk-button--secondary'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to assign' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Assign prosecutor',
+          href: '/cases/' + _case.id + '/add-prosecutor'
+        }
+      ]
+    },
+    {
+      items: [
+        {
+          text: 'Placeholder action',
+          href: '#',
+          classes: 'govuk-button--secondary'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to review' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Charge',
+          href: '/cases/' + _case.id + '/charge'
+        },
+        {
+          text: 'Request more information',
+          href: '/cases/' + _case.id + '/request-more-information',
+          classes: 'govuk-button--secondary'
+        }
+      ]
+    }
+  ] %}
+{% endif %}
+
 {{ appIdentityBar({
   title: {
     html: identityTitle
@@ -37,10 +113,5 @@
   description: {
     html: descriptionHtml
   } if (_case.custodyTimeLimit or _case.statutoryTimeLimit or _case.paceClock),
-  menus: [{
-    items: [{
-      text: 'Record DGA outcome',
-      action: '#'
-    }]
-  }] if 1==2
+  menus: identityBarMenus
 })}}

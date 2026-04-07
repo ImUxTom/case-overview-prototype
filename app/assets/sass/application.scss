@@ -153,6 +153,12 @@ $statuses: (
 }
 
 .x-govuk-secondary-navigation__list-item {
+  @include govuk-media-query($from: tablet) {
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+
   @include govuk-media-query($from: desktop) {
     padding: 10px 0 15px;
   }

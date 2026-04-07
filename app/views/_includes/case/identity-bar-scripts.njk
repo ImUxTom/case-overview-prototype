@@ -1,0 +1,23 @@
+{% if _case.status == 'Ready for triage' %}
+  <script>
+    new App.ButtonMenu({
+      container: $(".app-button-menu").eq(1),
+      mq: "(min-width: 1000em)",
+      buttonText: "More actions",
+      buttonClasses: "govuk-button--secondary app-button-menu__toggle-button--secondary",
+      menuClasses: "app-button-menu__wrapper--right"
+    });
+  </script>
+{% endif %}
+
+{% if _case.status == 'Ready to assign' %}
+  <script>
+    new App.ButtonMenu({
+      container: $(".app-button-menu").eq(1),
+      mq: "(min-width: 1000em)",
+      buttonText: "More actions",
+      buttonClasses: "govuk-button--secondary app-button-menu__toggle-button--secondary",
+      menuClasses: "app-button-menu__wrapper--right"
+    });
+  </script>
+{% endif %}

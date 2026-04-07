@@ -66,6 +66,10 @@
 	// flex-shrink: 0;
 	margin-top: -5px;
 
+	.govuk-checkboxes__item {
+		margin-top: -govuk-spacing(2);
+	}
+
 	.govuk-checkboxes__label {
 		padding: 0 !important;
 	}

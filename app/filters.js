@@ -127,6 +127,21 @@ addFilter('completionStatusTagClass', status => {
   }
 })
 
+addFilter('caseStatusTagClass', status => {
+  switch(status) {
+    case 'Ready for triage':
+      return 'govuk-tag--blue'
+    case 'Ready to assign':
+      return 'govuk-tag--turquoise'
+    case 'Ready to review':
+      return 'govuk-tag--purple'
+    case 'Rejected':
+      return 'govuk-tag--red'
+    default:
+      return ''
+  }
+})
+
 addFilter('pluralize', (count, singular, plural) => {
   return count === 1 ? singular : (plural || singular + 's')
 })

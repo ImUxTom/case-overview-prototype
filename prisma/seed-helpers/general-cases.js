@@ -228,9 +228,12 @@ async function seedGeneralCases(prisma, dependencies, config) {
       });
     }
 
+    const status = faker.helpers.arrayElement(['Ready for triage', 'Ready to assign', 'Ready to review', 'Rejected'])
+
     const createdCase = await prisma.case.create({
       data: {
         reference: generateCaseReference(),
+        status,
         type: faker.helpers.arrayElement(types),
         complexity: faker.helpers.arrayElement(complexities),
         unit: { connect: { id: caseUnitId } },

@@ -1,5 +1,19 @@
 {% set filterOptionsHtml %}
 
+  {{ govukCheckboxes({
+    idPrefix: "caseListFilters[statuses]",
+    name: "caseListFilters[statuses]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "Status",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: statusItems,
+    values: selectedStatusFilters
+  }) }}
+
   {{ appCheckboxFilter({
     idPrefix: "caseListFilters[prosecutors]",
     name: "caseListFilters[prosecutors]",

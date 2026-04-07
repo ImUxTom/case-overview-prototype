@@ -147,6 +147,12 @@
       </p>
     {% endif %}
 
+    {% if params.event.title == 'Case accepted' or params.event.title == 'Case rejected' %}
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
     {% if params.event.title == 'Witness marked as required to attend court' %}
       <div class="app-activity-log__box">
         {{ govukSummaryList({

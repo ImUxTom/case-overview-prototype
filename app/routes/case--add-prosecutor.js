@@ -259,6 +259,11 @@ module.exports = (router) => {
       },
     })
 
+    await prisma.case.update({
+      where: { id: caseId },
+      data: { status: 'Ready to review' },
+    })
+
     const prosecutor = await prisma.user.findUnique({
       where: { id: prosecutorId },
       select: { id: true, firstName: true, lastName: true },
