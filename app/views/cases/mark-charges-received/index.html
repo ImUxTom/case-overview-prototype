@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Confirm that you want to reject this case" %}
+{% set pageName = "Confirm that authorised charges have been received" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -18,7 +18,7 @@
 
       <form method="post">
         {{ govukButton({
-          text: "Reject case"
+          text: "Mark charges as received"
         }) }}
       </form>
       <p><a href="/cases/{{ _case.id }}">Cancel</a></p>

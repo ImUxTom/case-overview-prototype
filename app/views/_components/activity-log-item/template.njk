@@ -833,5 +833,25 @@
         <a class="govuk-link" href="/cases/{{ params.event.case.id }}/tasks/{{ params.event.recordId }}">View task</a>
       </p>
     {% endif %}
+
+    {% if params.event.title == 'CTL log entry added' %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: 'Description' },
+              value: { text: params.event.meta.description }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/ctl-log">View CTL log</a>
+      </p>
+    {% endif %}
   </div>
 </div>

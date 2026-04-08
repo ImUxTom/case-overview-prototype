@@ -228,7 +228,22 @@ async function seedGeneralCases(prisma, dependencies, config) {
       });
     }
 
-    const status = faker.helpers.arrayElement(['Ready for triage', 'Ready to assign', 'Ready to review', 'Rejected'])
+    const status = faker.helpers.arrayElement([
+      'Ready for triage',
+      'Ready to assign',
+      'Ready to review',
+      'Rejected',
+      'Waiting on authorised charges',
+      'Authorised charges received',
+      'Waiting on first hearing',
+      'No further action',
+      'Ready to prepare for trial',
+      'Waiting on outcome of trial',
+      'Waiting for sentencing',
+      'Not guilty',
+      'Sentenced',
+      'Sent to crown court',
+    ])
 
     const createdCase = await prisma.case.create({
       data: {

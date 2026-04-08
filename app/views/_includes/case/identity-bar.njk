@@ -100,6 +100,77 @@
           text: 'Request more information',
           href: '/cases/' + _case.id + '/request-more-information',
           classes: 'govuk-button--secondary'
+        },
+        {
+          text: 'No further action',
+          href: '/cases/' + _case.id + '/no-further-action',
+          classes: 'govuk-button--secondary'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Waiting on authorised charges' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Mark charges as received',
+          href: '/cases/' + _case.id + '/mark-charges-received'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Authorised charges received' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Add first hearing',
+          href: '/cases/' + _case.id + '/add-first-hearing'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Waiting on first hearing' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Record outcome of first hearing',
+          href: '/cases/' + _case.id + '/record-first-hearing-outcome'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to prepare for trial' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Mark trial preparation as complete',
+          href: '/cases/' + _case.id + '/mark-trial-preparation-complete'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Waiting on outcome of trial' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Record trial outcome',
+          href: '/cases/' + _case.id + '/record-trial-outcome'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Waiting for sentencing' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Record sentence',
+          href: '/cases/' + _case.id + '/record-sentence'
         }
       ]
     }

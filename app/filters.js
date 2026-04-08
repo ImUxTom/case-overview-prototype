@@ -137,6 +137,26 @@ addFilter('caseStatusTagClass', status => {
       return 'govuk-tag--purple'
     case 'Rejected':
       return 'govuk-tag--red'
+    case 'Waiting on authorised charges':
+      return 'govuk-tag--yellow'
+    case 'Authorised charges received':
+      return 'govuk-tag--green'
+    case 'Waiting on first hearing':
+      return 'govuk-tag--yellow'
+    case 'No further action':
+      return 'govuk-tag--grey'
+    case 'Ready to prepare for trial':
+      return 'govuk-tag--purple'
+    case 'Sent to crown court':
+      return 'govuk-tag--grey'
+    case 'Waiting for sentencing':
+      return 'govuk-tag--orange'
+    case 'Waiting on outcome of trial':
+      return 'govuk-tag--yellow'
+    case 'Not guilty':
+      return 'govuk-tag--grey'
+    case 'Sentenced':
+      return 'govuk-tag--grey'
     default:
       return ''
   }

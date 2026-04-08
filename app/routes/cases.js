@@ -9,7 +9,22 @@ const Validator = require('../helpers/validator')
 const rules = require('../helpers/rules')
 const dgaStatuses = ['Awaiting outcome', 'Outcome recorded']
 
-const caseStatuses = ['Ready for triage', 'Ready to assign', 'Ready to review', 'Rejected']
+const caseStatuses = [
+  'Ready for triage',
+  'Ready to assign',
+  'Ready to review',
+  'Rejected',
+  'Waiting on authorised charges',
+  'Authorised charges received',
+  'Waiting on first hearing',
+  'No further action',
+  'Ready to prepare for trial',
+  'Waiting on outcome of trial',
+  'Waiting for sentencing',
+  'Not guilty',
+  'Sentenced',
+  'Sent to crown court',
+]
 
 function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.dga', null)

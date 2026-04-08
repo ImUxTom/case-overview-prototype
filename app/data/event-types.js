@@ -1,5 +1,6 @@
 module.exports = [
   'Case note added',
+  'CTL log entry added',
   'Complexity updated',
   'DGA dispute outcome recorded',
   'DGA dispute outcome updated',

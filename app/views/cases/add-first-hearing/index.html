@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Confirm that you want to reject this case" %}
+{% set pageName = "Add first hearing" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -17,8 +17,28 @@
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       <form method="post">
+        {{ govukDateInput({
+          id: "hearing-date",
+          namePrefix: "hearingDate",
+          fieldset: {
+            legend: {
+              text: "Date of first hearing",
+              classes: "govuk-fieldset__legend--m"
+            }
+          }
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Court or venue",
+            classes: "govuk-label--m"
+          },
+          id: "venue",
+          name: "venue"
+        }) }}
+
         {{ govukButton({
-          text: "Reject case"
+          text: "Add first hearing"
         }) }}
       </form>
       <p><a href="/cases/{{ _case.id }}">Cancel</a></p>
