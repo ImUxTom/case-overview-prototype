@@ -231,3 +231,11 @@ $statuses: (
 .app-overview-section {
   margin-bottom: govuk-spacing(9);
 }
+
+.govuk-service-navigation__item {
+  @include govuk-media-query($from: tablet) {
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+}

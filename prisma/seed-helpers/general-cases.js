@@ -230,9 +230,10 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
     const status = faker.helpers.arrayElement([
       'Ready for triage',
-      'Ready to assign',
-      'Ready to review',
-      'Rejected',
+      'Waiting on police (triage)',
+      'Ready to assign prosecutor',
+      'Ready to make charging decision',
+      'Waiting on police (to charge)',
       'Waiting on authorised charges',
       'Authorised charges received',
       'Waiting on first hearing',

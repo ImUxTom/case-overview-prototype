@@ -4,10 +4,12 @@
 {% set pageName = "Record outcome of first hearing" %}
 
 {% block beforeContent %}
-  {{ govukBackLink({
-    text: 'Back',
-    href: 'javascript:history.back()'
-  }) }}
+  {{
+    govukBackLink({
+      text: 'Back',
+      href: 'javascript:history.back()'
+    })
+  }}
 {% endblock %}
 
 {% block content %}
@@ -17,33 +19,37 @@
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       <form method="post">
-        {{ govukRadios({
-          name: "outcome",
-          fieldset: {
-            legend: {
-              text: "What was the outcome?",
-              classes: "govuk-fieldset__legend--m"
-            }
-          },
-          items: [
-            {
-              value: "trial-in-magistrates-court",
-              text: "Goes to trial in magistrates court"
+        {{
+          govukRadios({
+            name: "outcome",
+            fieldset: {
+              legend: {
+                text: "What was the outcome?",
+                classes: "govuk-fieldset__legend--m"
+              }
             },
-            {
-              value: "pleads-guilty",
-              text: "Defendant pleads guilty — goes for sentencing"
-            },
-            {
-              value: "sent-to-crown-court",
-              text: "Sent to crown court"
-            }
-          ]
-        }) }}
+            items: [
+              {
+                value: "trial-in-magistrates-court",
+                text: "Goes to trial in magistrates court"
+              },
+              {
+                value: "pleads-guilty",
+                text: "Defendant pleads guilty — goes for sentencing"
+              },
+              {
+                value: "sent-to-crown-court",
+                text: "Sent to crown court"
+              }
+            ]
+          })
+        }}
 
-        {{ govukButton({
-          text: "Record outcome"
-        }) }}
+        {{
+          govukButton({
+            text: "Record outcome"
+          })
+        }}
       </form>
       <p><a href="/cases/{{ _case.id }}">Cancel</a></p>
     </div>

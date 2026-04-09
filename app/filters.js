@@ -8,8 +8,8 @@ const addFilter = govukPrototypeKit.views.addFilter
 const { DateTime } = require('luxon')
 
 // Add your filters here
-addFilter('priorityTagClass', status => {
-  switch(status) {
+addFilter('priorityTagClass', (status) => {
+  switch (status) {
     case 'High priority':
       return 'govuk-tag--red'
     case 'Medium priority':
@@ -19,8 +19,8 @@ addFilter('priorityTagClass', status => {
   }
 })
 
-addFilter('severityTagClass', severity => {
-  switch(severity) {
+addFilter('severityTagClass', (severity) => {
+  switch (severity) {
     case 'Critically overdue':
       return 'govuk-tag--red'
     case 'Overdue':
@@ -34,8 +34,8 @@ addFilter('severityTagClass', severity => {
   }
 })
 
-addFilter('directionStatusTagClass', status => {
-  switch(status) {
+addFilter('directionStatusTagClass', (status) => {
+  switch (status) {
     case 'Overdue':
       return 'govuk-tag--red'
     case 'Due today':
@@ -45,15 +45,15 @@ addFilter('directionStatusTagClass', status => {
   }
 })
 
-addFilter('isoDateString', date => {
+addFilter('isoDateString', (date) => {
   return date.toISOString()
 })
 
-addFilter('formatNumber', number => {
+addFilter('formatNumber', (number) => {
   return Number(number).toLocaleString('en-GB')
 })
 
-addFilter('daysUntil', date => {
+addFilter('daysUntil', (date) => {
   const now = DateTime.now().startOf('day')
   const targetDate = DateTime.fromJSDate(new Date(date)).startOf('day')
   const diffDays = Math.ceil(targetDate.diff(now, 'days').days)
@@ -68,7 +68,7 @@ addFilter('daysUntil', date => {
   return `${diffDays} days`
 })
 
-addFilter('timeLimitStatus', date => {
+addFilter('timeLimitStatus', (date) => {
   const now = DateTime.now().startOf('day')
   const targetDate = DateTime.fromJSDate(new Date(date)).startOf('day')
   const diffDays = Math.ceil(targetDate.diff(now, 'days').days)
@@ -83,7 +83,7 @@ addFilter('timeLimitStatus', date => {
   return `${diffDays} days`
 })
 
-addFilter('paceClockStatus', date => {
+addFilter('paceClockStatus', (date) => {
   const now = DateTime.now()
   const paceClock = DateTime.fromJSDate(new Date(date))
   const hoursRemaining = paceClock.diff(now, 'hours').hours
@@ -103,21 +103,21 @@ addFilter('paceClockStatus', date => {
   return 'ends in more than 3 hours'
 })
 
-addFilter('slugify', text => {
+addFilter('slugify', (text) => {
   if (!text) return ''
   return text
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')       // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
-    .replace(/\-\-+/g, '-')     // Replace multiple - with single -
-    .replace(/^-+/, '')         // Trim - from start of text
-    .replace(/-+$/, '')         // Trim - from end of text
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
 })
 
-addFilter('completionStatusTagClass', status => {
-  switch(status) {
+addFilter('completionStatusTagClass', (status) => {
+  switch (status) {
     case 'Completed':
       return 'govuk-tag--green'
     case 'In progress':
@@ -127,16 +127,18 @@ addFilter('completionStatusTagClass', status => {
   }
 })
 
-addFilter('caseStatusTagClass', status => {
-  switch(status) {
+addFilter('caseStatusTagClass', (status) => {
+  switch (status) {
     case 'Ready for triage':
       return 'govuk-tag--blue'
-    case 'Ready to assign':
+    case 'Waiting on police (triage)':
+      return 'govuk-tag--orange'
+    case 'Ready to assign prosecutor':
       return 'govuk-tag--turquoise'
-    case 'Ready to review':
+    case 'Ready to make charging decision':
       return 'govuk-tag--purple'
-    case 'Rejected':
-      return 'govuk-tag--red'
+    case 'Waiting on police (to charge)':
+      return 'govuk-tag--yellow'
     case 'Waiting on authorised charges':
       return 'govuk-tag--yellow'
     case 'Authorised charges received':
@@ -163,5 +165,5 @@ addFilter('caseStatusTagClass', status => {
 })
 
 addFilter('pluralize', (count, singular, plural) => {
-  return count === 1 ? singular : (plural || singular + 's')
+  return count === 1 ? singular : plural || singular + 's'
 })

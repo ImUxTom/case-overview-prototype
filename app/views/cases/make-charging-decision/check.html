@@ -1,0 +1,46 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Check details and make charging decision" %}
+
+{% set decisionLabels = {
+  "charge": "Charge",
+  "request-more-information": "Request more information",
+  "no-further-action": "No further action"
+} %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: '/cases/' + _case.id + '/make-charging-decision'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{ _case.reference }} – make charging decision</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Decision" },
+            value: { text: decisionLabels[data.chargingDecision.decision] },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/make-charging-decision',
+                text: "Change",
+                visuallyHiddenText: "decision"
+              }]
+            }
+          }
+        ]
+      }) }}
+
+      <form method="post">
+        {{ govukButton({ text: "Confirm decision" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

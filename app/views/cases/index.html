@@ -175,10 +175,12 @@
                           </a>
                         </div>
                         <div class="app-list__tag">
-                          {{ govukTag({
-                            text: _case.status,
-                            classes: (_case.status | caseStatusTagClass) + ' govuk-!-margin-bottom-2'
-                          }) }}
+                          {{
+                            govukTag({
+                              text: _case.status,
+                              classes: (_case.status | caseStatusTagClass)
+                            })
+                          }}
                         </div>
                       </h2>
 

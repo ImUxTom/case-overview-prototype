@@ -11,9 +11,10 @@ const dgaStatuses = ['Awaiting outcome', 'Outcome recorded']
 
 const caseStatuses = [
   'Ready for triage',
-  'Ready to assign',
-  'Ready to review',
-  'Rejected',
+  'Waiting on police (triage)',
+  'Ready to assign prosecutor',
+  'Ready to make charging decision',
+  'Waiting on police (to charge)',
   'Waiting on authorised charges',
   'Authorised charges received',
   'Waiting on first hearing',
@@ -23,7 +24,6 @@ const caseStatuses = [
   'Waiting for sentencing',
   'Not guilty',
   'Sentenced',
-  'Sent to crown court',
 ]
 
 function resetFilters(req) {
@@ -286,6 +286,26 @@ module.exports = (router) => {
       selectedFilters.categories.push({ heading: { text: 'Unit' }, items })
     }
 
+    // Type filter display
+    if (selectedComplexityFilters?.length) {
+      selectedFilters.categories.push({
+        heading: { text: 'Complexity' },
+        items: selectedComplexityFilters.map(function (label) {
+          return { text: label, href: '/cases/remove-complexity/' + label }
+        }),
+      })
+    }
+
+    // Type filter display
+    if (selectedTypeFilters?.length) {
+      selectedFilters.categories.push({
+        heading: { text: 'Hearing type' },
+        items: selectedTypeFilters.map(function (label) {
+          return { text: label, href: '/cases/remove-type/' + label }
+        }),
+      })
+    }
+
     if (selectedPoliceUnitFilters?.length) {
       const policeUnitIds = selectedPoliceUnitFilters.map(Number)
 
@@ -304,26 +324,6 @@ module.exports = (router) => {
       selectedFilters.categories.push({
         heading: { text: 'Police force' },
         items: selectedPoliceUnitItems,
-      })
-    }
-
-    // Type filter display
-    if (selectedComplexityFilters?.length) {
-      selectedFilters.categories.push({
-        heading: { text: 'Complexity' },
-        items: selectedComplexityFilters.map(function (label) {
-          return { text: label, href: '/cases/remove-complexity/' + label }
-        }),
-      })
-    }
-
-    // Type filter display
-    if (selectedTypeFilters?.length) {
-      selectedFilters.categories.push({
-        heading: { text: 'Hearing type' },
-        items: selectedTypeFilters.map(function (label) {
-          return { text: label, href: '/cases/remove-type/' + label }
-        }),
       })
     }
 
@@ -555,18 +555,24 @@ module.exports = (router) => {
       select: { reviewDate: true },
     })
 
-    const uniqueMonthKeys = [...new Set(
-      dgaMonthCases
-        .map((d) => {
+    const uniqueMonthKeys = [
+      ...new Set(
+        dgaMonthCases.map((d) => {
           const date = new Date(d.reviewDate)
           return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-        })
-    )].sort().reverse()
+        }),
+      ),
+    ]
+      .sort()
+      .reverse()
 
     const dgaMonthItems = uniqueMonthKeys.map((key) => {
       const [year, month] = key.split('-').map(Number)
       return {
-        text: new Date(year, month - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+        text: new Date(year, month - 1, 1).toLocaleDateString('en-GB', {
+          month: 'long',
+          year: 'numeric',
+        }),
         value: key,
       }
     })

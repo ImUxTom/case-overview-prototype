@@ -1,0 +1,50 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Check details and add first hearing" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Date" },
+            value: { text: data.addFirstHearing.hearingDate | isoDateFromDateInput | govukDateTime },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/add-first-hearing',
+                text: "Change",
+                visuallyHiddenText: "date of first hearing"
+              }]
+            }
+          },
+          {
+            key: { text: "Court or venue" },
+            value: { text: data.addFirstHearing.venue },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/add-first-hearing/venue',
+                text: "Change",
+                visuallyHiddenText: "court or venue"
+              }]
+            }
+          }
+        ]
+      }) }}
+
+      <form method="post">
+        {{ govukButton({ text: "Add first hearing" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

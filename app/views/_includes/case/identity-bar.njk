@@ -68,7 +68,29 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Ready to assign' %}
+{% elif _case.status == 'Waiting on police (triage)' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Accept resubmission',
+          href: '/cases/' + _case.id + '/accept-resubmission'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Waiting on police (to charge)' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Mark information as received',
+          href: '/cases/' + _case.id + '/mark-information-received'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to assign prosecutor' %}
   {% set identityBarMenus = [
     {
       items: [
@@ -88,23 +110,13 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Ready to review' %}
+{% elif _case.status == 'Ready to make charging decision' %}
   {% set identityBarMenus = [
     {
       items: [
         {
-          text: 'Charge',
-          href: '/cases/' + _case.id + '/charge'
-        },
-        {
-          text: 'Request more information',
-          href: '/cases/' + _case.id + '/request-more-information',
-          classes: 'govuk-button--secondary'
-        },
-        {
-          text: 'No further action',
-          href: '/cases/' + _case.id + '/no-further-action',
-          classes: 'govuk-button--secondary'
+          text: 'Make charging decision',
+          href: '/cases/' + _case.id + '/make-charging-decision'
         }
       ]
     }
