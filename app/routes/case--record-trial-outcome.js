@@ -14,12 +14,30 @@ module.exports = (router) => {
       include: { defendants: true },
     })
 
-    res.render('cases/record-trial-outcome/index', { _case })
+    res.render('cases/record-trial-outcome/index', {
+      _case,
+      selectedOutcome: req.session.data.recordTrialOutcome?.outcome,
+    })
   })
 
-  router.post('/cases/:caseId/record-trial-outcome', async (req, res) => {
+  router.post('/cases/:caseId/record-trial-outcome', (req, res) => {
+    const caseId = req.params.caseId
+    req.session.data.recordTrialOutcome = { outcome: req.body.outcome }
+    res.redirect(`/cases/${caseId}/record-trial-outcome/check`)
+  })
+
+  router.get('/cases/:caseId/record-trial-outcome/check', async (req, res) => {
+    const _case = await prisma.case.findUnique({
+      where: { id: parseInt(req.params.caseId) },
+      include: { defendants: true },
+    })
+
+    res.render('cases/record-trial-outcome/check', { _case })
+  })
+
+  router.post('/cases/:caseId/record-trial-outcome/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
-    const outcome = req.body.outcome
+    const outcome = req.session.data.recordTrialOutcome?.outcome
     const status = outcomeStatusMap[outcome]
 
     await prisma.case.update({
@@ -34,10 +52,12 @@ module.exports = (router) => {
         recordId: caseId,
         action: 'UPDATE',
         title: 'Trial outcome recorded',
-        meta: { outcome },
+        meta: { ...req.session.data.recordTrialOutcome },
         caseId,
       },
     })
+
+    delete req.session.data.recordTrialOutcome
 
     req.flash('success', 'Trial outcome recorded')
     res.redirect(`/cases/${caseId}`)

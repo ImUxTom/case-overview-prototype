@@ -1,0 +1,46 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Check details and record first hearing outcome" %}
+
+{% set outcomeLabels = {
+  "trial-in-magistrates-court": "Goes to trial in magistrates court",
+  "pleads-guilty": "Defendant pleads guilty — goes for sentencing",
+  "sent-to-crown-court": "Sent to crown court"
+} %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: 'Back',
+    href: 'javascript:history.back()'
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{ _case.reference }} – record first hearing outcome</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Outcome" },
+            value: { text: outcomeLabels[data.recordFirstHearingOutcome.outcome] },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/record-first-hearing-outcome',
+                text: "Change",
+                visuallyHiddenText: "outcome"
+              }]
+            }
+          }
+        ]
+      }) }}
+
+      <form method="post">
+        {{ govukButton({ text: "Record outcome" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

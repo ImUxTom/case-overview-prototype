@@ -131,23 +131,25 @@ addFilter('caseStatusTagClass', (status) => {
   switch (status) {
     case 'Ready for triage':
       return 'govuk-tag--blue'
-    case 'Waiting on police (triage)':
+    case 'Waiting for resubmission':
       return 'govuk-tag--orange'
     case 'Ready to assign prosecutor':
       return 'govuk-tag--turquoise'
     case 'Ready to make charging decision':
       return 'govuk-tag--purple'
-    case 'Waiting on police (to charge)':
+    case 'Waiting for information for charging decision':
       return 'govuk-tag--yellow'
-    case 'Waiting on authorised charges':
+    case 'Waiting for police to charge':
       return 'govuk-tag--yellow'
-    case 'Authorised charges received':
+    case 'First hearing preparation':
       return 'govuk-tag--green'
-    case 'Waiting on first hearing':
+    case 'Waiting for first hearing':
       return 'govuk-tag--yellow'
+    case 'Ready to record first hearing outcome':
+      return 'govuk-tag--blue'
     case 'No further action':
       return 'govuk-tag--grey'
-    case 'Ready to prepare for trial':
+    case 'Trial preparation':
       return 'govuk-tag--purple'
     case 'Sent to crown court':
       return 'govuk-tag--grey'
@@ -155,6 +157,8 @@ addFilter('caseStatusTagClass', (status) => {
       return 'govuk-tag--orange'
     case 'Waiting on outcome of trial':
       return 'govuk-tag--yellow'
+    case 'Ready to record trial outcome':
+      return 'govuk-tag--blue'
     case 'Not guilty':
       return 'govuk-tag--grey'
     case 'Sentenced':

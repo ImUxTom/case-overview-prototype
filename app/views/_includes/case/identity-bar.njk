@@ -68,24 +68,26 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Waiting on police (triage)' %}
+{% elif _case.status == 'Waiting for resubmission' %}
   {% set identityBarMenus = [
     {
       items: [
         {
-          text: 'Accept resubmission',
-          href: '/cases/' + _case.id + '/accept-resubmission'
+          text: 'Resubmitted',
+          href: '/cases/' + _case.id + '/accept-resubmission',
+          classes: 'app-button--prototype'
         }
       ]
     }
   ] %}
-{% elif _case.status == 'Waiting on police (to charge)' %}
+{% elif _case.status == 'Waiting for information for charging decision' %}
   {% set identityBarMenus = [
     {
       items: [
         {
-          text: 'Mark information as received',
-          href: '/cases/' + _case.id + '/mark-information-received'
+          text: 'Information received',
+          href: '/cases/' + _case.id + '/mark-information-received',
+          classes: 'app-button--prototype'
         }
       ]
     }
@@ -121,18 +123,19 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Waiting on authorised charges' %}
+{% elif _case.status == 'Waiting for police to charge' %}
   {% set identityBarMenus = [
     {
       items: [
         {
-          text: 'Mark charges as received',
-          href: '/cases/' + _case.id + '/mark-charges-received'
+          text: 'Charges received',
+          href: '/cases/' + _case.id + '/mark-charges-received',
+          classes: 'app-button--prototype'
         }
       ]
     }
   ] %}
-{% elif _case.status == 'Authorised charges received' %}
+{% elif _case.status == 'First hearing preparation' %}
   {% set identityBarMenus = [
     {
       items: [
@@ -143,7 +146,19 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Waiting on first hearing' %}
+{% elif _case.status == 'Waiting for first hearing' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'First hearing started',
+          href: '/cases/' + _case.id + '/mark-first-hearing-happened',
+          classes: 'app-button--prototype'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to record first hearing outcome' %}
   {% set identityBarMenus = [
     {
       items: [
@@ -154,7 +169,7 @@
       ]
     }
   ] %}
-{% elif _case.status == 'Ready to prepare for trial' %}
+{% elif _case.status == 'Trial preparation' %}
   {% set identityBarMenus = [
     {
       items: [
@@ -166,6 +181,18 @@
     }
   ] %}
 {% elif _case.status == 'Waiting on outcome of trial' %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Trial started',
+          href: '/cases/' + _case.id + '/mark-trial-concluded',
+          classes: 'app-button--prototype'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == 'Ready to record trial outcome' %}
   {% set identityBarMenus = [
     {
       items: [

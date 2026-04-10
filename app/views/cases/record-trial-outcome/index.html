@@ -13,16 +13,17 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }}</span>
-      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+      <span class="govuk-caption-l">{{ _case.reference }} – record trial outcome</span>
 
       <form method="post">
         {{ govukRadios({
           name: "outcome",
+          value: selectedOutcome,
           fieldset: {
             legend: {
               text: "What was the outcome?",
-              classes: "govuk-fieldset__legend--m"
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
             }
           },
           items: [
@@ -42,10 +43,9 @@
         }) }}
 
         {{ govukButton({
-          text: "Record outcome"
+          text: "Continue"
         }) }}
       </form>
-      <p><a href="/cases/{{ _case.id }}">Cancel</a></p>
     </div>
   </div>
 {% endblock %}

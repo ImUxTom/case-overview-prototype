@@ -232,6 +232,16 @@ $statuses: (
   margin-bottom: govuk-spacing(9);
 }
 
+.govuk-button.app-button--prototype {
+  background-color: #1d70b8;
+  box-shadow: 0 2px 0 #14507d;
+
+  &:hover {
+    background-color: #15558a;
+    box-shadow: 0 2px 0 #14507d;
+  }
+}
+
 .govuk-service-navigation__item {
   @include govuk-media-query($from: tablet) {
     &:not(:last-child) {

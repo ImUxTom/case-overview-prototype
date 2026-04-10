@@ -25,7 +25,7 @@ Actions:
 - Review and request further info (sent back after further info added and back to "ready for review")
 - Review and decide no further action (not charging/finalising)
 
-4. "Waiting on authorised charges" (from police) 
+4. "Waiting for police to charge" 
 
 Actions:
 - Chase offline????????
@@ -38,7 +38,7 @@ Actions:
 - Create bundles e.g. disclosure and initial disclosure prosecution case
 - Dispatch bundles to court, defence if known
 
-6. “Waiting on first hearing”
+6. “Waiting for first hearing”
 
 Do nothing until day of first hearing where state changes to:
 
@@ -51,7 +51,7 @@ Actions:
 - Record outcome of hearing - sent to crown court (complex journey)
 - Record outcome of hearing - goes to trial in mags court
 
-8. "Ready to prepare for trial"
+8. "Trial preparation"
 
 Actions:
 - Prepare for trial

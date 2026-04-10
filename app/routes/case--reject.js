@@ -16,7 +16,7 @@ module.exports = (router) => {
 
     await prisma.case.update({
       where: { id: caseId },
-      data: { status: 'Waiting on police (triage)' },
+      data: { status: 'Waiting for resubmission' },
     })
 
     await prisma.activityLog.create({
@@ -35,14 +35,6 @@ module.exports = (router) => {
   })
 
   router.get('/cases/:caseId/accept-resubmission', async (req, res) => {
-    const _case = await prisma.case.findUnique({
-      where: { id: parseInt(req.params.caseId) },
-      include: { defendants: true },
-    })
-    res.render('cases/accept-resubmission/index', { _case })
-  })
-
-  router.post('/cases/:caseId/accept-resubmission', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
 
     await prisma.case.update({
@@ -61,7 +53,7 @@ module.exports = (router) => {
       },
     })
 
-    req.flash('success', 'Resubmission accepted')
+    req.flash('success', 'Resubmitted')
     res.redirect(`/cases/${caseId}`)
   })
 }
