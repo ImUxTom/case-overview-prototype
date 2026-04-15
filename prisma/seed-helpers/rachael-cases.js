@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker');
+const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const { createDirectionsForCase } = require('./directions');
@@ -8,6 +9,21 @@ const RACHAEL_UNITS = {
   WESSEX_CROWN_COURT: 3,
   WESSEX_RASSO: 4
 };
+
+const RACHAEL_STATUSES = [
+  statuses.PROSECUTOR_NEEDED,
+  statuses.PTPH_NEEDED,
+  statuses.WAITING_FOR_PTPH_HEARING,
+  statuses.PTPH_HEARING_OUTCOME_NEEDED,
+  statuses.TRIAL_PREPARATION_NEEDED,
+  statuses.WAITING_FOR_OUTCOME_OF_TRIAL,
+  statuses.TRIAL_OUTCOME_NEEDED,
+  statuses.WAITING_FOR_SENTENCING,
+  statuses.NOT_GUILTY,
+  statuses.SENTENCED,
+  statuses.NO_FURTHER_ACTION,
+  statuses.SENT_TO_CROWN_COURT,
+];
 
 const RACHAEL_TASKS = [
   { name: 'Check new police info', hasCTL: true, hearingType: 'Mention' },
@@ -190,6 +206,7 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
     data: {
       reference: generateCaseReference(),
       operationName,
+      status: faker.helpers.arrayElement(RACHAEL_STATUSES),
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: unitId } },
@@ -342,6 +359,7 @@ async function createManyWitnessesCase(prisma, user, config) {
     data: {
       reference: '99RH250001/1',
       operationName,
+      status: faker.helpers.arrayElement(RACHAEL_STATUSES),
       type: faker.helpers.arrayElement(types),
       complexity: faker.helpers.arrayElement(complexities),
       unit: { connect: { id: RACHAEL_UNITS.WESSEX_CROWN_COURT } },
