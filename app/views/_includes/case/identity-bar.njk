@@ -169,6 +169,40 @@
       ]
     }
   ] %}
+{% elif _case.status == caseStatuses.PTPH_NEEDED %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Add PTPH hearing',
+          href: '/cases/' + _case.id + '/add-ptph-hearing'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == caseStatuses.WAITING_FOR_PTPH_HEARING %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Mark PTPH as happened',
+          href: '/cases/' + _case.id + '/mark-ptph-happened',
+          classes: 'app-button--prototype'
+        }
+      ]
+    }
+  ] %}
+{% elif _case.status == caseStatuses.PTPH_HEARING_OUTCOME_NEEDED %}
+  {% set identityBarMenus = [
+    {
+      items: [
+        {
+          text: 'Record PTPH hearing outcome',
+          href: '/cases/' + _case.id + '/record-ptph-hearing-outcome'
+        }
+      ]
+    }
+  ] %}
 {% elif _case.status == caseStatuses.TRIAL_PREPARATION_NEEDED %}
   {% set identityBarMenus = [
     {

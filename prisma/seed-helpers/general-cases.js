@@ -38,6 +38,17 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
   const createdCases = [];
 
+  const allUnits = await prisma.unit.findMany({ select: { id: true, name: true } })
+  const magsUnitIds = allUnits.filter(u => u.name.includes('Magistrates Court')).map(u => u.id)
+  const crownCourtUnitIds = allUnits.filter(u => u.name.includes('Crown Court')).map(u => u.id)
+
+  const crownCourtStatuses = [
+    statuses.PTPH_NEEDED,
+    statuses.WAITING_FOR_PTPH_HEARING,
+    statuses.PTPH_HEARING_OUTCOME_NEEDED,
+    statuses.SENT_TO_CROWN_COURT,
+  ]
+
   const usersWithDedicatedSeeds = [
     'rachael@cps.gov.uk',
     'simon@cps.gov.uk',
@@ -77,7 +88,31 @@ async function seedGeneralCases(prisma, dependencies, config) {
       faker.number.int({ min: 1, max: 3 })
     );
 
-    const caseUnitId = faker.number.int({ min: 1, max: 18 });
+    const status = faker.helpers.arrayElement([
+      statuses.TRIAGE_NEEDED,
+      statuses.WAITING_FOR_RESUBMISSION,
+      statuses.PROSECUTOR_NEEDED,
+      statuses.CHARGING_DECISION_NEEDED,
+      statuses.WAITING_FOR_INFORMATION_FOR_CHARGING_DECISION,
+      statuses.WAITING_FOR_POLICE_TO_CHARGE,
+      statuses.FIRST_HEARING_PREPARATION_NEEDED,
+      statuses.WAITING_FOR_FIRST_HEARING,
+      statuses.FIRST_HEARING_OUTCOME_NEEDED,
+      statuses.NO_FURTHER_ACTION,
+      statuses.PTPH_NEEDED,
+      statuses.WAITING_FOR_PTPH_HEARING,
+      statuses.PTPH_HEARING_OUTCOME_NEEDED,
+      statuses.TRIAL_PREPARATION_NEEDED,
+      statuses.WAITING_FOR_OUTCOME_OF_TRIAL,
+      statuses.TRIAL_OUTCOME_NEEDED,
+      statuses.WAITING_FOR_SENTENCING,
+      statuses.NOT_GUILTY,
+      statuses.SENTENCED,
+      statuses.SENT_TO_CROWN_COURT,
+    ])
+
+    const unitPool = crownCourtStatuses.includes(status) ? crownCourtUnitIds : magsUnitIds
+    const caseUnitId = faker.helpers.arrayElement(unitPool)
 
     // Pick between 0 and 5 unique standard task names
     const numStandardTasks = faker.number.int({ min: 0, max: 5 });
@@ -228,26 +263,6 @@ async function seedGeneralCases(prisma, dependencies, config) {
         defendantId
       });
     }
-
-    const status = faker.helpers.arrayElement([
-      statuses.TRIAGE_NEEDED,
-      statuses.WAITING_FOR_RESUBMISSION,
-      statuses.PROSECUTOR_NEEDED,
-      statuses.CHARGING_DECISION_NEEDED,
-      statuses.WAITING_FOR_INFORMATION_FOR_CHARGING_DECISION,
-      statuses.WAITING_FOR_POLICE_TO_CHARGE,
-      statuses.FIRST_HEARING_PREPARATION_NEEDED,
-      statuses.WAITING_FOR_FIRST_HEARING,
-      statuses.FIRST_HEARING_OUTCOME_NEEDED,
-      statuses.NO_FURTHER_ACTION,
-      statuses.TRIAL_PREPARATION_NEEDED,
-      statuses.WAITING_FOR_OUTCOME_OF_TRIAL,
-      statuses.TRIAL_OUTCOME_NEEDED,
-      statuses.WAITING_FOR_SENTENCING,
-      statuses.NOT_GUILTY,
-      statuses.SENTENCED,
-      statuses.SENT_TO_CROWN_COURT,
-    ])
 
     const createdCase = await prisma.case.create({
       data: {

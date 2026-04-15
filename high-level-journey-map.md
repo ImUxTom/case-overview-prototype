@@ -96,6 +96,12 @@ When you send to crown court, you will as part of that set up a pre-trial prep h
 
 When sent to crown court the assigned prosecutor is removed.
 
+
+When just mags: First hearing outcome needed > Trial preparation needed
+
+When it goes to crown: First hearing outcome needed > PTPH needed > Waiting for PTPH hearing > PTPH hearing outcome needed > Trial preparation needed
+
+
 1. Prosecution not set up => Assign prosecutor / Assign paralegal officer
 
   * 2. Pre-trial preparation hearing (PTPH) needed => Bundle and stuff, legal review, draft indictment [Mark prep done]

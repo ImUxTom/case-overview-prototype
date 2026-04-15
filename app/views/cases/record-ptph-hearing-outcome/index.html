@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Record first hearing outcome" %}
+{% set pageName = "Record PTPH hearing outcome" %}
 
 {% block beforeContent %}
   {{
@@ -15,7 +15,7 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }} – record first hearing outcome</span>
+      <span class="govuk-caption-l">{{ _case.reference }} – record PTPH hearing outcome</span>
 
       <form method="post">
         {{
@@ -31,16 +31,16 @@
             },
             items: [
               {
-                value: "trial-in-magistrates-court",
-                text: "Trial in magistrates court"
-              },
-              {
-                value: "sent-to-crown-court",
-                text: "Trial in crown court"
+                value: "goes-to-trial",
+                text: "Goes to trial"
               },
               {
                 value: "pleads-guilty",
                 text: "Sentencing"
+              },
+              {
+                value: "no-further-action",
+                text: "No further action"
               }
             ]
           })

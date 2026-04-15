@@ -16,4 +16,7 @@ module.exports = {
   NOT_GUILTY: 'Not guilty',
   SENTENCED: 'Sentenced',
   SENT_TO_CROWN_COURT: 'Sent to crown court',
+  PTPH_NEEDED: 'PTPH needed',
+  WAITING_FOR_PTPH_HEARING: 'Waiting for PTPH hearing',
+  PTPH_HEARING_OUTCOME_NEEDED: 'PTPH hearing outcome needed',
 }

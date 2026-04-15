@@ -260,13 +260,19 @@ module.exports = (router) => {
       },
     })
 
-    const _case = await prisma.case.findUnique({ where: { id: caseId }, select: { status: true } })
+    const _case = await prisma.case.findUnique({ where: { id: caseId }, select: { status: true, unitId: true } })
 
     if (_case.status === statuses.PROSECUTOR_NEEDED) {
-      await prisma.case.update({
-        where: { id: caseId },
-        data: { status: statuses.CHARGING_DECISION_NEEDED },
-      })
+      const unit = await prisma.unit.findUnique({ where: { id: _case.unitId } })
+
+      if (unit.name.includes('Crown Court')) {
+        const paralegalCount = await prisma.caseParalegalOfficer.count({ where: { caseId } })
+        if (paralegalCount > 0) {
+          await prisma.case.update({ where: { id: caseId }, data: { status: statuses.PTPH_NEEDED } })
+        }
+      } else {
+        await prisma.case.update({ where: { id: caseId }, data: { status: statuses.CHARGING_DECISION_NEEDED } })
+      }
     }
 
     const prosecutor = await prisma.user.findUnique({

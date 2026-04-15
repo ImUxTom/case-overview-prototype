@@ -6,7 +6,7 @@
 {% set outcomeLabels = {
   "trial-in-magistrates-court": "Goes to trial in magistrates court",
   "pleads-guilty": "Defendant pleads guilty — goes for sentencing",
-  "sent-to-crown-court": "Sent to crown court"
+  "sent-to-crown-court": "Trial in crown court"
 } %}
 
 {% block beforeContent %}
@@ -29,12 +29,23 @@
             value: { text: outcomeLabels[data.recordFirstHearingOutcome.outcome] },
             actions: {
               items: [{
-                href: '/cases/' + _case.id + '/record-first-hearing-outcome',
+                href: "/cases/:caseId/record-first-hearing-outcome" | replace(':caseId', _case.id),
                 text: "Change",
                 visuallyHiddenText: "outcome"
               }]
             }
-          }
+          },
+          {
+            key: { text: "Crown court" },
+            value: { text: crownCourtUnit.name },
+            actions: {
+              items: [{
+                href: "/cases/:caseId/record-first-hearing-outcome/select-crown-court-unit" | replace(':caseId', _case.id),
+                text: "Change",
+                visuallyHiddenText: "crown court"
+              }]
+            }
+          } if data.recordFirstHearingOutcome.outcome == "sent-to-crown-court"
         ]
       }) }}
 
