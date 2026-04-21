@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
+const { createDivergedCase } = require('./diverged-cases');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const {
   generateExpiredCTL,
@@ -533,7 +534,9 @@ async function seedBruceCases(prisma, dependencies, config) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
   }
 
-  return TEST_CASES.length + 20;
+  await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), BRUCE_STATUSES, fullConfig);
+
+  return TEST_CASES.length + 20 + 1;
 }
 
 module.exports = {

@@ -7,6 +7,11 @@
     current: secondaryNavId == 'overview'
   },
   {
+    text: "Defendants",
+    href: "/cases/:caseId/defendants" | replace(':caseId', _case.id),
+    current: secondaryNavId == 'defendants'
+  },
+  {
     text: "Hearings",
     href: "/cases/:caseId/hearings" | replace(':caseId', _case.id),
     current: secondaryNavId == 'hearings'
@@ -29,12 +34,8 @@
     text: "DGA reporting",
     href: "/cases/:caseId/dga" | replace(':caseId', _case.id),
     current: secondaryNavId == 'dga'
-  } if _case.dga and _case.dga.recordDisputeOutcomesDeadline,
+  } if _case.dga and _case.dga.recordDisputeOutcomesDeadline, 
   {
-    text: "Defendants",
-    href: "/cases/:caseId/defendants" | replace(':caseId', _case.id),
-    current: secondaryNavId == 'defendants'
-  }, {
     text: "Witnesses",
     href: "/cases/:caseId/witnesses" | replace(':caseId', _case.id),
     current: secondaryNavId == 'witnesses'

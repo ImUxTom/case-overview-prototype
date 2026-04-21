@@ -28,6 +28,14 @@ function addTimeLimitDates(_case) {
   _case.statutoryTimeLimit = stlDates.length > 0 ? new Date(Math.min(...stlDates)) : null
   _case.paceClock = paceClockDates.length > 0 ? new Date(Math.min(...paceClockDates)) : null
 
+  const uniqueDefendantStatuses = [...new Set(_case.defendants.map(d => d.status).filter(Boolean))]
+  if (uniqueDefendantStatuses.length > 1) {
+    _case.status = 'Multiple'
+    _case.defendantStatuses = uniqueDefendantStatuses
+  } else {
+    _case.defendantStatuses = []
+  }
+
   return _case
 }
 

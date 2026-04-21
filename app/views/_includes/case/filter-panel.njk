@@ -15,6 +15,20 @@
   }) if statusItems.length }}
 
   {{ govukCheckboxes({
+    idPrefix: "caseListFilters[defendants]",
+    name: "caseListFilters[defendants]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "Defendants",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: defendantItems,
+    values: selectedDefendantFilters
+  }) }}
+
+  {{ govukCheckboxes({
     idPrefix: "caseListFilters[policeRequests]",
     name: "caseListFilters[policeRequests]",
     classes: "govuk-checkboxes--small",

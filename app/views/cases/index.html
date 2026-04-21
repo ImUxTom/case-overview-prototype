@@ -214,6 +214,10 @@
                           classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
                           rows: [
                             {
+                              key: { html: 'Status' },
+                              value: { html: _case.defendantStatuses | join(', ') }
+                            } if _case.defendantStatuses.length,
+                            {
                               key: {
                                 html: 'URN'
                               },

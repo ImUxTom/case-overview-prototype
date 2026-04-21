@@ -130,6 +130,8 @@ addFilter('completionStatusTagClass', (status) => {
 
 addFilter('caseStatusTagClass', (status) => {
   switch (status) {
+    case 'Multiple':
+      return 'govuk-tag--grey'
     case statuses.TRIAGE_NEEDED:
       return 'govuk-tag--blue'
     case statuses.POLICE_RESUBMISSION_PENDING:

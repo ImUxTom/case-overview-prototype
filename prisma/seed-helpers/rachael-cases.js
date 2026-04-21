@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
+const { createDivergedCase } = require('./diverged-cases');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const { createDirectionsForCase } = require('./directions');
 const { createCtlLogEntries } = require('./ctl-log-entries');
@@ -628,7 +629,9 @@ async function seedRachaelCases(prisma, dependencies, config) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
   }
 
-  return RACHAEL_TASKS.length + 1 + 20;
+  await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_STATUSES, fullConfig);
+
+  return RACHAEL_TASKS.length + 1 + 20 + 1;
 }
 
 module.exports = {

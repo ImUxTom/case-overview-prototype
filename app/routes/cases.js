@@ -44,6 +44,7 @@ function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.prosecutors', null)
   _.set(req, 'session.data.caseListFilters.paralegalOfficers', null)
   _.set(req, 'session.data.caseListFilters.statuses', null)
+  _.set(req, 'session.data.caseListFilters.defendants', null)
 }
 
 module.exports = (router) => {
@@ -169,6 +170,7 @@ module.exports = (router) => {
     }
 
     let selectedStatusFilters = _.get(req.session.data.caseListFilters, 'statuses', [])
+    let selectedDefendantFilters = _.get(req.session.data.caseListFilters, 'defendants', [])
     let selectedDgaFilters = _.get(req.session.data.caseListFilters, 'dga', [])
     let selectedDgaMonthFilters = _.get(req.session.data.caseListFilters, 'dgaMonth', [])
     let selectedCtlFilters = _.get(req.session.data.caseListFilters, 'isCTL', [])
@@ -292,6 +294,16 @@ module.exports = (router) => {
         items: selectedStatusFilters.map(function (value) {
           return { text: value, href: '/cases/remove-status/' + value }
         }),
+      })
+    }
+
+    if (selectedDefendantFilters?.length) {
+      selectedFilters.categories.push({
+        heading: { text: 'Defendants' },
+        items: selectedDefendantFilters.map((value) => ({
+          text: value,
+          href: '/cases/remove-defendants/' + encodeURIComponent(value),
+        })),
       })
     }
 
@@ -644,6 +656,14 @@ module.exports = (router) => {
       })
     }
 
+    if (selectedDefendantFilters?.length) {
+      cases = cases.filter((_case) => {
+        if (selectedDefendantFilters.includes('Single defendant') && _case.defendants.length === 1) return true
+        if (selectedDefendantFilters.includes('Multiple defendants') && _case.defendants.length > 1) return true
+        return false
+      })
+    }
+
     let dgaItems = dgaStatuses.map((dgaStatus) => ({
       text: dgaStatus,
       value: dgaStatus,
@@ -812,11 +832,18 @@ module.exports = (router) => {
       c.dga?.failureReasons?.some((fr) => fr.didPoliceDisputeFailure === null),
     )
 
+    const defendantItems = [
+      { value: 'Single defendant', text: 'Single defendant' },
+      { value: 'Multiple defendants', text: 'Multiple defendants' },
+    ]
+
     res.render('cases/index', {
       totalCases,
       cases,
       statusItems,
       selectedStatusFilters,
+      defendantItems,
+      selectedDefendantFilters,
       dgaItems,
       dgaMonthItems,
       selectedDgaMonthFilters,
@@ -842,6 +869,12 @@ module.exports = (router) => {
   router.get('/cases/remove-status/:status', (req, res) => {
     const currentFilters = _.get(req, 'session.data.caseListFilters.statuses', [])
     _.set(req, 'session.data.caseListFilters.statuses', _.pull(currentFilters, req.params.status))
+    res.redirect('/cases')
+  })
+
+  router.get('/cases/remove-defendants/:value', (req, res) => {
+    const current = _.get(req, 'session.data.caseListFilters.defendants', [])
+    _.set(req, 'session.data.caseListFilters.defendants', _.pull(current, decodeURIComponent(req.params.value)))
     res.redirect('/cases')
   })
 

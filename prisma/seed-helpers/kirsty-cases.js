@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
+const { createDivergedCase } = require('./diverged-cases');
 const {
   generateTodaySTL,
   generateTomorrowSTL,
@@ -447,7 +448,9 @@ async function seedKirstyCases(prisma, dependencies, config) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
   }
 
-  return KIRSTY_STL_TASKS.length + KIRSTY_CTL_TASKS.length + 20;
+  await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, KIRSTY_STATUSES, fullConfig);
+
+  return KIRSTY_STL_TASKS.length + KIRSTY_CTL_TASKS.length + 20 + 1;
 }
 
 module.exports = {

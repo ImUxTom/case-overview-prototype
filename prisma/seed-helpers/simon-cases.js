@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const { generateCaseReference } = require('./identifiers');
+const { createDivergedCase } = require('./diverged-cases');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const {
   generateTodaySTL,
@@ -742,7 +743,9 @@ async function seedSimonCases(prisma, dependencies, config) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
   }
 
-  return SIMON_STL_TASKS.length + SIMON_CTL_TASKS.length + 1 + 20;
+  await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), SIMON_STATUSES, fullConfig);
+
+  return SIMON_STL_TASKS.length + SIMON_CTL_TASKS.length + 1 + 20 + 1;
 }
 
 module.exports = {

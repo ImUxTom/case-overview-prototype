@@ -269,6 +269,7 @@ model Defendant {
   dateOfBirth      DateTime?
   remandStatus     RemandStatus?
   paceClock        DateTime?
+  status           String?
   defenceLawyerId  Int?
   defenceLawyer    DefenceLawyer? @relation(fields: [defenceLawyerId], references: [id])
   cases            Case[]         @relation("CaseDefendants")

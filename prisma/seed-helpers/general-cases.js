@@ -307,6 +307,16 @@ async function seedGeneralCases(prisma, dependencies, config) {
       },
     });
 
+    // Assign defendant statuses — 30% of multi-defendant cases have diverged statuses
+    const isDiverged = assignedDefendants.length > 1 && faker.datatype.boolean({ probability: 0.3 })
+    for (const defendant of assignedDefendants) {
+      const defendantStatus = isDiverged ? faker.helpers.arrayElement(statusPool) : status
+      await prisma.defendant.update({
+        where: { id: defendant.id },
+        data: { status: defendantStatus }
+      })
+    }
+
     // Assign prosecutors to case
     // Use UNASSIGNED_TARGET to determine how many cases should remain unassigned
     const unassignedProbability = unassignedTarget / totalCases;

@@ -21,7 +21,14 @@
           {% for defendant in _case.defendants %}
           <div class="app-list__item">
               <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
-                <a href="/cases/{{_case.id}}/defendants/{{defendant.id}}" class="govuk-link--no-visited-state">{{defendant.firstName}} {{defendant.lastName}}</a>
+                <div>
+                  <a href="/cases/{{_case.id}}/defendants/{{defendant.id}}" class="govuk-link--no-visited-state">{{defendant.firstName}} {{defendant.lastName}}</a>
+                </div>
+                {% if defendant.status %}
+                  <div class="app-list__tag">
+                    {{ govukTag({ text: defendant.status, classes: defendant.status | caseStatusTagClass }) }}
+                  </div>
+                {% endif %}
               </h2>
 
               {% set chargesList %}

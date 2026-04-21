@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
+const { createDivergedCase } = require('./diverged-cases');
 const {
   generateTodaySTL,
   generateTomorrowSTL
@@ -619,6 +620,12 @@ async function seedTonyCases(prisma, dependencies, config) {
   // Create colleague cases
   for (let i = 0; i < 20; i++) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
+    count++;
+  }
+
+  const tonyStark = await prisma.user.findFirst({ where: { firstName: 'Tony', lastName: 'Stark' } });
+  if (tonyStark) {
+    await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), TONY_MAGS_STATUSES, fullConfig);
     count++;
   }
 
