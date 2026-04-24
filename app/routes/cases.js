@@ -321,7 +321,7 @@ module.exports = (router) => {
 
     if (selectedDefendantFilters?.length) {
       selectedFilters.categories.push({
-        heading: { text: 'Defendant statuses' },
+        heading: { text: 'Defendants' },
         items: selectedDefendantFilters.map((value) => ({
           text: value,
           href: '/cases/remove-defendants/' + encodeURIComponent(value),
@@ -623,10 +623,7 @@ module.exports = (router) => {
           },
         },
         hearings: {
-          orderBy: {
-            startDate: 'asc',
-          },
-          take: 1,
+          select: { status: true }
         },
         location: true,
         tasks: true,
@@ -634,6 +631,8 @@ module.exports = (router) => {
         policeRequests: { include: { items: true } },
       },
     })
+
+    const hearingStatusOrder = ['Preparation needed', 'Pending', 'Outcome needed']
 
     cases = cases.map((c) => {
       const outstandingPoliceRequests = (c.policeRequests || []).filter((r) =>
@@ -644,11 +643,15 @@ module.exports = (router) => {
           ? new Date(Math.min(...outstandingPoliceRequests.map((r) => new Date(r.deadline))))
           : null
 
+      const uniqueActive = [...new Set(c.hearings.map(h => h.status).filter(s => s && s !== 'Complete'))]
+      const hearingStatuses = hearingStatusOrder.filter(s => uniqueActive.includes(s))
+
       return {
         ...addTimeLimitDates(c),
         needsDgaOutcome:
           c.dga?.failureReasons?.some((fr) => fr.didPoliceDisputeFailure === null) ?? false,
         outstandingRequestDeadline,
+        hearingStatuses,
       }
     })
 
@@ -684,6 +687,7 @@ module.exports = (router) => {
 
     if (selectedDefendantFilters?.length) {
       cases = cases.filter((_case) => {
+        if (selectedDefendantFilters.includes('Multiple defendants') && _case.defendants.length > 1) return true
         if (selectedDefendantFilters.includes('Mixed') && _case.status === 'Mixed') return true
         if (selectedDefendantFilters.includes('Not mixed') && _case.status !== 'Mixed') return true
         return false
@@ -866,6 +870,7 @@ module.exports = (router) => {
     ].map((s) => ({ value: s, text: s }))
 
     const defendantItems = [
+      { value: 'Multiple defendants', text: 'Multiple defendants' },
       { value: 'Mixed', text: 'Mixed' },
       { value: 'Not mixed', text: 'Not mixed' },
     ]

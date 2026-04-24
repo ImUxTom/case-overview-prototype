@@ -28,8 +28,6 @@ const {
 } = require('./pace-generators');
 const { createDirectionsForCase } = require('./directions');
 const { createCtlLogEntries } = require('./ctl-log-entries');
-const hearingStatuses = require('../../app/data/hearing-statuses');
-
 const BRUCE_UNITS = {
   WESSEX_CROWN_COURT: 3,
   WESSEX_RASSO: 4
@@ -292,23 +290,7 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
 
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: statuses.CHARGED }
-  });
-
-  const allDefendants = [defendant, ...extraDefendants];
-  const hearingDate = faker.date.soon({ days: 30 });
-  hearingDate.setHours(10, 0, 0, 0);
-  const venue = unitId === BRUCE_UNITS.WESSEX_CROWN_COURT ? 'Wessex Crown Court' : 'Wessex RASSO';
-  await prisma.hearing.create({
-    data: {
-      startDate: hearingDate,
-      endDate: null,
-      status: hearingStatuses.PREPARATION_NEEDED,
-      type: faker.helpers.arrayElement(['PTPH', 'Trial']),
-      venue,
-      caseId: _case.id,
-      defendants: { connect: allDefendants.map(d => ({ id: d.id })) }
-    }
+    data: { status: faker.helpers.arrayElement(BRUCE_STATUSES) }
   });
 
   await prisma.caseParalegalOfficer.create({
@@ -459,24 +441,6 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     data: { caseId: _case.id, userId: paralegalOfficer.id }
   });
 
-  if (defendantStatus === statuses.CHARGED) {
-    const venue = unitId === BRUCE_UNITS.WESSEX_CROWN_COURT ? 'Wessex Crown Court' : 'Wessex RASSO';
-    const allDefendants = [defendant, ...extraDefendants];
-    const hearingDate = faker.date.soon({ days: 30 });
-    hearingDate.setHours(10, 0, 0, 0);
-    await prisma.hearing.create({
-      data: {
-        startDate: hearingDate,
-        endDate: null,
-        status: hearingStatuses.PREPARATION_NEEDED,
-        type: faker.helpers.arrayElement(['PTPH', 'Trial']),
-        venue,
-        caseId: _case.id,
-        defendants: { connect: allDefendants.map(d => ({ id: d.id })) }
-      }
-    });
-  }
-
   const dueDate = faker.date.soon({ days: 30 });
   dueDate.setHours(23, 59, 59, 999);
   await prisma.task.create({
@@ -539,8 +503,9 @@ async function seedBruceCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), BRUCE_STATUSES, fullConfig);
+  await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), [statuses.TRIAGE_NEEDED, statuses.CHARGING_DECISION_NEEDED], fullConfig);
 
-  return TEST_CASES.length + 20 + 1;
+  return TEST_CASES.length + 20 + 1 + 1;
 }
 
 module.exports = {

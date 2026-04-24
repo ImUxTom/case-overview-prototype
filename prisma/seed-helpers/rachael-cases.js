@@ -1,6 +1,5 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
-const hearingStatuses = require('../../app/data/hearing-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
@@ -23,15 +22,15 @@ const RACHAEL_STATUSES = [
 ];
 
 const RACHAEL_TASKS = [
-  { name: 'Check new police info', hasCTL: true, hearingType: 'Mention' },
-  { name: 'Post Hg actions required', hasCTL: true, hearingType: 'Trial' },
-  { name: 'Check new communication', hasCTL: false, hearingType: 'Sentence, with PSR' },
-  { name: 'Check CTL case', hasCTL: true, hearingType: 'Trial' },
-  { name: 'Reminder - 21/01 - SM apps must be done today', hasCTL: true, hearingType: 'PTPH', isReminder: true },
-  { name: 'Follow-up - case action plan item', hasCTL: true, hearingType: 'Mention' },
-  { name: 'Check new DCS document', hasCTL: true, hearingType: 'Trial' },
-  { name: 'Check new correspondence', hasCTL: true, hearingType: 'Section 28' },
-  { name: 'Warn witnesses', hasCTL: true, hearingType: 'Trial' }
+  { name: 'Check new police info', hasCTL: true },
+  { name: 'Post Hg actions required', hasCTL: true },
+  { name: 'Check new communication', hasCTL: false },
+  { name: 'Check CTL case', hasCTL: true },
+  { name: 'Reminder - 21/01 - SM apps must be done today', hasCTL: true, isReminder: true },
+  { name: 'Follow-up - case action plan item', hasCTL: true },
+  { name: 'Check new DCS document', hasCTL: true },
+  { name: 'Check new correspondence', hasCTL: true },
+  { name: 'Warn witnesses', hasCTL: true }
 ];
 
 async function createWitness(prisma, caseId, config) {
@@ -150,7 +149,7 @@ async function createSpecialMeasures(prisma, witnessId) {
 
 async function createCaseWithTask(prisma, user, taskConfig, config) {
   const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
-  const { name, hasCTL, hearingType, isReminder } = taskConfig;
+  const { name, hasCTL, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement([RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_UNITS.WESSEX_RASSO]);
 
@@ -259,30 +258,9 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
     }
   });
 
-  // Set defendant status to Charged (all Rachael task cases are in hearing)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: statuses.CHARGED }
-  });
-
-  // Create hearing
-  const venue = unitId === RACHAEL_UNITS.WESSEX_CROWN_COURT ? 'Wessex Crown Court' : 'Wessex RASSO';
-  const hearingStartDate = new Date();
-  hearingStartDate.setDate(hearingStartDate.getDate() + faker.number.int({ min: 7, max: 56 }));
-  hearingStartDate.setHours(10, 0, 0, 0);
-
-  await prisma.hearing.create({
-    data: {
-      startDate: hearingStartDate,
-      endDate: null,
-      status: hearingStatuses.PREPARATION_NEEDED,
-      type: hearingType,
-      venue,
-      caseId: _case.id,
-      defendants: {
-        connect: [{ id: defendant.id }, ...extraDefendants.map(d => ({ id: d.id }))]
-      }
-    }
+    data: { status: faker.helpers.arrayElement(RACHAEL_STATUSES) }
   });
 
   // Create task
@@ -625,8 +603,9 @@ async function seedRachaelCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_STATUSES, fullConfig);
+  await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, [statuses.TRIAGE_NEEDED, statuses.CHARGING_DECISION_NEEDED], fullConfig);
 
-  return RACHAEL_TASKS.length + 1 + 20 + 1;
+  return RACHAEL_TASKS.length + 1 + 20 + 1 + 1;
 }
 
 module.exports = {

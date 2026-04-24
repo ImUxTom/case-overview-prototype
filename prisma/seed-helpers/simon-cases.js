@@ -9,7 +9,6 @@ const {
 } = require('./stl-generators');
 const { createDirectionsForCase } = require('./directions');
 const { createCtlLogEntries } = require('./ctl-log-entries');
-const { hearingDateForStatus } = require('./dates');
 
 const SIMON_UNITS = {
   NORTH_YORKSHIRE_MAGISTRATES_COURT: 9,
@@ -21,7 +20,6 @@ const SIMON_UNITS = {
 const SIMON_UNITS_ARRAY = Object.values(SIMON_UNITS);
 
 const statuses = require('../../app/data/case-statuses');
-const hearingStatuses = require('../../app/data/hearing-statuses');
 
 const SIMON_STATUSES = [
   statuses.TRIAGE_NEEDED,
@@ -42,14 +40,13 @@ const SIMON_STL_TASKS = [
   { name: 'Further PCD review', stlGenerator: generateThisWeekSTL }
 ];
 
-// CTL tasks (with hearing)
 const SIMON_CTL_TASKS = [
-  { name: 'Initial disclosure', hasCTL: true, hearingType: 'First Hearing' },
-  { name: 'Reminder - RL, please see police response', hasCTL: true, hearingType: 'First Hearing', isReminder: true },
-  { name: 'Electronic upgrade file review', hasCTL: true, hearingType: 'Trial' },
-  { name: 'Check new police info', hasCTL: true, hearingType: 'Mention' },
-  { name: 'Check new correspondence', hasCTL: true, hearingType: 'First Hearing' },
-  { name: 'CTL expiry imminent', hasCTL: true, hearingType: 'Trial' }
+  { name: 'Initial disclosure', hasCTL: true },
+  { name: 'Reminder - RL, please see police response', hasCTL: true, isReminder: true },
+  { name: 'Electronic upgrade file review', hasCTL: true },
+  { name: 'Check new police info', hasCTL: true },
+  { name: 'Check new correspondence', hasCTL: true },
+  { name: 'CTL expiry imminent', hasCTL: true }
 ];
 
 async function createWitness(prisma, caseId, config) {
@@ -277,7 +274,7 @@ async function createSTLCase(prisma, user, taskConfig, config) {
 
 async function createCTLCase(prisma, user, taskConfig, config) {
   const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
-  const { name, hearingType, isReminder } = taskConfig;
+  const { name, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(SIMON_UNITS_ARRAY);
   const custodyTimeLimit = faker.date.soon({ days: 14 });
@@ -387,26 +384,7 @@ async function createCTLCase(prisma, user, taskConfig, config) {
 
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: statuses.CHARGED }
-  });
-
-  // Create hearing
-  const hearingStartDate = new Date();
-  hearingStartDate.setDate(hearingStartDate.getDate() + faker.number.int({ min: 7, max: 56 }));
-  hearingStartDate.setHours(10, 0, 0, 0);
-
-  await prisma.hearing.create({
-    data: {
-      startDate: hearingStartDate,
-      endDate: null,
-      status: hearingStatuses.PREPARATION_NEEDED,
-      type: hearingType,
-      venue: 'Magistrates Court',
-      caseId: _case.id,
-      defendants: {
-        connect: [{ id: defendant.id }, ...extraDefendants.map(d => ({ id: d.id }))]
-      }
-    }
+    data: { status: faker.helpers.arrayElement(SIMON_STATUSES) }
   });
 
   // Create task
@@ -749,8 +727,9 @@ async function seedSimonCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), SIMON_STATUSES, fullConfig);
+  await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), [statuses.TRIAGE_NEEDED, statuses.CHARGING_DECISION_NEEDED], fullConfig);
 
-  return SIMON_STL_TASKS.length + SIMON_CTL_TASKS.length + 1 + 20 + 1;
+  return SIMON_STL_TASKS.length + SIMON_CTL_TASKS.length + 1 + 20 + 1 + 1;
 }
 
 module.exports = {

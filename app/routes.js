@@ -50,13 +50,19 @@ router.get('/cases/:caseId*', async (req, res, next) => {
   next()
 })
 
-// Make first hearings available to all case pages (used by identity bar)
+const hearingStatusOrder = ['Preparation needed', 'Pending', 'Outcome needed']
+
+// Make hearing data available to all case pages (used by identity bar)
 router.use('/cases/:caseId*', async (req, res, next) => {
   const caseId = parseInt(req.params.caseId)
   if (!isNaN(caseId)) {
-    res.locals.firstHearings = await prisma.hearing.findMany({
-      where: { caseId, type: 'First hearing' }
+    const hearings = await prisma.hearing.findMany({
+      where: { caseId },
+      select: { type: true, status: true }
     })
+    res.locals.firstHearings = hearings.filter(h => h.type === 'First hearing')
+    const uniqueActive = [...new Set(hearings.map(h => h.status).filter(s => s && s !== 'Complete'))]
+    res.locals.hearingStatuses = hearingStatusOrder.filter(s => uniqueActive.includes(s))
   }
   next()
 })

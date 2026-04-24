@@ -1,11 +1,15 @@
 const { faker } = require('@faker-js/faker')
 const { generateCaseReference } = require('./identifiers')
+const statuses = require('../../app/data/case-statuses')
+
+const END_STATUSES = [statuses.NOT_GUILTY, statuses.NO_FURTHER_ACTION, statuses.SENTENCED]
 
 async function createDivergedCase(prisma, user, unitId, statusPool, config) {
   const { firstNames, lastNames, defenceLawyers, charges, pleas, victims, policeUnits, types, complexities } = config
 
-  const status1 = faker.helpers.arrayElement(statusPool)
-  const remainingStatuses = statusPool.filter((s) => s !== status1)
+  const activePool = statusPool.filter(s => !END_STATUSES.includes(s))
+  const status1 = faker.helpers.arrayElement(activePool)
+  const remainingStatuses = activePool.filter((s) => s !== status1)
   const status2 = faker.helpers.arrayElement(remainingStatuses)
 
   const defendant1 = await prisma.defendant.create({

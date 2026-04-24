@@ -181,6 +181,14 @@
                               classes: (_case.status | caseStatusTagClass)
                             })
                           }}
+                          {% if _case.hearingStatuses.length == 1 %}
+                            {{
+                              govukTag({
+                                text: _case.hearingStatuses[0],
+                                classes: (_case.hearingStatuses[0] | hearingStatusTagClass) + ' govuk-!-margin-left-1'
+                              })
+                            }}
+                          {% endif %}
                         </div>
                       </h2>
 
@@ -214,10 +222,6 @@
                           classes: 'govuk-summary-list--no-border app-summary-list--compact app-summary-list--small-text',
                           rows: [
                             {
-                              key: { html: 'Status' },
-                              value: { html: _case.defendantStatuses | join(', ') }
-                            } if _case.defendantStatuses.length,
-                            {
                               key: {
                                 html: 'URN'
                               },
@@ -225,6 +229,14 @@
                                 html: _case.reference
                               }
                             },
+                            {
+                              key: { html: 'Status' },
+                              value: { html: _case.defendantStatuses | join(', ') }
+                            } if _case.defendantStatuses.length,
+                            {
+                              key: { html: 'Hearing status' },
+                              value: { html: _case.hearingStatuses | join(', ') }
+                            } if _case.hearingStatuses.length > 1,
                             {
                               key: {
                                 html: 'Operation name'

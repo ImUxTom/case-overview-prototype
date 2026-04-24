@@ -41,7 +41,17 @@
                     {{ hearing.type }}
                   </a>
                 </div>
-                <div class="app-list__tag">{{ govukTag({ text: hearing.status }) }}</div>
+                <div class="app-list__tag">
+                  {% if hearing.status == 'Complete' %}
+                    {{ govukTag({ text: hearing.status, classes: 'govuk-tag--green' }) }}
+                  {% elif hearing.status == 'Outcome needed' %}
+                    {{ govukTag({ text: hearing.status, classes: 'govuk-tag--red' }) }}
+                  {% elif hearing.status == 'Preparation needed' %}
+                    {{ govukTag({ text: hearing.status, classes: 'govuk-tag--yellow' }) }}
+                  {% else %}
+                    {{ govukTag({ text: hearing.status, classes: 'govuk-tag--grey' }) }}
+                  {% endif %}
+                </div>
               </h3>
 
               {{

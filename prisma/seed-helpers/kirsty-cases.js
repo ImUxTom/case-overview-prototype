@@ -12,8 +12,6 @@ const { createCtlLogEntries } = require('./ctl-log-entries');
 
 const KIRSTY_UNIT = 3; // Wessex Crown Court
 
-const hearingStatuses = require('../../app/data/hearing-statuses');
-
 const KIRSTY_STATUSES = [
   statuses.CHARGING_DECISION_NEEDED,
   statuses.POLICE_CHARGING_INFORMATION_PENDING,
@@ -31,14 +29,13 @@ const KIRSTY_STL_TASKS = [
   { name: 'Further PCD review', stlGenerator: generateThisWeekSTL }
 ];
 
-// CTL tasks (with hearing)
 const KIRSTY_CTL_TASKS = [
-  { name: 'Initial disclosure', hasCTL: true, hearingType: 'PTPH' },
-  { name: 'Post sending review', hasCTL: true, hearingType: 'PTPH' },
-  { name: 'Prepare PTPH', hasCTL: true, hearingType: 'PTPH' },
-  { name: 'Continuous disclosure', hasCTL: true, hearingType: 'Trial' },
-  { name: 'Reminder - RL, please see police response to DCS 12/01', hasCTL: true, hearingType: 'Mention', isReminder: true },
-  { name: 'CTL expiry imminent', hasCTL: true, hearingType: 'Trial' }
+  { name: 'Initial disclosure', hasCTL: true },
+  { name: 'Post sending review', hasCTL: true },
+  { name: 'Prepare PTPH', hasCTL: true },
+  { name: 'Continuous disclosure', hasCTL: true },
+  { name: 'Reminder - RL, please see police response to DCS 12/01', hasCTL: true, isReminder: true },
+  { name: 'CTL expiry imminent', hasCTL: true }
 ];
 
 async function createSTLCase(prisma, user, taskConfig, config) {
@@ -151,7 +148,7 @@ async function createSTLCase(prisma, user, taskConfig, config) {
 
 async function createCTLCase(prisma, user, taskConfig, config) {
   const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes } = config;
-  const { name, hearingType, isReminder } = taskConfig;
+  const { name, isReminder } = taskConfig;
 
   const custodyTimeLimit = faker.date.soon({ days: 14 });
   custodyTimeLimit.setHours(23, 59, 59, 999);
@@ -252,7 +249,7 @@ async function createCTLCase(prisma, user, taskConfig, config) {
 
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: statuses.CHARGED }
+    data: { status: faker.helpers.arrayElement(KIRSTY_STATUSES) }
   });
 
   await prisma.caseProsecutor.create({
@@ -260,23 +257,6 @@ async function createCTLCase(prisma, user, taskConfig, config) {
       caseId: _case.id,
       userId: user.id,
       isLead: true
-    }
-  });
-
-  const allDefendants = [defendant, ...extraDefendants];
-  const hearingDate = faker.date.soon({ days: 30 });
-  hearingDate.setHours(10, 0, 0, 0);
-
-  // Create hearing
-  await prisma.hearing.create({
-    data: {
-      startDate: hearingDate,
-      endDate: null,
-      status: hearingStatuses.PREPARATION_NEEDED,
-      type: hearingType,
-      venue: 'Wessex Crown Court',
-      caseId: _case.id,
-      defendants: { connect: allDefendants.map(d => ({ id: d.id })) }
     }
   });
 
@@ -444,8 +424,9 @@ async function seedKirstyCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, KIRSTY_STATUSES, fullConfig);
+  await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, [statuses.TRIAGE_NEEDED, statuses.CHARGING_DECISION_NEEDED], fullConfig);
 
-  return KIRSTY_STL_TASKS.length + KIRSTY_CTL_TASKS.length + 20 + 1;
+  return KIRSTY_STL_TASKS.length + KIRSTY_CTL_TASKS.length + 20 + 1 + 1;
 }
 
 module.exports = {

@@ -12,8 +12,6 @@ const {
 } = require('./pace-generators');
 const { createDirectionsForCase } = require('./directions');
 const { createCtlLogEntries } = require('./ctl-log-entries');
-const hearingStatuses = require('../../app/data/hearing-statuses');
-
 const TONY_UNITS = {
   DORSET_MAGISTRATES: 1,
   HAMPSHIRE_MAGISTRATES: 2,
@@ -56,19 +54,18 @@ const ADMIN_PACE_TASKS = [
   { name: 'Priority resubmitted PCD case', paceGenerator: generateLessThan2HoursPACE, units: MAGISTRATES_UNITS }
 ];
 
-// CTL tasks (with hearing)
 const ADMIN_CTL_TASKS = [
-  { name: 'Check new police info', hasCTL: true, hearingType: null, units: ALL_TONY_UNITS },
-  { name: 'Record Hg outcome', hasCTL: true, hearingType: 'First Hearing', units: ALL_TONY_UNITS },
-  { name: 'Finalise case', hasCTL: true, hearingType: null, units: ALL_TONY_UNITS },
-  { name: 'Check electronic upgrade file', hasCTL: true, hearingType: 'Trial', units: ALL_TONY_UNITS },
-  { name: 'Dispatch bundle', hasCTL: true, hearingType: 'Mention', units: ALL_TONY_UNITS },
-  { name: 'Prepare s51/allocation documents', hasCTL: true, hearingType: 'PTPH', units: CROWN_RASSO_CCU_UNITS },
-  { name: 'Chase upgrade file', hasCTL: true, hearingType: 'Trial', units: ALL_TONY_UNITS },
-  { name: 'DCS dispatch error', hasCTL: true, hearingType: 'Trial', units: CROWN_RASSO_UNITS },
-  { name: 'Reminder - Please see ITA log', hasCTL: true, hearingType: 'Mention', units: ALL_TONY_UNITS, isReminder: true },
-  { name: 'Check new Crown Court case', hasCTL: true, hearingType: 'PTPH', units: CROWN_RASSO_UNITS },
-  { name: 'Follow-up - case action plan item', hasCTL: true, hearingType: 'Trial', units: ALL_TONY_UNITS }
+  { name: 'Check new police info', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'Record Hg outcome', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'Finalise case', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'Check electronic upgrade file', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'Dispatch bundle', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'Prepare s51/allocation documents', hasCTL: true, units: CROWN_RASSO_CCU_UNITS },
+  { name: 'Chase upgrade file', hasCTL: true, units: ALL_TONY_UNITS },
+  { name: 'DCS dispatch error', hasCTL: true, units: CROWN_RASSO_UNITS },
+  { name: 'Reminder - Please see ITA log', hasCTL: true, units: ALL_TONY_UNITS, isReminder: true },
+  { name: 'Check new Crown Court case', hasCTL: true, units: CROWN_RASSO_UNITS },
+  { name: 'Follow-up - case action plan item', hasCTL: true, units: ALL_TONY_UNITS }
 ];
 
 async function getAdminPoolTeamForUnit(prisma, unitId) {
@@ -297,7 +294,7 @@ async function createPACECaseForAdminPool(prisma, taskConfig, config) {
 
 async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
   const { defenceLawyers, charges, firstNames, lastNames, pleas, victims, types, complexities, policeUnits, ukCities, availableOperationNames, documentNames, documentTypes, users } = config;
-  const { name, hearingType, units, isReminder } = taskConfig;
+  const { name, units, isReminder } = taskConfig;
 
   const unitId = faker.helpers.arrayElement(units);
   const custodyTimeLimit = faker.date.soon({ days: 14 });
@@ -405,27 +402,8 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
 
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: hearingType ? statuses.CHARGED : faker.helpers.arrayElement(TONY_STATUSES) }
+    data: { status: faker.helpers.arrayElement(TONY_STATUSES) }
   });
-
-  // Create hearing if applicable
-  if (hearingType) {
-    const unit = await prisma.unit.findUnique({ where: { id: unitId } });
-    const allDefendants = [defendant, ...extraDefendants];
-    const hearingDate = faker.date.soon({ days: 30 });
-    hearingDate.setHours(10, 0, 0, 0);
-    await prisma.hearing.create({
-      data: {
-        startDate: hearingDate,
-        endDate: null,
-        status: hearingStatuses.PREPARATION_NEEDED,
-        type: hearingType,
-        venue: unit?.name || 'Court',
-        caseId: _case.id,
-        defendants: { connect: allDefendants.map(d => ({ id: d.id })) }
-      }
-    });
-  }
 
   // Create task assigned to admin pool team (not to a user)
   const dueDate = faker.date.soon({ days: 14 });
@@ -600,6 +578,8 @@ async function seedTonyCases(prisma, dependencies, config) {
   const tonyStark = await prisma.user.findFirst({ where: { firstName: 'Tony', lastName: 'Stark' } });
   if (tonyStark) {
     await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), TONY_STATUSES, fullConfig);
+    count++;
+    await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), [statuses.TRIAGE_NEEDED, statuses.CHARGING_DECISION_NEEDED], fullConfig);
     count++;
   }
 

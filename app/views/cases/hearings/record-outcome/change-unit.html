@@ -4,18 +4,13 @@
 {% set pageName = "Do you want to change the unit?" %}
 
 {% block beforeContent %}
-  {{
-    govukBackLink({
-      text: 'Back',
-      href: 'javascript:history.back()'
-    })
-  }}
+  {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
 {% endblock %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }} – record first hearing outcome</span>
+      <span class="govuk-caption-l">{{ _case.reference }} – {{ hearing.type }}</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       {% set unitInset %}

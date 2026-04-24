@@ -3,6 +3,12 @@
     text: _case.status,
     classes: (_case.status | caseStatusTagClass) + ' govuk-!-margin-left-2'
   }) }}
+  {% for status in hearingStatuses %}
+    {{ govukTag({
+      text: status,
+      classes: (status | hearingStatusTagClass) + ' govuk-!-margin-left-2'
+    }) }}
+  {% endfor %}
 {% endset %}
 
 {% set identityTitle %}

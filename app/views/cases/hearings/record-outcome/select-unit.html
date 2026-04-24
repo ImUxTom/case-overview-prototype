@@ -1,21 +1,16 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Do you want to change the unit?" %}
+{% set pageName = "Unit" %}
 
 {% block beforeContent %}
-  {{
-    govukBackLink({
-      text: 'Back',
-      href: 'javascript:history.back()'
-    })
-  }}
+  {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
 {% endblock %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }} – record first hearing outcome</span>
+      <span class="govuk-caption-l">{{ _case.reference }} – {{ hearing.type }}</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       {% set unitInset %}
@@ -28,8 +23,8 @@
       <form method="post">
         {{
           govukRadios({
-            name: "changeUnit",
-            value: selectedChangeUnit,
+            name: "unitId",
+            value: selectedUnitId,
             fieldset: {
               legend: {
                 text: pageName,
@@ -37,10 +32,7 @@
                 classes: "govuk-fieldset__legend--m"
               }
             },
-            items: [
-              { value: "Yes", text: "Yes" },
-              { value: "No", text: "No" }
-            ]
+            items: unitItems
           })
         }}
 
