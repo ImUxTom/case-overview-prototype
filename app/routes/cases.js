@@ -655,13 +655,21 @@ module.exports = (router) => {
       }
     })
 
-    // Sort: CTL cases first (by soonest date), then non-CTL cases
+    const getStatusSortIndex = (c) => {
+      const defendantStatuses = c.status === 'Mixed' ? c.defendantStatuses : [c.status]
+      const indices = defendantStatuses.map(s => {
+        const i = caseStatuses.indexOf(s)
+        return i === -1 ? caseStatuses.length : i
+      })
+      return Math.min(...indices)
+    }
+
     cases.sort((a, b) => {
+      const statusDiff = getStatusSortIndex(a) - getStatusSortIndex(b)
+      if (statusDiff !== 0) return statusDiff
       if (a.custodyTimeLimit && !b.custodyTimeLimit) return -1
       if (!a.custodyTimeLimit && b.custodyTimeLimit) return 1
-      if (a.custodyTimeLimit && b.custodyTimeLimit) {
-        return a.custodyTimeLimit - b.custodyTimeLimit
-      }
+      if (a.custodyTimeLimit && b.custodyTimeLimit) return a.custodyTimeLimit - b.custodyTimeLimit
       return 0
     })
 
