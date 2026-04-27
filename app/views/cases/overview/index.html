@@ -95,6 +95,26 @@
         <p class="govuk-body">No defendants.</p>
       {% endif %}
 
+      {% if _case.hearings.length %}
+        <h2 class="govuk-heading-m">Hearings</h2>
+        <div class="app-list">
+          {% for hearing in _case.hearings %}
+            <div class="app-list__item">
+              <p class="govuk-body govuk-!-margin-bottom-0">
+                <a href="/cases/{{ _case.id }}/hearings/{{ hearing.id }}" class="govuk-link govuk-link--no-visited-state">
+                  {{ hearing.type }}
+                </a>
+              </p>
+              <div class="app-list__actions">
+                <strong class="govuk-tag {{ hearing.status | hearingStatusTagClass }}">
+                  {{ hearing.status | replace("Hearing ", "") | capitalize }}
+                </strong>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <h2 class="govuk-heading-m">Prosecutor</h2>
 
       <p><a href="/cases/{{ _case.id }}/add-prosecutor">Add prosecutor</a></p>

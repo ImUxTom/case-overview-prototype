@@ -123,13 +123,13 @@ module.exports = (router) => {
 
   router.get('/cases/shortcut/hearing-prep-needed', (req, res) => {
     resetFilters(req)
-    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Preparation needed'])
+    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Hearing preparation needed'])
     res.redirect('/cases')
   })
 
   router.get('/cases/shortcut/hearing-outcome-needed', (req, res) => {
     resetFilters(req)
-    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Outcome needed'])
+    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Hearing outcome needed'])
     res.redirect('/cases')
   })
 
@@ -674,7 +674,7 @@ module.exports = (router) => {
           },
         },
         hearings: {
-          select: { status: true }
+          select: { status: true, startDate: true }
         },
         location: true,
         tasks: true,
@@ -683,7 +683,7 @@ module.exports = (router) => {
       },
     })
 
-    const hearingStatusOrder = ['Preparation needed', 'Pending', 'Outcome needed']
+    const hearingStatusOrder = ['Hearing preparation needed', 'Hearing pending', 'Hearing outcome needed']
 
     cases = cases.map((c) => {
       const outstandingPoliceRequests = (c.policeRequests || []).filter((r) =>
@@ -694,8 +694,12 @@ module.exports = (router) => {
           ? new Date(Math.min(...outstandingPoliceRequests.map((r) => new Date(r.deadline))))
           : null
 
-      const uniqueActive = [...new Set(c.hearings.map(h => h.status).filter(s => s && s !== 'Complete'))]
+      const uniqueActive = [...new Set(c.hearings.map(h => h.status).filter(s => s && s !== 'Hearing complete'))]
       const hearingStatuses = hearingStatusOrder.filter(s => uniqueActive.includes(s))
+
+      const nextHearingDate = c.hearings.length
+        ? new Date(Math.min(...c.hearings.map(h => new Date(h.startDate))))
+        : null
 
       return {
         ...addTimeLimitDates(c),
@@ -703,6 +707,7 @@ module.exports = (router) => {
           c.dga?.failureReasons?.some((fr) => fr.didPoliceDisputeFailure === null) ?? false,
         outstandingRequestDeadline,
         hearingStatuses,
+        nextHearingDate,
       }
     })
 
@@ -715,14 +720,50 @@ module.exports = (router) => {
       return Math.min(...indices)
     }
 
-    cases.sort((a, b) => {
-      const statusDiff = getStatusSortIndex(a) - getStatusSortIndex(b)
-      if (statusDiff !== 0) return statusDiff
-      if (a.custodyTimeLimit && !b.custodyTimeLimit) return -1
-      if (!a.custodyTimeLimit && b.custodyTimeLimit) return 1
-      if (a.custodyTimeLimit && b.custodyTimeLimit) return a.custodyTimeLimit - b.custodyTimeLimit
-      return 0
-    })
+    const validCaseSorts = ['Status', 'Hearing date', 'Custody time limit', 'Statutory time limit', 'PACE clock']
+    const sortBy = validCaseSorts.includes(_.get(req.session.data, 'caseSort'))
+      ? req.session.data.caseSort
+      : 'Status'
+    req.session.data.caseSort = sortBy
+
+    if (sortBy === 'Hearing date') {
+      cases.sort((a, b) => {
+        if (a.nextHearingDate && !b.nextHearingDate) return -1
+        if (!a.nextHearingDate && b.nextHearingDate) return 1
+        if (a.nextHearingDate && b.nextHearingDate) return a.nextHearingDate - b.nextHearingDate
+        return 0
+      })
+    } else if (sortBy === 'Custody time limit') {
+      cases.sort((a, b) => {
+        if (a.custodyTimeLimit && !b.custodyTimeLimit) return -1
+        if (!a.custodyTimeLimit && b.custodyTimeLimit) return 1
+        if (a.custodyTimeLimit && b.custodyTimeLimit) return a.custodyTimeLimit - b.custodyTimeLimit
+        return 0
+      })
+    } else if (sortBy === 'Statutory time limit') {
+      cases.sort((a, b) => {
+        if (a.statutoryTimeLimit && !b.statutoryTimeLimit) return -1
+        if (!a.statutoryTimeLimit && b.statutoryTimeLimit) return 1
+        if (a.statutoryTimeLimit && b.statutoryTimeLimit) return a.statutoryTimeLimit - b.statutoryTimeLimit
+        return 0
+      })
+    } else if (sortBy === 'PACE clock') {
+      cases.sort((a, b) => {
+        if (a.paceClock && !b.paceClock) return -1
+        if (!a.paceClock && b.paceClock) return 1
+        if (a.paceClock && b.paceClock) return a.paceClock - b.paceClock
+        return 0
+      })
+    } else {
+      cases.sort((a, b) => {
+        const statusDiff = getStatusSortIndex(a) - getStatusSortIndex(b)
+        if (statusDiff !== 0) return statusDiff
+        if (a.custodyTimeLimit && !b.custodyTimeLimit) return -1
+        if (!a.custodyTimeLimit && b.custodyTimeLimit) return 1
+        if (a.custodyTimeLimit && b.custodyTimeLimit) return a.custodyTimeLimit - b.custodyTimeLimit
+        return 0
+      })
+    }
 
     let keywords = _.get(req.session.data.caseSearch, 'keywords')
 
@@ -924,10 +965,10 @@ module.exports = (router) => {
     const firstHearingItems = ['Needs set up', 'Does not need set up'].map((s) => ({ value: s, text: s }))
 
     const hearingStatusItems = [
-      'Preparation needed',
-      'Pending',
-      'Outcome needed',
-      'Complete',
+      'Hearing preparation needed',
+      'Hearing pending',
+      'Hearing outcome needed',
+      'Hearing complete',
     ].map((s) => ({ value: s, text: s }))
 
     const defendantItems = [

@@ -1,5 +1,5 @@
 module.exports = {
-  caseSort: 'Name',
+  caseSort: 'Status',
   taskSort: 'Due date',
   directionSort: 'Due date'
   // Insert values here

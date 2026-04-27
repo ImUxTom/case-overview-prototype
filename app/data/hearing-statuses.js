@@ -1,6 +1,6 @@
 module.exports = {
-  PREPARATION_NEEDED: 'Preparation needed',
-  PENDING: 'Pending',
-  OUTCOME_NEEDED: 'Outcome needed',
-  COMPLETE: 'Complete',
+  PREPARATION_NEEDED: 'Hearing preparation needed',
+  PENDING: 'Hearing pending',
+  OUTCOME_NEEDED: 'Hearing outcome needed',
+  COMPLETE: 'Hearing complete',
 }

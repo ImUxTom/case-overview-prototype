@@ -39,7 +39,7 @@
           </a>
         </li>
       {% endif %}
-      {% if chargedCaseCount > 0 %}
+      {% if chargedCaseCount > 0 and false %}
         <li>
           <a href="/cases/shortcut/charged" class="govuk-link--no-visited-state">
             {{ chargedCaseCount }} {{ chargedCaseCount | pluralize("case is", "cases are") }} charged

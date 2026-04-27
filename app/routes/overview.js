@@ -48,11 +48,11 @@ module.exports = router => {
     })
 
     const hearingPrepNeededCaseCount = await prisma.case.count({
-      where: { ...unitFilter, hearings: { some: { status: 'Preparation needed' } } }
+      where: { ...unitFilter, hearings: { some: { status: 'Hearing preparation needed' } } }
     })
 
     const hearingOutcomeNeededCaseCount = await prisma.case.count({
-      where: { ...unitFilter, hearings: { some: { status: 'Outcome needed' } } }
+      where: { ...unitFilter, hearings: { some: { status: 'Hearing outcome needed' } } }
     })
 
     const magsNeedsProsecutorCount = await prisma.case.count({

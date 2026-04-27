@@ -50,7 +50,7 @@ router.get('/cases/:caseId*', async (req, res, next) => {
   next()
 })
 
-const hearingStatusOrder = ['Preparation needed', 'Pending', 'Outcome needed']
+const hearingStatusOrder = ['Hearing preparation needed', 'Hearing pending', 'Hearing outcome needed']
 
 // Make hearing data available to all case pages (used by identity bar)
 router.use('/cases/:caseId*', async (req, res, next) => {
@@ -61,7 +61,7 @@ router.use('/cases/:caseId*', async (req, res, next) => {
       select: { type: true, status: true }
     })
     res.locals.firstHearings = hearings.filter(h => h.type === 'First hearing')
-    const uniqueActive = [...new Set(hearings.map(h => h.status).filter(s => s && s !== 'Complete'))]
+    const uniqueActive = [...new Set(hearings.map(h => h.status).filter(s => s && s !== 'Hearing complete'))]
     res.locals.hearingStatuses = hearingStatusOrder.filter(s => uniqueActive.includes(s))
   }
   next()

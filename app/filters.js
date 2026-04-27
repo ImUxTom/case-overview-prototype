@@ -157,11 +157,11 @@ addFilter('caseStatusTagClass', (status) => {
 
 addFilter('hearingStatusTagClass', (status) => {
   switch (status) {
-    case 'Preparation needed': return 'govuk-tag--blue'
-    case 'Pending':            return 'govuk-tag--yellow'
-    case 'Outcome needed':     return 'govuk-tag--orange'
-    case 'Complete':           return 'govuk-tag--green'
-    default:                   return ''
+    case 'Hearing preparation needed': return 'govuk-tag--blue'
+    case 'Hearing pending':            return 'govuk-tag--yellow'
+    case 'Hearing outcome needed':     return 'govuk-tag--orange'
+    case 'Hearing complete':           return 'govuk-tag--green'
+    default:                           return ''
   }
 })
 

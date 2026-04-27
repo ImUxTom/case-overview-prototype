@@ -38,7 +38,7 @@
       </h1>
 
       <div class="govuk-button-group">
-        {% if hearing.status == 'Preparation needed' %}
+        {% if hearing.status == 'Hearing preparation needed' %}
           <form method="post" action="/cases/{{ _case.id }}/hearings/{{ hearing.id }}/mark-preparation-complete">
             {{
               govukButton({
@@ -46,7 +46,7 @@
               })
             }}
           </form>
-        {% elif hearing.status == 'Pending' %}
+        {% elif hearing.status == 'Hearing pending' %}
           <form method="post" action="/cases/{{ _case.id }}/hearings/{{ hearing.id }}/mark-as-happened">
             {{
               govukButton({
@@ -55,7 +55,7 @@
               })
             }}
           </form>
-        {% elif hearing.status == 'Outcome needed' %}
+        {% elif hearing.status == 'Hearing outcome needed' %}
           {{
             govukButton({
               text: "Record outcome",

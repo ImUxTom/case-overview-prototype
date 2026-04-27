@@ -29,8 +29,7 @@ module.exports = router => {
           }
         },
         hearings: {
-          orderBy: { startDate: 'asc' },
-          take: 1
+          orderBy: { startDate: 'asc' }
         },
         location: true,
         tasks: true,
