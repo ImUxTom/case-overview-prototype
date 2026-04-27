@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker')
 const { generateCaseReference } = require('./identifiers')
 const statuses = require('../../app/data/case-statuses')
+const { addHearings } = require('./hearings')
 
 const END_STATUSES = [statuses.NOT_GUILTY, statuses.NO_FURTHER_ACTION, statuses.SENTENCED]
 
@@ -84,6 +85,8 @@ async function createDivergedCase(prisma, user, unitId, statusPool, config) {
   await prisma.caseProsecutor.create({
     data: { caseId: _case.id, userId: user.id, isLead: true },
   })
+
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant1, defendant2], status: status1 })
 
   return _case
 }

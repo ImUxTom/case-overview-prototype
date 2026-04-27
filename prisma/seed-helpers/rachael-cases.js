@@ -2,6 +2,7 @@ const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
+const { addHearings } = require('./hearings');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const { createDirectionsForCase } = require('./directions');
 const { createCtlLogEntries } = require('./ctl-log-entries');
@@ -258,10 +259,12 @@ async function createCaseWithTask(prisma, user, taskConfig, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(RACHAEL_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(RACHAEL_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant, ...extraDefendants], status })
 
   // Create task
   const dueDate = faker.date.soon({ days: 14 });
@@ -425,10 +428,12 @@ async function createManyWitnessesCase(prisma, user, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(RACHAEL_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(RACHAEL_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId: RACHAEL_UNITS.WESSEX_CROWN_COURT, defendants: [defendant, ...extraDefendants], status })
 
   // Create 25 witnesses, each with 0-2 statements
   for (let w = 0; w < 25; w++) {
@@ -536,10 +541,12 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     data: { caseId: _case.id, userId: paralegalOfficer.id }
   });
 
+  const status = faker.helpers.arrayElement(RACHAEL_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(RACHAEL_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant], status })
 
   const dueDate = faker.date.soon({ days: 30 });
   dueDate.setHours(23, 59, 59, 999);

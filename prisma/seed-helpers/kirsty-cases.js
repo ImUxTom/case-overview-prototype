@@ -2,6 +2,7 @@ const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
+const { addHearings } = require('./hearings');
 const {
   generateTodaySTL,
   generateTomorrowSTL,
@@ -247,10 +248,12 @@ async function createCTLCase(prisma, user, taskConfig, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(KIRSTY_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(KIRSTY_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant, ...extraDefendants], status })
 
   await prisma.caseProsecutor.create({
     data: {
@@ -347,10 +350,12 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     }
   });
 
+  const status = faker.helpers.arrayElement(KIRSTY_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(KIRSTY_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant], status })
 
   await prisma.caseProsecutor.create({
     data: { caseId: _case.id, userId: prosecutor.id, isLead: true }

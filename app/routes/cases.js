@@ -34,6 +34,7 @@ function resetFilters(req) {
   _.set(req, 'session.data.caseListFilters.paralegalOfficers', null)
   _.set(req, 'session.data.caseListFilters.statuses', null)
   _.set(req, 'session.data.caseListFilters.defendants', null)
+  _.set(req, 'session.data.caseListFilters.firstHearing', null)
   _.set(req, 'session.data.caseListFilters.hearingStatuses', null)
 }
 
@@ -61,6 +62,12 @@ module.exports = (router) => {
   router.get('/cases/shortcut/charged', (req, res) => {
     resetFilters(req)
     res.redirect('/cases/?caseListFilters[statuses][]=Charged')
+  })
+
+  router.get('/cases/shortcut/first-hearing-needed', (req, res) => {
+    resetFilters(req)
+    _.set(req.session.data.caseListFilters, 'firstHearing', ['Needs set up'])
+    res.redirect('/cases')
   })
 
   router.get('/cases/shortcut/mags-needs-prosecutor', async (req, res) => {
@@ -111,6 +118,18 @@ module.exports = (router) => {
       statuses.POLICE_AUTHORISED_CHARGE_PENDING,
       statuses.CHARGED
     ])
+    res.redirect('/cases')
+  })
+
+  router.get('/cases/shortcut/hearing-prep-needed', (req, res) => {
+    resetFilters(req)
+    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Preparation needed'])
+    res.redirect('/cases')
+  })
+
+  router.get('/cases/shortcut/hearing-outcome-needed', (req, res) => {
+    resetFilters(req)
+    _.set(req.session.data.caseListFilters, 'hearingStatuses', ['Outcome needed'])
     res.redirect('/cases')
   })
 
@@ -182,6 +201,7 @@ module.exports = (router) => {
 
     let selectedStatusFilters = _.get(req.session.data.caseListFilters, 'statuses', [])
     let selectedDefendantFilters = _.get(req.session.data.caseListFilters, 'defendants', [])
+    let selectedFirstHearingFilters = _.get(req.session.data.caseListFilters, 'firstHearing', [])
     let selectedHearingStatusFilters = _.get(req.session.data.caseListFilters, 'hearingStatuses', [])
     let selectedDgaFilters = _.get(req.session.data.caseListFilters, 'dga', [])
     let selectedDgaMonthFilters = _.get(req.session.data.caseListFilters, 'dgaMonth', [])
@@ -306,6 +326,16 @@ module.exports = (router) => {
         items: selectedStatusFilters.map(function (value) {
           return { text: value, href: '/cases/remove-status/' + value }
         }),
+      })
+    }
+
+    if (selectedFirstHearingFilters?.length) {
+      selectedFilters.categories.push({
+        heading: { text: 'First hearing' },
+        items: selectedFirstHearingFilters.map((value) => ({
+          text: value,
+          href: '/cases/remove-first-hearing/' + encodeURIComponent(value),
+        })),
       })
     }
 
@@ -541,6 +571,27 @@ module.exports = (router) => {
 
     // Snapshot where before adding status filter — used to derive available status options
     const whereWithoutStatus = { AND: [...where.AND] }
+
+    if (selectedFirstHearingFilters?.length) {
+      const needsSetUp = {
+        defendants: {
+          some: {
+            status: 'Charged',
+            hearings: { none: { type: 'First hearing' } },
+          },
+        },
+      }
+      const firstHearingFilters = []
+      if (selectedFirstHearingFilters.includes('Needs set up')) {
+        firstHearingFilters.push(needsSetUp)
+      }
+      if (selectedFirstHearingFilters.includes('Does not need set up')) {
+        firstHearingFilters.push({ NOT: needsSetUp })
+      }
+      if (firstHearingFilters.length) {
+        where.AND.push({ OR: firstHearingFilters })
+      }
+    }
 
     if (selectedHearingStatusFilters?.length) {
       where.AND.push({ hearings: { some: { status: { in: selectedHearingStatusFilters } } } })
@@ -870,6 +921,8 @@ module.exports = (router) => {
       c.dga?.failureReasons?.some((fr) => fr.didPoliceDisputeFailure === null),
     )
 
+    const firstHearingItems = ['Needs set up', 'Does not need set up'].map((s) => ({ value: s, text: s }))
+
     const hearingStatusItems = [
       'Preparation needed',
       'Pending',
@@ -888,6 +941,8 @@ module.exports = (router) => {
       cases,
       statusItems,
       selectedStatusFilters,
+      firstHearingItems,
+      selectedFirstHearingFilters,
       hearingStatusItems,
       selectedHearingStatusFilters,
       defendantItems,
@@ -917,6 +972,12 @@ module.exports = (router) => {
   router.get('/cases/remove-status/:status', (req, res) => {
     const currentFilters = _.get(req, 'session.data.caseListFilters.statuses', [])
     _.set(req, 'session.data.caseListFilters.statuses', _.pull(currentFilters, req.params.status))
+    res.redirect('/cases')
+  })
+
+  router.get('/cases/remove-first-hearing/:value', (req, res) => {
+    const current = _.get(req, 'session.data.caseListFilters.firstHearing', [])
+    _.set(req, 'session.data.caseListFilters.firstHearing', _.pull(current, decodeURIComponent(req.params.value)))
     res.redirect('/cases')
   })
 

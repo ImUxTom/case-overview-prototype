@@ -2,6 +2,7 @@ const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
+const { addHearings } = require('./hearings');
 const {
   generateTodaySTL,
   generateTomorrowSTL
@@ -400,10 +401,12 @@ async function createCTLCaseForAdminPool(prisma, taskConfig, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(TONY_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(TONY_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant, ...extraDefendants], status })
 
   // Create task assigned to admin pool team (not to a user)
   const dueDate = faker.date.soon({ days: 14 });
@@ -496,10 +499,12 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     }
   });
 
+  const status = faker.helpers.arrayElement(TONY_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(TONY_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant], status })
 
   await prisma.caseProsecutor.create({
     data: { caseId: _case.id, userId: prosecutor.id, isLead: true }

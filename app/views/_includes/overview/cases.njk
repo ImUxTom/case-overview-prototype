@@ -1,4 +1,4 @@
-{% set anyCasesNeedAction = triageCaseCount or chargingDecisionNeededCaseCount or chargedCaseCount or magsNeedsProsecutorCount or crownNeedsProsecutorCount or crownNeedsParalegalOfficerCount %}
+{% set anyCasesNeedAction = triageCaseCount or chargingDecisionNeededCaseCount or chargedCaseCount or firstHearingNeededCount or magsNeedsProsecutorCount or crownNeedsProsecutorCount or crownNeedsParalegalOfficerCount or hearingPrepNeededCaseCount or hearingOutcomeNeededCaseCount %}
 
 {% if anyCasesNeedAction %}
   <div class="app-overview-section">
@@ -8,20 +8,6 @@
         <li>
           <a href="/cases/shortcut/triage" class="govuk-link--no-visited-state">
             {{ triageCaseCount }} {{ triageCaseCount | pluralize("case needs", "cases need") }} triage
-          </a>
-        </li>
-      {% endif %}
-      {% if chargingDecisionNeededCaseCount > 0 %}
-        <li>
-          <a href="/cases/shortcut/charging-decision-needed" class="govuk-link--no-visited-state">
-            {{ chargingDecisionNeededCaseCount }} {{ chargingDecisionNeededCaseCount | pluralize("case needs", "cases need") }} a charging decision
-          </a>
-        </li>
-      {% endif %}
-      {% if chargedCaseCount > 0 %}
-        <li>
-          <a href="/cases/shortcut/charged" class="govuk-link--no-visited-state">
-            {{ chargedCaseCount }} {{ chargedCaseCount | pluralize("case is", "cases are") }} charged
           </a>
         </li>
       {% endif %}
@@ -43,6 +29,53 @@
         <li>
           <a href="/cases/shortcut/crown-needs-paralegal-officer" class="govuk-link--no-visited-state">
             {{ crownNeedsParalegalOfficerCount }} crown court {{ crownNeedsParalegalOfficerCount | pluralize("case needs", "cases need") }} a paralegal officer
+          </a>
+        </li>
+      {% endif %}
+      {% if chargingDecisionNeededCaseCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/charging-decision-needed" class="govuk-link--no-visited-state">
+            {{ chargingDecisionNeededCaseCount }} {{ chargingDecisionNeededCaseCount | pluralize("case needs", "cases need") }} a charging decision
+          </a>
+        </li>
+      {% endif %}
+      {% if chargedCaseCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/charged" class="govuk-link--no-visited-state">
+            {{ chargedCaseCount }} {{ chargedCaseCount | pluralize("case is", "cases are") }} charged
+          </a>
+        </li>
+      {% endif %}
+      {% if firstHearingNeededCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/first-hearing-needed" class="govuk-link--no-visited-state">
+            {% if firstHearingNeededCount == 1 %}
+              1 case needs a first hearing set up
+            {% else %}
+              {{ firstHearingNeededCount }} cases need a first hearing set up
+            {% endif %}
+          </a>
+        </li>
+      {% endif %}
+      {% if hearingPrepNeededCaseCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/hearing-prep-needed" class="govuk-link--no-visited-state">
+            {% if hearingPrepNeededCaseCount == 1 %}
+              1 case has a hearing that needs preparation
+            {% else %}
+              {{ hearingPrepNeededCaseCount }} cases have hearings that need preparation
+            {% endif %}
+          </a>
+        </li>
+      {% endif %}
+      {% if hearingOutcomeNeededCaseCount > 0 %}
+        <li>
+          <a href="/cases/shortcut/hearing-outcome-needed" class="govuk-link--no-visited-state">
+            {% if hearingOutcomeNeededCaseCount == 1 %}
+              1 case has a hearing that needs an outcome recorded
+            {% else %}
+              {{ hearingOutcomeNeededCaseCount }} cases have hearings that need an outcome recorded
+            {% endif %}
           </a>
         </li>
       {% endif %}

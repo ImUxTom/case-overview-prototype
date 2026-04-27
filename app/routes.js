@@ -67,6 +67,8 @@ router.use('/cases/:caseId*', async (req, res, next) => {
   next()
 })
 
+require('./routes/hearings')(router)
+
 // Case routes
 require('./routes/cases')(router)
 // require('./routes/cases--select-all')(router)

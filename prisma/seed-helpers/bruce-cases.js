@@ -2,6 +2,7 @@ const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
+const { addHearings } = require('./hearings');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const {
   generateExpiredCTL,
@@ -288,10 +289,12 @@ async function createTimeLimitTestCase(prisma, user, unitId, timeLimitType, gene
     }
   });
 
+  const status = faker.helpers.arrayElement(BRUCE_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(BRUCE_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant, ...extraDefendants], status })
 
   await prisma.caseParalegalOfficer.create({
     data: {
@@ -432,6 +435,7 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     where: { cases: { some: { id: _case.id } } },
     data: { status: defendantStatus }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant, ...extraDefendants], status: defendantStatus })
 
   await prisma.caseProsecutor.create({
     data: { caseId: _case.id, userId: prosecutor.id, isLead: true }

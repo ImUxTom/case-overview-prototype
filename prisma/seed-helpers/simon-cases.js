@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
+const { addHearings } = require('./hearings');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
 const {
   generateTodaySTL,
@@ -382,10 +383,12 @@ async function createCTLCase(prisma, user, taskConfig, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(SIMON_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(SIMON_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant, ...extraDefendants], status })
 
   // Create task
   const dueDate = faker.date.soon({ days: 14 });
@@ -492,10 +495,12 @@ async function createManyStatementsCase(prisma, user, config) {
     }
   });
 
+  const status = faker.helpers.arrayElement(SIMON_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(SIMON_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId: SIMON_UNITS.NORTH_YORKSHIRE_MAGISTRATES_COURT, defendants: [defendant], status })
 
   const dueDate = faker.date.soon({ days: 14 });
   dueDate.setHours(23, 59, 59, 999);
@@ -655,10 +660,12 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
     data: { caseId: _case.id, userId: paralegalOfficer.id }
   });
 
+  const status = faker.helpers.arrayElement(SIMON_STATUSES)
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status: faker.helpers.arrayElement(SIMON_STATUSES) }
+    data: { status }
   });
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant], status })
 
   const dueDate = faker.date.soon({ days: 30 });
   dueDate.setHours(23, 59, 59, 999);

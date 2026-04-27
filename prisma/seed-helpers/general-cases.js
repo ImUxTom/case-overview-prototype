@@ -1,11 +1,10 @@
 const { faker } = require('@faker-js/faker');
 const statuses = require('../../app/data/case-statuses');
-const hearingStatuses = require('../../app/data/hearing-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber } = require('./phone-numbers');
-const { hearingDateForStatus } = require('./dates');
 const { generatePendingTaskDates, generateDueTaskDates, generateOverdueTaskDates, generateEscalatedTaskDates } = require('./task-dates');
 const { prosecutionDirections, defenceDirections } = require('./directions');
+const { addHearings } = require('./hearings');
 const { createCtlLogEntries } = require('./ctl-log-entries');
 
 async function seedGeneralCases(prisma, dependencies, config) {
@@ -27,7 +26,6 @@ async function seedGeneralCases(prisma, dependencies, config) {
     types,
     taskNames,
     documentTypes,
-    venues,
     ukCities,
     firstNames,
     lastNames,
@@ -354,38 +352,12 @@ async function seedGeneralCases(prisma, dependencies, config) {
     }
 
     // -------------------- Hearings --------------------
-    if (status === statuses.CHARGED) {
-      const hearingTypes = isCrownCourtCase
-        ? ['PTPH', 'Trial', 'Sentencing']
-        : ['First hearing', 'Trial', 'Sentencing']
-
-      const hearingType = faker.helpers.arrayElement(hearingTypes)
-      const hearingStatusValue = faker.helpers.weightedArrayElement([
-        { weight: 30, value: hearingStatuses.PREPARATION_NEEDED },
-        { weight: 30, value: hearingStatuses.PENDING },
-        { weight: 30, value: hearingStatuses.OUTCOME_NEEDED },
-        { weight: 10, value: hearingStatuses.COMPLETE },
-      ])
-
-      const isPast = hearingStatusValue === hearingStatuses.OUTCOME_NEEDED || hearingStatusValue === hearingStatuses.COMPLETE
-      const days = faker.number.int({ min: 1, max: 56 })
-      const hearingStartDate = new Date()
-      hearingStartDate.setDate(hearingStartDate.getDate() + (isPast ? -days : days))
-      hearingStartDate.setHours(10, 0, 0, 0)
-
-      await prisma.hearing.create({
-        data: {
-          startDate: hearingStartDate,
-          status: hearingStatusValue,
-          type: hearingType,
-          venue: faker.helpers.arrayElement(venues),
-          caseId: createdCase.id,
-          defendants: {
-            connect: assignedDefendants.map(d => ({ id: d.id }))
-          }
-        }
-      })
-    }
+    await addHearings(prisma, {
+      caseId: createdCase.id,
+      unitId: caseUnitId,
+      defendants: assignedDefendants,
+      status
+    })
 
     // -------------------- Witnesses --------------------
     const numWitnesses = faker.number.int({ min: 1, max: 7 });

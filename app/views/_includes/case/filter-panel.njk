@@ -15,6 +15,20 @@
   }) if statusItems.length }}
 
   {{ govukCheckboxes({
+    idPrefix: "caseListFilters[firstHearing]",
+    name: "caseListFilters[firstHearing]",
+    classes: "govuk-checkboxes--small",
+    fieldset: {
+      legend: {
+        text: "First hearing",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    items: firstHearingItems,
+    values: selectedFirstHearingFilters
+  }) }}
+
+  {{ govukCheckboxes({
     idPrefix: "caseListFilters[hearingStatuses]",
     name: "caseListFilters[hearingStatuses]",
     classes: "govuk-checkboxes--small",

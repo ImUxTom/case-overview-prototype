@@ -35,6 +35,26 @@ module.exports = router => {
       where: { ...unitFilter, defendants: { some: { status: statuses.CHARGED } } }
     })
 
+    const firstHearingNeededCount = await prisma.case.count({
+      where: {
+        ...unitFilter,
+        defendants: {
+          some: {
+            status: statuses.CHARGED,
+            hearings: { none: { type: 'First hearing' } },
+          },
+        },
+      }
+    })
+
+    const hearingPrepNeededCaseCount = await prisma.case.count({
+      where: { ...unitFilter, hearings: { some: { status: 'Preparation needed' } } }
+    })
+
+    const hearingOutcomeNeededCaseCount = await prisma.case.count({
+      where: { ...unitFilter, hearings: { some: { status: 'Outcome needed' } } }
+    })
+
     const magsNeedsProsecutorCount = await prisma.case.count({
       where: {
         ...unitFilter,
@@ -410,6 +430,9 @@ module.exports = router => {
       triageCaseCount,
       chargingDecisionNeededCaseCount,
       chargedCaseCount,
+      firstHearingNeededCount,
+      hearingPrepNeededCaseCount,
+      hearingOutcomeNeededCaseCount,
       magsNeedsProsecutorCount,
       crownNeedsProsecutorCount,
       crownNeedsParalegalOfficerCount,
