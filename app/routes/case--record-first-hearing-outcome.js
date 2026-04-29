@@ -7,6 +7,12 @@ const outcomeStatusMap = {
   'pleads-guilty': statuses.SENTENCING_HEARING_PENDING,
 }
 
+const outcomeLabelMap = {
+  'sent-to-crown-court': 'Sent to Crown Court',
+  'trial-in-magistrates-court': 'Trial in Magistrates Court',
+  'pleads-guilty': 'Pleads guilty',
+}
+
 module.exports = (router) => {
   router.get('/cases/:caseId/record-first-hearing-outcome', async (req, res) => {
     const _case = await prisma.case.findUnique({
@@ -30,7 +36,7 @@ module.exports = (router) => {
         include: { unit: true },
       })
 
-      if (_case.unit.name.includes('Magistrates')) {
+      if (_case.unit.type === 'Magistrates') {
         res.redirect(`/cases/${caseId}/record-first-hearing-outcome/select-unit`)
       } else {
         res.redirect(`/cases/${caseId}/record-first-hearing-outcome/change-unit`)
@@ -75,7 +81,7 @@ module.exports = (router) => {
     })
 
     const units = await prisma.unit.findMany({
-      where: { NOT: { name: { contains: 'Magistrates' } } },
+      where: { type: { in: ['Crown Court', 'RASSO', 'CCU'] } },
       orderBy: { name: 'asc' },
     })
 
@@ -156,6 +162,12 @@ module.exports = (router) => {
     const caseId = parseInt(req.params.caseId)
     const { outcome, unitId, changeUnit, ptphDate, ptphVenue } = req.session.data.recordFirstHearingOutcome
 
+    const hearing = await prisma.hearing.findFirst({
+      where: { caseId, type: 'First hearing' },
+      include: { defendants: true },
+      orderBy: { startDate: 'asc' },
+    })
+
     if (outcome === 'sent-to-crown-court') {
       // changeUnit is only set for cases already in a crown court unit (the optional step)
       // For mags cases changeUnit is undefined, and changing unit is mandatory
@@ -175,7 +187,7 @@ module.exports = (router) => {
         })
       }
 
-      const startDate = new Date(ptphDate.year, ptphDate.month - 1, ptphDate.day)
+      const startDate = new Date(ptphDate.year, ptphDate.month - 1, ptphDate.day, 10, 0, 0)
       await prisma.hearing.create({
         data: {
           caseId,
@@ -192,6 +204,10 @@ module.exports = (router) => {
       })
     }
 
+    const nextHearingDate = outcome === 'sent-to-crown-court' && ptphDate
+      ? new Date(ptphDate.year, ptphDate.month - 1, ptphDate.day, 10, 0, 0)
+      : null
+
     await prisma.activityLog.create({
       data: {
         userId: req.session.data.user.id,
@@ -199,7 +215,18 @@ module.exports = (router) => {
         recordId: caseId,
         action: 'UPDATE',
         title: 'First hearing outcome recorded',
-        meta: { ...req.session.data.recordFirstHearingOutcome },
+        meta: {
+          hearingEventType: 'outcome',
+          hearingType: 'First hearing',
+          hearingDate: hearing?.startDate,
+          venue: hearing?.venue,
+          defendants: hearing?.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+          outcome,
+          outcomeLabel: outcomeLabelMap[outcome],
+          nextHearingType: outcome === 'sent-to-crown-court' ? 'PTPH' : null,
+          nextHearingDate,
+          nextHearingVenue: ptphVenue || null,
+        },
         caseId,
       },
     })

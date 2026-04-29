@@ -46,19 +46,13 @@
           {{ govukButton({ text: 'Request more information', classes: 'govuk-button--secondary', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/request-more-information' }) }}
 
         {% elif defendant.status == 'Police resubmission pending' %}
-          <form method="post" action="/cases/{{ _case.id }}/defendants/{{ defendant.id }}/simulate-advance">
-            {{ govukButton({ text: 'Simulate: Resubmitted', classes: 'app-button--blue' }) }}
-          </form>
+          {{ govukButton({ text: 'Simulate: Resubmitted', classes: 'app-button--blue', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/simulate-advance' }) }}
 
         {% elif defendant.status == 'Police charging information pending' %}
-          <form method="post" action="/cases/{{ _case.id }}/defendants/{{ defendant.id }}/simulate-advance">
-            {{ govukButton({ text: 'Simulate: Information received', classes: 'app-button--blue' }) }}
-          </form>
+          {{ govukButton({ text: 'Simulate: Information received', classes: 'app-button--blue', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/simulate-advance' }) }}
 
         {% elif defendant.status == 'Police authorised charge pending' %}
-          <form method="post" action="/cases/{{ _case.id }}/defendants/{{ defendant.id }}/simulate-advance">
-            {{ govukButton({ text: 'Simulate: Charges received', classes: 'app-button--blue' }) }}
-          </form>
+          {{ govukButton({ text: 'Simulate: Charges received', classes: 'app-button--blue', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/simulate-advance' }) }}
 
         {% elif defendant.status == 'Charged' %}
           {% if not (firstHearings | hasFirstHearing) %}

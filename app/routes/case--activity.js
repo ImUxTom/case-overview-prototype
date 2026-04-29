@@ -4,6 +4,7 @@ const prisma = new PrismaClient()
 const Pagination = require('../helpers/pagination')
 const eventTypes = require('../data/event-types')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 function resetFilters(req) {
   _.set(req, 'session.data.caseActivityListFilters.eventTypes', null)
@@ -54,6 +55,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     // Build Prisma where clause for events
     let where = { caseId: caseId, AND: [] }

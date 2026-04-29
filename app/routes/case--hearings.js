@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
   router.get('/cases/:caseId/hearings', async (req, res) => {
@@ -21,6 +22,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     const now = new Date()
     const future = _case.hearings

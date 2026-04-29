@@ -67,13 +67,13 @@ function getAreaNameForUnit(unitName) {
 
 async function seedUnits(prisma) {
   await prisma.unit.createMany({
-    data: units.map(name => ({ name }))
+    data: units.map(({ name, type }) => ({ name, type }))
   });
 
   const areas = await prisma.area.findMany();
   const areaMap = new Map(areas.map(area => [area.name, area.id]));
 
-  for (const unitName of units) {
+  for (const { name: unitName } of units) {
     const areaName = getAreaNameForUnit(unitName);
     if (areaName && areaMap.has(areaName)) {
       await prisma.unit.updateMany({

@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { getTaskSeverity } = require('../helpers/taskState')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 const { getDateGroup, getPaceClockGroup } = require('../helpers/taskGrouping')
 const statuses = require('../data/case-statuses')
 
@@ -81,7 +82,7 @@ module.exports = router => {
     const magsNeedsProsecutorCount = await prisma.case.count({
       where: {
         ...unitFilter,
-        unit: { name: { contains: 'Magistrates' } },
+        unit: { type: 'Magistrates' },
         prosecutors: { none: {} },
         defendants: {
           some: {
@@ -101,7 +102,7 @@ module.exports = router => {
     const crownNeedsProsecutorCount = await prisma.case.count({
       where: {
         ...unitFilter,
-        unit: { name: { contains: 'Crown Court' } },
+        unit: { type: 'Crown Court' },
         prosecutors: { none: {} },
         defendants: { some: { status: { in: activeStatuses } } }
       }
@@ -110,7 +111,7 @@ module.exports = router => {
     const crownNeedsParalegalOfficerCount = await prisma.case.count({
       where: {
         ...unitFilter,
-        unit: { name: { contains: 'Crown Court' } },
+        unit: { type: 'Crown Court' },
         paralegalOfficers: { none: {} },
         defendants: { some: { status: { in: activeStatuses } } }
       }
@@ -314,6 +315,7 @@ module.exports = router => {
 
       // Calculate time limit info for this task's case
       addTimeLimitDates(task.case)
+      addCaseStatus(task.case)
 
       // Count by CTL date range
       if (task.case.custodyTimeLimit) {
@@ -440,7 +442,7 @@ module.exports = router => {
       unitBreakdown = await Promise.all(
         currentUser.units.map(async ({ unit }) => {
           const f = { unitId: unit.id }
-          const isCrownCourt = unit.name.includes('Crown Court')
+          const isCrownCourt = unit.type === 'Crown Court'
 
           const [triage, needsProsecutor, needsParalegalOfficer, chargingDecision, firstHearingNeeded] = await Promise.all([
             prisma.case.count({ where: { ...f, defendants: { some: { status: statuses.TRIAGE_NEEDED } } } }),

@@ -17,6 +17,8 @@
       <span class="govuk-caption-l">{{ _case.reference }} – {{ defendant.firstName }} {{ defendant.lastName }} – make charging decision</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
+      {% set defendantNames %}{% for d in selectedDefendants %}{{ d.firstName }} {{ d.lastName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+
       {{ govukSummaryList({
         rows: [
           {
@@ -29,7 +31,18 @@
                 visuallyHiddenText: "decision"
               }]
             }
-          }
+          },
+          {
+            key: { text: "Defendants" },
+            value: { text: defendantNames },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/make-charging-decision/defendants',
+                text: "Change",
+                visuallyHiddenText: "defendants"
+              }]
+            }
+          } if selectedDefendants
         ]
       }) }}
 

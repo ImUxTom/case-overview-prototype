@@ -50,7 +50,7 @@
       items: [
         {
           text: 'Add first hearing',
-          href: '/cases/' + _case.id + '/add-first-hearing'
+          href: '/cases/' + _case.id + '/add-first-hearing?referrer=' + path
         }
       ]
     }
@@ -91,7 +91,7 @@
       items: [
         {
           text: 'Resubmitted',
-          href: '/cases/' + _case.id + '/accept-resubmission',
+          href: '/cases/' + _case.id + '/accept-resubmission?referrer=' + path,
           classes: 'app-button--blue'
         }
       ]
@@ -103,7 +103,7 @@
       items: [
         {
           text: 'Information received',
-          href: '/cases/' + _case.id + '/mark-information-received',
+          href: '/cases/' + _case.id + '/mark-information-received?referrer=' + path,
           classes: 'app-button--blue'
         }
       ]
@@ -131,12 +131,50 @@
       items: [
         {
           text: 'Charges received',
-          href: '/cases/' + _case.id + '/mark-charges-received',
+          href: '/cases/' + _case.id + '/mark-charges-received?referrer=' + path,
           classes: 'app-button--blue'
         }
       ]
     }
   ] %}
+{% elif activeHearings.length == 1 %}
+  {% if activeHearings[0].status == 'Hearing preparation needed' %}
+    {% set identityBarMenus = [
+      {
+        items: [
+          {
+            text: 'Mark preparation as complete',
+            action: '/cases/' + _case.id + '/hearings/' + activeHearings[0].id + '/mark-preparation-complete?referrer=' + path
+          }
+        ]
+      }
+    ] %}
+  {% elif activeHearings[0].status == 'Hearing pending' %}
+    {% set identityBarMenus = [
+      {
+        items: [
+          {
+            text: 'Simulate: Hearing started',
+            action: '/cases/' + _case.id + '/hearings/' + activeHearings[0].id + '/mark-as-happened?referrer=' + path,
+            classes: 'app-button--blue'
+          }
+        ]
+      }
+    ] %}
+  {% elif activeHearings[0].status == 'Hearing outcome needed' %}
+    {% set identityBarMenus = [
+      {
+        items: [
+          {
+            text: 'Record outcome',
+            href: '/cases/' + _case.id + '/hearings/' + activeHearings[0].id + '/record-outcome'
+          }
+        ]
+      }
+    ] %}
+  {% else %}
+    {% set identityBarMenus = [] %}
+  {% endif %}
 {% else %}
   {% set identityBarMenus = [] %}
 {% endif %}

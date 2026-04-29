@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const documentTypes = require('../data/document-types')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 function resetFilters(req) {
   _.set(req, 'session.data.documentListFilters.documentTypes', null)
@@ -61,6 +62,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     // Fetch documents with filters
     let documents = await prisma.document.findMany({

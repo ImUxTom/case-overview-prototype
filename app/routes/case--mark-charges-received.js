@@ -22,6 +22,6 @@ module.exports = (router) => {
       },
     })
 
-    res.redirect(`/cases/${caseId}`)
+    res.redirect(req.query.referrer || `/cases/${caseId}`)
   })
 }

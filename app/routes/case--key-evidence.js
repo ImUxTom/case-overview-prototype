@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 const evidence = [
   {
@@ -61,6 +62,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     res.render('cases/key-evidence/index', { _case, evidence })
   })

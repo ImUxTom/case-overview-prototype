@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const hearingTypes = require('../data/hearing-types')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 const hearingTypeItems = hearingTypes.map(t => ({ value: t, text: t }))
 
@@ -21,6 +22,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     const hearing = await prisma.hearing.findUnique({
       where: { id: parseInt(req.params.hearingId) },

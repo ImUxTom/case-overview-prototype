@@ -5,6 +5,7 @@ const Pagination = require('../helpers/pagination')
 const { groupDirections } = require('../helpers/directionGrouping')
 const { getDirectionStatus } = require('../helpers/directionState')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 function resetFilters(req) {
   _.set(req, 'session.data.directionListFilters.prosecutors', null)
@@ -328,6 +329,7 @@ module.exports = router => {
 
     directions = directions.map(direction => {
       addTimeLimitDates(direction.case)
+      addCaseStatus(direction.case)
       direction.status = getDirectionStatus(direction)
       return direction
     })

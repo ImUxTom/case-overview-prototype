@@ -15,6 +15,12 @@ module.exports = (router) => {
   router.post('/cases/:caseId/mark-ptph-preparation-complete', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
 
+    const hearing = await prisma.hearing.findFirst({
+      where: { caseId, type: 'PTPH' },
+      include: { defendants: true },
+      orderBy: { startDate: 'asc' },
+    })
+
     await prisma.case.update({
       where: { id: caseId },
       data: { status: statuses.PTPH_HEARING_PENDING },
@@ -27,6 +33,12 @@ module.exports = (router) => {
         recordId: caseId,
         action: 'UPDATE',
         title: 'PTPH preparation marked as complete',
+        meta: {
+          hearingEventType: 'prep',
+          hearingType: 'PTPH',
+          hearingDate: hearing?.startDate,
+          defendants: hearing?.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+        },
         caseId,
       },
     })

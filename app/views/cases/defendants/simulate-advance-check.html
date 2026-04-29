@@ -1,0 +1,49 @@
+{% extends "_layouts/main.html" %}
+{% set navId = 'cases' %}
+
+{% set simulateLabels = {
+  'Police resubmission pending': 'Resubmitted',
+  'Police charging information pending': 'Information received',
+  'Police authorised charge pending': 'Charges received'
+} %}
+
+{% set pageName = "Check details and simulate: " + simulateLabels[defendant.status] %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: 'Back', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/simulate-advance' }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{ _case.reference }} – simulate: {{ simulateLabels[defendant.status] | lower }}</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      {% set defendantNames %}{% for d in selectedDefendants %}{{ d.firstName }} {{ d.lastName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Action" },
+            value: { text: "Simulate: " + simulateLabels[defendant.status] }
+          },
+          {
+            key: { text: "Defendants" },
+            value: { text: defendantNames },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/simulate-advance',
+                text: "Change",
+                visuallyHiddenText: "defendants"
+              }]
+            }
+          }
+        ]
+      }) }}
+
+      <form method="post">
+        {{ govukButton({ text: "Confirm", classes: "app-button--blue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

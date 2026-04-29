@@ -51,9 +51,14 @@ module.exports = (router) => {
   router.post('/cases/:caseId/add-ptph-hearing/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const { hearingDate, venue } = req.session.data.addPtphHearing
-    const startDate = new Date(hearingDate.year, hearingDate.month - 1, hearingDate.day)
+    const startDate = new Date(hearingDate.year, hearingDate.month - 1, hearingDate.day, 10, 0, 0)
 
-    await prisma.hearing.create({
+    const _case = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: { defendants: true },
+    })
+
+    const hearing = await prisma.hearing.create({
       data: {
         caseId,
         startDate,
@@ -75,7 +80,13 @@ module.exports = (router) => {
         recordId: caseId,
         action: 'UPDATE',
         title: 'PTPH hearing added',
-        meta: { ...req.session.data.addPtphHearing },
+        meta: {
+          hearingEventType: 'added',
+          hearingType: 'PTPH',
+          hearingDate: hearing.startDate,
+          venue,
+          defendants: _case.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+        },
         caseId,
       },
     })

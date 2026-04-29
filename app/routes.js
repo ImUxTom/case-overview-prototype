@@ -58,11 +58,13 @@ router.use('/cases/:caseId*', async (req, res, next) => {
   if (!isNaN(caseId)) {
     const hearings = await prisma.hearing.findMany({
       where: { caseId },
-      select: { type: true, status: true }
+      select: { id: true, type: true, status: true }
     })
     res.locals.firstHearings = hearings.filter(h => h.type === 'First hearing')
     const uniqueActive = [...new Set(hearings.map(h => h.status).filter(s => s && s !== 'Hearing complete'))]
     res.locals.hearingStatuses = hearingStatusOrder.filter(s => uniqueActive.includes(s))
+    res.locals.caseHearings = hearings
+    res.locals.activeHearings = hearings.filter(h => h.status !== 'Hearing complete')
   }
   next()
 })

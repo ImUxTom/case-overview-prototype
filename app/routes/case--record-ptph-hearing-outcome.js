@@ -8,6 +8,12 @@ const outcomeStatusMap = {
   'no-further-action': statuses.NO_FURTHER_ACTION,
 }
 
+const outcomeLabelMap = {
+  'goes-to-trial': 'Goes to trial',
+  'pleads-guilty': 'Pleads guilty',
+  'no-further-action': 'No further action',
+}
+
 module.exports = (router) => {
   router.get('/cases/:caseId/record-ptph-hearing-outcome', async (req, res) => {
     const _case = await prisma.case.findUnique({
@@ -41,6 +47,12 @@ module.exports = (router) => {
     const outcome = req.session.data.recordPtphHearingOutcome?.outcome
     const status = outcomeStatusMap[outcome]
 
+    const hearing = await prisma.hearing.findFirst({
+      where: { caseId, type: 'PTPH' },
+      include: { defendants: true },
+      orderBy: { startDate: 'asc' },
+    })
+
     await prisma.case.update({
       where: { id: caseId },
       data: { status },
@@ -52,15 +64,23 @@ module.exports = (router) => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'PTPH hearing outcome recorded',
-        meta: { ...req.session.data.recordPtphHearingOutcome },
+        title: 'PTPH outcome recorded',
+        meta: {
+          hearingEventType: 'outcome',
+          hearingType: 'PTPH',
+          hearingDate: hearing?.startDate,
+          venue: hearing?.venue,
+          defendants: hearing?.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+          outcome,
+          outcomeLabel: outcomeLabelMap[outcome],
+        },
         caseId,
       },
     })
 
     delete req.session.data.recordPtphHearingOutcome
 
-    req.flash('success', 'PTPH hearing outcome recorded')
+    req.flash('success', 'PTPH outcome recorded')
     res.redirect(`/cases/${caseId}`)
   })
 }

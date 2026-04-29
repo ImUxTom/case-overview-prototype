@@ -5,6 +5,7 @@ const Pagination = require('../helpers/pagination')
 const types = require('../data/types')
 const complexities = require('../data/complexities')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 const Validator = require('../helpers/validator')
 const rules = require('../helpers/rules')
 const statuses = require('../data/case-statuses')
@@ -74,7 +75,7 @@ module.exports = (router) => {
     resetFilters(req)
     const userUnitIds = req.session.data.user?.units?.map(uu => uu.unitId) || []
     const magsUnits = await prisma.unit.findMany({
-      where: { name: { contains: 'Magistrates' }, id: { in: userUnitIds } }
+      where: { type: 'Magistrates', id: { in: userUnitIds } }
     })
     _.set(req.session.data.caseListFilters, 'prosecutors', ['Unassigned'])
     _.set(req.session.data.caseListFilters, 'unit', magsUnits.map(u => u.id.toString()))
@@ -91,7 +92,7 @@ module.exports = (router) => {
     resetFilters(req)
     const userUnitIds = req.session.data.user?.units?.map(uu => uu.unitId) || []
     const crownUnits = await prisma.unit.findMany({
-      where: { name: { contains: 'Crown Court' }, id: { in: userUnitIds } }
+      where: { type: 'Crown Court', id: { in: userUnitIds } }
     })
     _.set(req.session.data.caseListFilters, 'prosecutors', ['Unassigned'])
     _.set(req.session.data.caseListFilters, 'unit', crownUnits.map(u => u.id.toString()))
@@ -108,7 +109,7 @@ module.exports = (router) => {
     resetFilters(req)
     const userUnitIds = req.session.data.user?.units?.map(uu => uu.unitId) || []
     const crownUnits = await prisma.unit.findMany({
-      where: { name: { contains: 'Crown Court' }, id: { in: userUnitIds } }
+      where: { type: 'Crown Court', id: { in: userUnitIds } }
     })
     _.set(req.session.data.caseListFilters, 'paralegalOfficers', ['Unassigned'])
     _.set(req.session.data.caseListFilters, 'unit', crownUnits.map(u => u.id.toString()))
@@ -761,7 +762,7 @@ module.exports = (router) => {
         : null
 
       return {
-        ...addTimeLimitDates(c),
+        ...addTimeLimitDates(addCaseStatus(c)),
         needsDgaOutcome:
           c.dga?.failureReasons?.some((fr) => fr.didPoliceDisputeFailure === null) ?? false,
         outstandingRequestDeadline,
@@ -771,7 +772,7 @@ module.exports = (router) => {
     })
 
     const getStatusSortIndex = (c) => {
-      const defendantStatuses = c.status === 'Mixed' ? c.defendantStatuses : [c.status]
+      const defendantStatuses = c.status === 'Multiple statuses' ? c.defendantStatuses : [c.status]
       const indices = defendantStatuses.map(s => {
         const i = caseStatuses.indexOf(s)
         return i === -1 ? caseStatuses.length : i
@@ -847,8 +848,8 @@ module.exports = (router) => {
     if (selectedDefendantFilters?.length) {
       cases = cases.filter((_case) => {
         if (selectedDefendantFilters.includes('Multiple defendants') && _case.defendants.length > 1) return true
-        if (selectedDefendantFilters.includes('Mixed') && _case.status === 'Mixed') return true
-        if (selectedDefendantFilters.includes('Not mixed') && _case.status !== 'Mixed') return true
+        if (selectedDefendantFilters.includes('Multiple statuses') && _case.status === 'Multiple statuses') return true
+        if (selectedDefendantFilters.includes('Not mixed') && _case.status !== 'Multiple statuses') return true
         return false
       })
     }
@@ -1032,7 +1033,7 @@ module.exports = (router) => {
 
     const defendantItems = [
       { value: 'Multiple defendants', text: 'Multiple defendants' },
-      { value: 'Mixed', text: 'Mixed' },
+      { value: 'Multiple statuses', text: 'Multiple statuses' },
       { value: 'Not mixed', text: 'Not mixed' },
     ]
 

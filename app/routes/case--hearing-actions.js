@@ -59,6 +59,11 @@ module.exports = (router) => {
     const hearingId = parseInt(req.params.hearingId)
     const caseId = parseInt(req.params.caseId)
 
+    const hearing = await prisma.hearing.findUnique({
+      where: { id: hearingId },
+      include: { defendants: true },
+    })
+
     await prisma.hearing.update({
       where: { id: hearingId },
       data: { status: hearingStatuses.PENDING },
@@ -70,18 +75,29 @@ module.exports = (router) => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Hearing preparation marked as complete',
+        title: `${hearing.type} preparation marked as complete`,
+        meta: {
+          hearingEventType: 'prep',
+          hearingType: hearing.type,
+          hearingDate: hearing.startDate,
+          defendants: hearing.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+        },
         caseId,
       },
     })
 
-    req.flash('success', 'Hearing preparation marked as complete')
-    res.redirect(`/cases/${caseId}/hearings/${hearingId}`)
+    req.flash('success', `${hearing.type} preparation marked as complete`)
+    res.redirect(req.query.referrer || `/cases/${caseId}/hearings/${hearingId}`)
   })
 
   router.post('/cases/:caseId/hearings/:hearingId/mark-as-happened', async (req, res) => {
     const hearingId = parseInt(req.params.hearingId)
     const caseId = parseInt(req.params.caseId)
+
+    const hearing = await prisma.hearing.findUnique({
+      where: { id: hearingId },
+      include: { defendants: true },
+    })
 
     await prisma.hearing.update({
       where: { id: hearingId },
@@ -94,13 +110,19 @@ module.exports = (router) => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Hearing marked as happened',
+        title: `${hearing.type} marked as happened`,
+        meta: {
+          hearingEventType: 'happened',
+          hearingType: hearing.type,
+          hearingDate: hearing.startDate,
+          defendants: hearing.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+        },
         caseId,
       },
     })
 
-    req.flash('success', 'Hearing marked as happened')
-    res.redirect(`/cases/${caseId}/hearings/${hearingId}`)
+    req.flash('success', `${hearing.type} marked as happened`)
+    res.redirect(req.query.referrer || `/cases/${caseId}/hearings/${hearingId}`)
   })
 
   router.get('/cases/:caseId/hearings/:hearingId/record-outcome', async (req, res) => {
@@ -133,7 +155,7 @@ module.exports = (router) => {
         where: { id: parseInt(caseId) },
         include: { unit: true },
       })
-      if (_case.unit.name.includes('Magistrates')) {
+      if (_case.unit.type === 'Magistrates') {
         return res.redirect(`/cases/${caseId}/hearings/${hearingId}/record-outcome/select-unit`)
       } else {
         return res.redirect(`/cases/${caseId}/hearings/${hearingId}/record-outcome/change-unit`)
@@ -185,7 +207,7 @@ module.exports = (router) => {
       where: { id: parseInt(req.params.hearingId) },
     })
     const units = await prisma.unit.findMany({
-      where: { NOT: { name: { contains: 'Magistrates' } } },
+      where: { type: { in: ['Crown Court', 'RASSO', 'CCU'] } },
       orderBy: { name: 'asc' },
     })
     const unitItems = units.map(u => ({ value: String(u.id), text: u.name }))
@@ -296,6 +318,11 @@ module.exports = (router) => {
     const hearingId = parseInt(req.params.hearingId)
     const { outcome, nextHearingDate, nextHearingVenue, unitId, changeUnit } = req.session.data.recordHearingOutcome
 
+    const hearing = await prisma.hearing.findUnique({
+      where: { id: hearingId },
+      include: { defendants: true },
+    })
+
     await prisma.hearing.update({
       where: { id: hearingId },
       data: { status: hearingStatuses.COMPLETE },
@@ -303,15 +330,29 @@ module.exports = (router) => {
 
     const newDefendantStatus = defendantStatusMap[outcome]
     if (newDefendantStatus) {
-      const hearing = await prisma.hearing.findUnique({
-        where: { id: hearingId },
-        include: { defendants: true },
-      })
       const defendantIds = hearing.defendants.map(d => d.id)
       await prisma.defendant.updateMany({
         where: { id: { in: defendantIds } },
         data: { status: newDefendantStatus },
       })
+
+      if (newDefendantStatus === statuses.SENTENCED) {
+        await prisma.activityLog.create({
+          data: {
+            userId: req.session.data.user.id,
+            model: 'Case',
+            recordId: caseId,
+            action: 'UPDATE',
+            title: 'Sentenced',
+            meta: {
+              defendants: hearing.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+              hearingDate: hearing.startDate,
+              venue: hearing.venue,
+            },
+            caseId,
+          },
+        })
+      }
     }
 
     if (outcome === 'trial-in-crown-court' && changeUnit !== 'No' && unitId) {
@@ -324,12 +365,15 @@ module.exports = (router) => {
     }
 
     const nextHearingType = nextHearingTypeMap[outcome]
-    if (nextHearingType && nextHearingDate) {
-      const startDate = new Date(nextHearingDate.year, nextHearingDate.month - 1, nextHearingDate.day)
+    const nextStart = nextHearingDate
+      ? new Date(nextHearingDate.year, nextHearingDate.month - 1, nextHearingDate.day)
+      : null
+
+    if (nextHearingType && nextStart) {
       await prisma.hearing.create({
         data: {
           caseId,
-          startDate,
+          startDate: nextStart,
           status: hearingStatuses.PREPARATION_NEEDED,
           type: nextHearingType,
           venue: nextHearingVenue,
@@ -343,8 +387,19 @@ module.exports = (router) => {
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Hearing outcome recorded',
-        meta: { ...req.session.data.recordHearingOutcome },
+        title: `${hearing.type} outcome recorded`,
+        meta: {
+          hearingEventType: 'outcome',
+          hearingType: hearing.type,
+          hearingDate: hearing.startDate,
+          venue: hearing.venue,
+          defendants: hearing.defendants.map(d => ({ firstName: d.firstName, lastName: d.lastName })),
+          outcome,
+          outcomeLabel: outcomeLabelMap[outcome],
+          nextHearingType: nextHearingType || null,
+          nextHearingDate: nextStart,
+          nextHearingVenue: nextHearingVenue || null,
+        },
         caseId,
       },
     })

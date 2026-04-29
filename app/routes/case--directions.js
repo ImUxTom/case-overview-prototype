@@ -4,6 +4,7 @@ const prisma = new PrismaClient()
 const { groupDirections } = require('../helpers/directionGrouping')
 const { getDirectionStatus } = require('../helpers/directionState')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
   router.get("/cases/:caseId/directions", async (req, res) => {
@@ -56,6 +57,7 @@ module.exports = router => {
 
     // Add time limit info
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     // Add status to each direction
     _case.directions = _case.directions.map(direction => {

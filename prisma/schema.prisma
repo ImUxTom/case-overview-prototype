@@ -233,6 +233,7 @@ model Area {
 model Unit {
   id        Int        @id @default(autoincrement())
   name      String
+  type      String?
   areaId    Int?
   area      Area?      @relation(fields: [areaId], references: [id])
   cases     Case[]

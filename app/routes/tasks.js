@@ -578,6 +578,7 @@ module.exports = router => {
     // Add time limit dates to each task's case
     tasks = tasks.map(task => {
       addTimeLimitDates(task.case)
+      addCaseStatus(task.case)
       return task
     })
 

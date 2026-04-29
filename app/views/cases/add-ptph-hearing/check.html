@@ -29,13 +29,13 @@
             }
           },
           {
-            key: { text: "Court or venue" },
+            key: { text: "Venue" },
             value: { text: data.addPtphHearing.venue },
             actions: {
               items: [{
                 href: "/cases/:caseId/add-ptph-hearing/venue" | replace(':caseId', _case.id),
                 text: "Change",
-                visuallyHiddenText: "court or venue"
+                visuallyHiddenText: "venue"
               }]
             }
           }

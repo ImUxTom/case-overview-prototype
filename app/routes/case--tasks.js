@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { groupTasks } = require('../helpers/taskGrouping')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
   router.get("/cases/:caseId/tasks", async (req, res) => {
@@ -60,6 +61,7 @@ module.exports = router => {
 
     // Add time limit dates to the case
     addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     // Add severity information to tasks (no sortBy parameter = default severity-based grouping)
     _case.tasks = groupTasks(_case.tasks)

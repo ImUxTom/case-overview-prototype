@@ -834,6 +834,209 @@
       </p>
     {% endif %}
 
+    {% if params.event.title == 'Sentenced' %}
+      <div class="app-activity-log__box">
+        {% set defendantsHtml %}
+          {% if params.event.meta.defendants.length > 1 %}
+            <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-0">
+              {% for defendant in params.event.meta.defendants %}
+                <li>{{ defendant.firstName }} {{ defendant.lastName }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            {{ params.event.meta.defendants[0].firstName }} {{ params.event.meta.defendants[0].lastName }}
+          {% endif %}
+        {% endset %}
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Date" },
+              value: { text: params.event.meta.hearingDate | govukDate }
+            } if params.event.meta.hearingDate,
+            {
+              key: { text: "Venue" },
+              value: { text: params.event.meta.venue }
+            } if params.event.meta.venue,
+            {
+              key: { text: "Defendants" },
+              value: { html: defendantsHtml }
+            }
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.meta and params.event.meta.hearingEventType == 'added' %}
+      {% set defendantsHtml %}
+        {% if params.event.meta.defendants and params.event.meta.defendants.length > 1 %}
+          <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-0">
+            {% for defendant in params.event.meta.defendants %}
+              <li>{{ defendant.firstName }} {{ defendant.lastName }}</li>
+            {% endfor %}
+          </ul>
+        {% elif params.event.meta.defendants and params.event.meta.defendants.length == 1 %}
+          {{ params.event.meta.defendants[0].firstName }} {{ params.event.meta.defendants[0].lastName }}
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Date" },
+              value: { text: params.event.meta.hearingDate | govukDate }
+            },
+            {
+              key: { text: "Venue" },
+              value: { text: params.event.meta.venue }
+            },
+            {
+              key: { text: "Defendants" },
+              value: { html: defendantsHtml }
+            } if params.event.meta.defendants and params.event.meta.defendants.length
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}/hearings">View hearings</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.meta and params.event.meta.hearingEventType == 'prep' %}
+      {% set defendantsHtml %}
+        {% if params.event.meta.defendants and params.event.meta.defendants.length > 1 %}
+          <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-0">
+            {% for defendant in params.event.meta.defendants %}
+              <li>{{ defendant.firstName }} {{ defendant.lastName }}</li>
+            {% endfor %}
+          </ul>
+        {% elif params.event.meta.defendants and params.event.meta.defendants.length == 1 %}
+          {{ params.event.meta.defendants[0].firstName }} {{ params.event.meta.defendants[0].lastName }}
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Date" },
+              value: { text: params.event.meta.hearingDate | govukDate }
+            } if params.event.meta.hearingDate,
+            {
+              key: { text: "Defendants" },
+              value: { html: defendantsHtml }
+            } if params.event.meta.defendants and params.event.meta.defendants.length
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.meta and params.event.meta.hearingEventType == 'happened' %}
+      {% set defendantsHtml %}
+        {% if params.event.meta.defendants and params.event.meta.defendants.length > 1 %}
+          <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-0">
+            {% for defendant in params.event.meta.defendants %}
+              <li>{{ defendant.firstName }} {{ defendant.lastName }}</li>
+            {% endfor %}
+          </ul>
+        {% elif params.event.meta.defendants and params.event.meta.defendants.length == 1 %}
+          {{ params.event.meta.defendants[0].firstName }} {{ params.event.meta.defendants[0].lastName }}
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Date" },
+              value: { text: params.event.meta.hearingDate | govukDate }
+            } if params.event.meta.hearingDate,
+            {
+              key: { text: "Defendants" },
+              value: { html: defendantsHtml }
+            } if params.event.meta.defendants and params.event.meta.defendants.length
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
+    {% if params.event.meta and params.event.meta.hearingEventType == 'outcome' %}
+      {% set defendantsHtml %}
+        {% if params.event.meta.defendants and params.event.meta.defendants.length > 1 %}
+          <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-0">
+            {% for defendant in params.event.meta.defendants %}
+              <li>{{ defendant.firstName }} {{ defendant.lastName }}</li>
+            {% endfor %}
+          </ul>
+        {% elif params.event.meta.defendants and params.event.meta.defendants.length == 1 %}
+          {{ params.event.meta.defendants[0].firstName }} {{ params.event.meta.defendants[0].lastName }}
+        {% endif %}
+      {% endset %}
+      <div class="app-activity-log__box">
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: { text: "URN" },
+              value: { text: params.event.case.reference }
+            } if params.showUrn,
+            {
+              key: { text: "Date" },
+              value: { text: params.event.meta.hearingDate | govukDate }
+            } if params.event.meta.hearingDate,
+            {
+              key: { text: "Venue" },
+              value: { text: params.event.meta.venue }
+            } if params.event.meta.venue,
+            {
+              key: { text: "Defendants" },
+              value: { html: defendantsHtml }
+            } if params.event.meta.defendants and params.event.meta.defendants.length,
+            {
+              key: { text: "Outcome" },
+              value: { text: params.event.meta.outcomeLabel }
+            } if params.event.meta.outcomeLabel,
+            {
+              key: { text: "Next hearing type" },
+              value: { text: params.event.meta.nextHearingType }
+            } if params.event.meta.nextHearingType,
+            {
+              key: { text: "Next hearing date" },
+              value: { text: params.event.meta.nextHearingDate | govukDate }
+            } if params.event.meta.nextHearingDate,
+            {
+              key: { text: "Next hearing venue" },
+              value: { text: params.event.meta.nextHearingVenue }
+            } if params.event.meta.nextHearingVenue
+          ]
+        }) }}
+      </div>
+      <p class="app-log-card__note--link">
+        <a class="govuk-link" href="/cases/{{ params.event.case.id }}">View case</a>
+      </p>
+    {% endif %}
+
     {% if params.event.title == 'CTL log entry added' %}
       <div class="app-activity-log__box">
         {{ govukSummaryList({

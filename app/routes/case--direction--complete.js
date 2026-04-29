@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
   router.get("/cases/:caseId/directions/:directionId/complete", async (req, res) => {
@@ -37,6 +38,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     const direction = await prisma.direction.findUnique({
       where: { id: parseInt(req.params.directionId) }

@@ -114,7 +114,7 @@ module.exports = router => {
       _case.defendants.map(d => String(d.id))
     const defendantIds = rawIds.map(id => parseInt(id)).filter(id => !isNaN(id))
 
-    await prisma.hearing.create({
+    const hearing = await prisma.hearing.create({
       data: {
         caseId,
         startDate,
@@ -127,14 +127,24 @@ module.exports = router => {
       }
     })
 
+    const selectedDefendants = _case.defendants
+      .filter(d => defendantIds.includes(d.id))
+      .map(d => ({ firstName: d.firstName, lastName: d.lastName }))
+
     await prisma.activityLog.create({
       data: {
         userId: req.session.data.user.id,
         model: 'Case',
         recordId: caseId,
         action: 'UPDATE',
-        title: 'Hearing added',
-        meta: { ...req.session.data.addHearing },
+        title: `${type} hearing added`,
+        meta: {
+          hearingEventType: 'added',
+          hearingType: type,
+          hearingDate: hearing.startDate,
+          venue,
+          defendants: selectedDefendants,
+        },
         caseId
       }
     })

@@ -1,10 +1,3 @@
-/**
- * Add time limit dates to a case object for CTL, STL, and PACE clock
- * Each property will be the soonest date for that type, or null if none exist
- *
- * @param {Object} _case - Case object with defendants (including charges)
- * @returns {Object} - The case object with custodyTimeLimit, statutoryTimeLimit, and paceClock properties added
- */
 function addTimeLimitDates(_case) {
   const ctlDates = []
   const stlDates = []
@@ -27,15 +20,6 @@ function addTimeLimitDates(_case) {
   _case.custodyTimeLimit = ctlDates.length > 0 ? new Date(Math.min(...ctlDates)) : null
   _case.statutoryTimeLimit = stlDates.length > 0 ? new Date(Math.min(...stlDates)) : null
   _case.paceClock = paceClockDates.length > 0 ? new Date(Math.min(...paceClockDates)) : null
-
-  const uniqueDefendantStatuses = [...new Set(_case.defendants.map(d => d.status).filter(Boolean))]
-  if (uniqueDefendantStatuses.length > 1) {
-    _case.status = 'Mixed'
-    _case.defendantStatuses = uniqueDefendantStatuses
-  } else {
-    _case.status = uniqueDefendantStatuses[0] || null
-    _case.defendantStatuses = []
-  }
 
   return _case
 }

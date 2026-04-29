@@ -136,8 +136,8 @@ function buildHearingSequence(status, isCrownCourt) {
 }
 
 async function addHearings(prisma, { caseId, unitId, defendants, status }) {
-  const unit = await prisma.unit.findUnique({ where: { id: unitId }, select: { name: true } })
-  const isCrownCourt = unit?.name?.includes('Crown Court') ?? false
+  const unit = await prisma.unit.findUnique({ where: { id: unitId }, select: { type: true } })
+  const isCrownCourt = unit?.type === 'Crown Court'
   const sequence = buildHearingSequence(status, isCrownCourt)
   for (const hearing of sequence) {
     await prisma.hearing.create({

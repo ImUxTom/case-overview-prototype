@@ -37,9 +37,9 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
   const createdCases = [];
 
-  const allUnits = await prisma.unit.findMany({ select: { id: true, name: true } })
-  const magsUnitIds = allUnits.filter(u => u.name.includes('Magistrates Court')).map(u => u.id)
-  const crownCourtUnitIds = allUnits.filter(u => u.name.includes('Crown Court')).map(u => u.id)
+  const allUnits = await prisma.unit.findMany({ select: { id: true, type: true } })
+  const magsUnitIds = allUnits.filter(u => u.type === 'Magistrates').map(u => u.id)
+  const crownCourtUnitIds = allUnits.filter(u => u.type === 'Crown Court').map(u => u.id)
 
   const defendantStatusPool = [
     statuses.TRIAGE_NEEDED,

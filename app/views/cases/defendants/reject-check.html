@@ -1,0 +1,38 @@
+{% extends "_layouts/main.html" %}
+{% set navId = 'cases' %}
+{% set pageName = "Check details and reject case" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: 'Back', href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/reject' }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <span class="govuk-caption-l">{{ _case.reference }} – reject case</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      {% set defendantNames %}{% for d in selectedDefendants %}{{ d.firstName }} {{ d.lastName }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Defendants" },
+            value: { text: defendantNames },
+            actions: {
+              items: [{
+                href: '/cases/' + _case.id + '/defendants/' + defendant.id + '/reject',
+                text: "Change",
+                visuallyHiddenText: "defendants"
+              }]
+            }
+          }
+        ]
+      }) }}
+
+      <form method="post">
+        {{ govukButton({ text: "Reject case" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

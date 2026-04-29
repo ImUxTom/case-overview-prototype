@@ -2,6 +2,7 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
 
@@ -24,6 +25,7 @@ module.exports = router => {
 
     // Add time limit info
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     // Fetch notes
     let notes = await prisma.note.findMany({

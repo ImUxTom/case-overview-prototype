@@ -7,8 +7,6 @@
   'Police authorised charge pending': 'Charges received'
 } %}
 
-{% set pageName = "Simulate: " + simulateLabels[defendant.status] %}
-
 {% block beforeContent %}
   {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
 {% endblock %}
@@ -16,13 +14,31 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }} – {{ defendant.firstName }} {{ defendant.lastName }}</span>
-      <h1 class="govuk-heading-l">{{ pageName }}</h1>
-
-      <form method="post">
-        {{ govukButton({ text: "Confirm", classes: "app-button--blue" }) }}
-      </form>
-      <p><a href="/cases/{{ _case.id }}/defendants/{{ defendant.id }}">Cancel</a></p>
+      {% if eligibleDefendants %}
+        <span class="govuk-caption-l">{{ _case.reference }} – simulate: {{ simulateLabels[defendant.status] | lower }}</span>
+        <form method="post">
+          {{ govukCheckboxes({
+            name: "simulateAdvance[defendants]",
+            fieldset: {
+              legend: {
+                text: "Which defendants does this apply to?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: defendantItems,
+            values: selectedDefendantIds
+          }) }}
+          {{ govukButton({ text: "Continue", classes: "app-button--blue" }) }}
+        </form>
+      {% else %}
+        <span class="govuk-caption-l">{{ _case.reference }} – {{ defendant.firstName }} {{ defendant.lastName }}</span>
+        <h1 class="govuk-heading-l">Simulate: {{ simulateLabels[defendant.status] }}</h1>
+        <form method="post">
+          {{ govukButton({ text: "Confirm", classes: "app-button--blue" }) }}
+        </form>
+        <p><a href="/cases/{{ _case.id }}/defendants/{{ defendant.id }}">Cancel</a></p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

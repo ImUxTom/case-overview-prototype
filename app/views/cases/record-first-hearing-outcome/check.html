@@ -69,13 +69,13 @@
             }
           } if data.recordFirstHearingOutcome.outcome == "sent-to-crown-court",
           {
-            key: { text: "Crown court" },
+            key: { text: "Venue" },
             value: { text: data.recordFirstHearingOutcome.ptphVenue },
             actions: {
               items: [{
                 href: "/cases/" + _case.id + "/record-first-hearing-outcome/ptph-venue",
                 text: "Change",
-                visuallyHiddenText: "crown court"
+                visuallyHiddenText: "venue"
               }]
             }
           } if data.recordFirstHearingOutcome.outcome == "sent-to-crown-court"

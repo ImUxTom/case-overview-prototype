@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { getTaskSeverity } = require('../helpers/taskState')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
   router.get("/cases/:caseId/tasks/:taskId", async (req, res) => {
@@ -38,8 +39,8 @@ module.exports = router => {
       },
     })
 
-    // Add time limit information to the case
     addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     const task = await prisma.task.findUnique({
       where: { id: parseInt(req.params.taskId) },

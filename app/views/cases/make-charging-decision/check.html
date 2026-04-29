@@ -3,16 +3,20 @@
 {% set navId = 'cases' %}
 {% set pageName = "Check details and make charging decision" %}
 
-{% set decisionLabels = {
-  "charge": "Charge",
-  "no-further-action": "No further action"
-} %}
+{%
+  set decisionLabels = {
+    "charge": "Charge",
+    "no-further-action": "No further action"
+  }
+%}
 
 {% block beforeContent %}
-  {{ govukBackLink({
-    text: 'Back',
-    href: '/cases/' + _case.id + '/make-charging-decision'
-  }) }}
+  {{
+    govukBackLink({
+      text: 'Back',
+      href: '/cases/' + _case.id + '/make-charging-decision'
+    })
+  }}
 {% endblock %}
 
 {% block content %}
@@ -21,25 +25,41 @@
       <span class="govuk-caption-l">{{ _case.reference }} – make charging decision</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
-      {{ govukSummaryList({
-        rows: [
-          {
-            key: { text: "Decision" },
-            value: { text: decisionLabels[data.chargingDecision.decision] },
-            actions: {
-              items: [{
-                href: '/cases/' + _case.id + '/make-charging-decision',
-                text: "Change",
-                visuallyHiddenText: "decision"
-              }]
-            }
-          }
-        ]
-      }) }}
+      {% set defendantNames %}{% for d in selectedDefendants %}
+        {{ d.firstName }}
+        {{ d.lastName }}{% if not loop.last %},{% endif %}
+      {% endfor %}{% endset %}
 
-      <form method="post">
-        {{ govukButton({ text: "Confirm decision" }) }}
-      </form>
+      {{
+        govukSummaryList({
+          rows: [
+            {
+              key: { text: "Decision" },
+              value: { text: decisionLabels[data.chargingDecision.decision] },
+              actions: {
+                items: [{
+                  href: '/cases/' + _case.id + '/make-charging-decision',
+                  text: "Change",
+                  visuallyHiddenText: "decision"
+                }]
+              }
+            },
+            {
+              key: { text: "Defendants" },
+              value: { text: defendantNames },
+              actions: {
+                items: [{
+                  href: '/cases/' + _case.id + '/make-charging-decision/defendants',
+                  text: "Change",
+                  visuallyHiddenText: "defendants"
+                }]
+              }
+            } if selectedDefendants
+          ]
+        })
+      }}
+
+      <form method="post">{{ govukButton({ text: "Make charging decision" }) }}</form>
     </div>
   </div>
 {% endblock %}

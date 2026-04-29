@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 
 module.exports = router => {
 
@@ -20,6 +21,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     res.render('cases/ctl-log/new/index', { _case })
   })
@@ -44,6 +46,7 @@ module.exports = router => {
     })
 
     _case = addTimeLimitDates(_case)
+    addCaseStatus(_case)
 
     const { description, otherDescription } = req.session.data.addCtlLogEntry || {}
     const effectiveDescription = description === 'Other' ? otherDescription : description
