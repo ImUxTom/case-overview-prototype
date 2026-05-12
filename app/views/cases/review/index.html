@@ -4,10 +4,7 @@
 {% set pageName = "Review case material" %}
 
 {% block beforeContent %}
-  {{ govukBackLink({
-    text: 'Back',
-    href: '/cases/' + _case.id
-  }) }}
+  {{ govukBackLink({ text: 'Back', href: '/cases/' + _case.id }) }}
 {% endblock %}
 
 {% block content %}
@@ -19,104 +16,60 @@
   </div>
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
 
       {% for document in documents %}
         {% set docReview = docReviewMap[document.id] %}
         {% set status = docReview.status if docReview else 'not_started' %}
         {% set annotations = docReview.annotations if docReview else [] %}
 
-        {% set evidenceAnnotations = [] %}
-        {% set disclosureAnnotations = [] %}
-        {% set missingAnnotations = [] %}
-        {% for a in annotations %}
-          {% if a.type == 'evidence' %}
-            {% set evidenceAnnotations = (evidenceAnnotations.push(a), evidenceAnnotations) %}
-          {% elif a.type == 'disclosure' %}
-            {% set disclosureAnnotations = (disclosureAnnotations.push(a), disclosureAnnotations) %}
-          {% else %}
-            {% set missingAnnotations = (missingAnnotations.push(a), missingAnnotations) %}
+        <h2 class="govuk-heading-m govuk-!-margin-top-7">
+          {{ document.name }}
+          {% if status == 'reviewed' %}
+            <strong class="govuk-tag govuk-tag--green govuk-!-margin-left-2">Reviewed</strong>
           {% endif %}
-        {% endfor %}
-
-        <h2 class="govuk-heading-m">{{ document.name }}</h2>
+        </h2>
 
         <p class="govuk-body">
           <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}" class="govuk-link">Open</a>
         </p>
 
-        {% if status != 'not_started' %}
-          {% if annotations and annotations.length %}
-
-            {% if evidenceAnnotations.length %}
-              <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Evidence</h3>
-              <dl class="govuk-summary-list app-review-annotations app-review-annotations--evidence">
-                {% for annotation in evidenceAnnotations %}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">{{ annotation.selectedText | truncate(80) }}</dt>
-                    <dd class="govuk-summary-list__value">{{ annotation.note }}</dd>
-                    <dd class="govuk-summary-list__actions">
-                      <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">Change</a>
-                      <form method="post" action="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove" class="govuk-!-display-inline">
-                        <input type="hidden" name="from" value="list">
-                        <button type="submit" class="app-button--link govuk-link">Remove</button>
-                      </form>
-                    </dd>
-                  </div>
-                {% endfor %}
-              </dl>
-            {% endif %}
-
-            {% if disclosureAnnotations.length %}
-              <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Disclosure</h3>
-              <dl class="govuk-summary-list app-review-annotations app-review-annotations--disclosure">
-                {% for annotation in disclosureAnnotations %}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">{{ annotation.selectedText | truncate(80) }}</dt>
-                    <dd class="govuk-summary-list__value">{{ annotation.note }}</dd>
-                    <dd class="govuk-summary-list__actions">
-                      <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">Change</a>
-                      <form method="post" action="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove" class="govuk-!-display-inline">
-                        <input type="hidden" name="from" value="list">
-                        <button type="submit" class="app-button--link govuk-link">Remove</button>
-                      </form>
-                    </dd>
-                  </div>
-                {% endfor %}
-              </dl>
-            {% endif %}
-
-            {% if missingAnnotations.length %}
-              <h3 class="govuk-heading-s govuk-!-margin-bottom-1">Missing items</h3>
-              <dl class="govuk-summary-list app-review-annotations app-review-annotations--missing">
-                {% for annotation in missingAnnotations %}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">{{ annotation.selectedText | truncate(80) }}</dt>
-                    <dd class="govuk-summary-list__value">{{ annotation.note }}</dd>
-                    <dd class="govuk-summary-list__actions">
-                      <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">Change</a>
-                      <form method="post" action="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove" class="govuk-!-display-inline">
-                        <input type="hidden" name="from" value="list">
-                        <button type="submit" class="app-button--link govuk-link">Remove</button>
-                      </form>
-                    </dd>
-                  </div>
-                {% endfor %}
-              </dl>
-            {% endif %}
-
-          {% else %}
-            <p class="govuk-body govuk-!-colour-secondary govuk-!-margin-bottom-4">No evidence, disclosure or missing items noted.</p>
-          {% endif %}
-
-          {% if status == 'reviewed' %}
-            <p class="govuk-body govuk-!-colour-secondary govuk-!-margin-bottom-6">Marked as reviewed.</p>
-          {% endif %}
+        {% if status != 'not_started' and annotations and annotations.length %}
+          <table class="govuk-table">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Type</th>
+                <th scope="col" class="govuk-table__header">Annotation</th>
+                <th scope="col" class="govuk-table__header">Note</th>
+                <th scope="col" class="govuk-table__header" style="white-space: nowrap; width: 1%;"><span class="govuk-visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for annotation in annotations %}
+                {% if annotation.type == 'evidence' %}
+                  {% set typeLabel = 'Evidence' %}
+                {% elif annotation.type == 'disclosure' %}
+                  {% set typeLabel = 'Disclosure' %}
+                {% else %}
+                  {% set typeLabel = 'Missing item' %}
+                {% endif %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell">{{ typeLabel }}</td>
+                  <td class="govuk-table__cell">{{ annotation.selectedText | truncate(80) }}</td>
+                  <td class="govuk-table__cell">{{ annotation.note }}</td>
+                  <td class="govuk-table__cell" style="white-space: nowrap;">
+                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">Change</a>
+                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove?from=list" class="govuk-link govuk-!-margin-left-3">Remove</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         {% endif %}
 
       {% endfor %}
 
-      <h2 class="govuk-heading-m">Summary of review</h2>
+      <h2 class="govuk-heading-m govuk-!-margin-top-7">Summary of review</h2>
 
       <p class="govuk-body">
         <a href="/cases/{{ _case.id }}/review/summary" class="govuk-link">Open</a>

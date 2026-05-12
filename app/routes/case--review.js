@@ -172,7 +172,23 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review`)
   })
 
-  // Remove annotation
+  // Remove annotation — confirm GET
+  router.get('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/remove', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const documentId = parseInt(req.params.documentId)
+    const annotationId = parseInt(req.params.annotationId)
+
+    const [_case, document, annotation] = await Promise.all([
+      prisma.case.findUnique({ where: { id: caseId } }),
+      prisma.document.findUnique({ where: { id: documentId } }),
+      prisma.caseReviewAnnotation.findUnique({ where: { id: annotationId } })
+    ])
+
+    const from = req.query.from || 'list'
+    res.render('cases/review/annotation-remove', { _case, document, annotation, caseId, documentId, from })
+  })
+
+  // Remove annotation — POST
   router.post('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/remove', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const documentId = parseInt(req.params.documentId)

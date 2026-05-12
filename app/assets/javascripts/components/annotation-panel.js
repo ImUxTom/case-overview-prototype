@@ -54,11 +54,24 @@
     popup.setAttribute('aria-hidden', 'true')
   }
 
-  function showPopup(x, y) {
+  function showPopup(rect) {
     popup.hidden = false
     popup.removeAttribute('aria-hidden')
-    popup.style.left = x + 'px'
-    popup.style.top = (y - popup.offsetHeight - 8) + 'px'
+
+    var popupWidth = popup.offsetWidth
+    var popupHeight = popup.offsetHeight
+    var arrowHeight = 9
+
+    // Centre popup over the selection midpoint
+    var left = rect.left + rect.width / 2 - popupWidth / 2
+    // Clamp so it doesn't go off-screen
+    left = Math.max(8, Math.min(left, window.innerWidth - popupWidth - 8))
+
+    // Position above the selection top, with room for the arrow
+    var top = rect.top - popupHeight - arrowHeight - 4
+
+    popup.style.left = left + 'px'
+    popup.style.top = top + 'px'
   }
 
   function hideNewCard() {
@@ -92,9 +105,39 @@
 
       currentRange = range.cloneRange()
       var rect = range.getBoundingClientRect()
-      showPopup(rect.left + rect.width / 2 - (popup.offsetWidth / 2 || 60), rect.top)
+      showPopup(rect)
     }, 10)
   })
+
+  function insertFormCardAtSelectionY(selectionMidY) {
+    if (!newAnnotationCard || !sidebarInner) return
+
+    var cards = Array.from(document.querySelectorAll('.js-annotation-card'))
+    var insertBefore = null
+
+    for (var i = 0; i < cards.length; i++) {
+      var id = cards[i].getAttribute('data-annotation-id')
+      var mark = document.querySelector('.app-annotation[data-annotation-id="' + id + '"]')
+      if (mark) {
+        var markRect = mark.getBoundingClientRect()
+        if (markRect.top + markRect.height / 2 > selectionMidY) {
+          insertBefore = cards[i]
+          break
+        }
+      }
+    }
+
+    if (insertBefore) {
+      sidebarInner.insertBefore(newAnnotationCard, insertBefore)
+    } else {
+      var emptyEl = sidebarInner.querySelector('.js-sidebar-empty')
+      if (emptyEl) {
+        sidebarInner.insertBefore(newAnnotationCard, emptyEl)
+      } else {
+        sidebarInner.appendChild(newAnnotationCard)
+      }
+    }
+  }
 
   // ── Annotate button → sidebar form ────────────────────────────────────────
 
@@ -112,17 +155,16 @@
         selectionMark.className = 'app-annotation-selecting'
         currentRange.surroundContents(selectionMark)
       } catch (e) {
-        // surroundContents fails on partial node selections — just store the text
         selectionMark = null
       }
+
+      var rect = currentRange.getBoundingClientRect()
+      var selectionMidY = rect.top + rect.height / 2
 
       window.getSelection().removeAllRanges()
       hidePopup()
 
-      // Position and show the new annotation card in sidebar
-      var rect = currentRange.getBoundingClientRect()
-      var targetY = rect.top + rect.height / 2
-      positionNewCard(targetY)
+      insertFormCardAtSelectionY(selectionMidY)
 
       if (newAnnotationCard) {
         newAnnotationCard.hidden = false
@@ -205,30 +247,5 @@
     })
   })
 
-  // ── Inline edit toggle ────────────────────────────────────────────────────
-
-  document.querySelectorAll('.js-edit-annotation').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var card = btn.closest('.js-annotation-card')
-      var viewMode = card.querySelector('.js-view-mode')
-      var editMode = card.querySelector('.js-edit-mode')
-      if (viewMode) viewMode.hidden = true
-      if (editMode) {
-        editMode.hidden = false
-        var textarea = editMode.querySelector('textarea')
-        if (textarea) textarea.focus()
-      }
-    })
-  })
-
-  document.querySelectorAll('.js-cancel-edit').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var card = btn.closest('.js-annotation-card')
-      var viewMode = card.querySelector('.js-view-mode')
-      var editMode = card.querySelector('.js-edit-mode')
-      if (editMode) editMode.hidden = true
-      if (viewMode) viewMode.hidden = false
-    })
-  })
 
 })()

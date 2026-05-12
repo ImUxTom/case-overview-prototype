@@ -11,22 +11,22 @@
 {% endblock %}
 
 {% block content %}
+  <span class="govuk-caption-l">{{ _case.reference }}</span>
   <h1 class="govuk-heading-l">{{ document.name }}</h1>
 
   <div class="app-toolbar-sentinel js-toolbar-sentinel"></div>
   <div class="app-toolbar js-toolbar">
     <div class="app-toolbar__inner">
-      <a href="/cases/{{ caseId }}/review/documents/{{ documentId }}/return" class="govuk-button govuk-!-margin-bottom-0">Finish</a>
+      <div class="govuk-button-group">
+        <a href="/cases/{{ caseId }}/review/documents/{{ documentId }}/return" class="govuk-button govuk-!-margin-bottom-0">Finish</a>
+        <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">Download</a>
+      </div>
     </div>
   </div>
 
   <div class="app-document-layout">
     <div class="app-document-pane">
       <div class="app-document">
-        <div class="app-document__meta govuk-body-s">
-          {{ document.type }} &middot; {{ document.size }}KB
-        </div>
-
         <div class="app-document__content" id="document-content">
           {% for section in sections %}
             <h2 class="app-document__section-heading">{{ section.heading }}</h2>
@@ -80,8 +80,13 @@
 
         {% for annotation in annotations %}
           {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else 'Missing item') %}
-          <div class="app-annotation-card app-annotation-card--{{ annotation.type }} js-annotation-card"
-               data-annotation-id="{{ annotation.id }}">
+          {% set tagColour = 'yellow' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else 'orange') %}
+          <div class="app-annotation-card js-annotation-card" data-annotation-id="{{ annotation.id }}">
+
+            <div class="app-annotation-card__tag">
+              <strong class="govuk-tag govuk-tag--{{ tagColour }}">{{ typeLabel }}</strong>
+            </div>
+
             <div class="app-annotation-card__header">
               <span class="app-annotation-card__name govuk-body-s">{{ user.firstName }} {{ user.lastName }}</span>
               <span class="app-annotation-card__time govuk-body-s">{{ annotation.createdAt | isoDateString | govukDateTime }}</span>
@@ -93,58 +98,29 @@
 
             <div class="js-card-expanded" hidden>
               <div class="app-annotation-card__expanded">
-                <div class="app-annotation-card__quote govuk-body-s">"{{ annotation.selectedText | truncate(120) }}"</div>
-
-                <div class="js-view-mode">
-                  <div class="app-annotation-card__note govuk-body-s">{{ annotation.note }}</div>
-                  <div class="app-annotation-card__type govuk-body-s app-annotation-card__type--{{ annotation.type }}">{{ typeLabel }}</div>
-                  <div class="app-annotation-card__actions">
-                    <button type="button" class="app-button--link govuk-link govuk-body-s js-edit-annotation">Edit</button>
-                    <form method="post" action="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/remove">
-                      <input type="hidden" name="from" value="document">
-                      <button type="submit" class="app-button--link govuk-link govuk-body-s">Remove</button>
-                    </form>
+                <dl class="govuk-summary-list app-annotation-card__summary">
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-body-s">Annotation</dt>
+                    <dd class="govuk-summary-list__value govuk-body-s">{{ annotation.selectedText | truncate(120) }}</dd>
+                    <dd class="govuk-summary-list__actions">
+                      <a href="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/edit" class="govuk-link govuk-body-s">Edit</a>
+                    </dd>
                   </div>
-                </div>
-
-                <div class="js-edit-mode" hidden>
-                  <form method="post" action="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/edit">
-                    <div class="govuk-form-group govuk-!-margin-bottom-2">
-                      <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Mark as</legend>
-                        <div class="govuk-radios govuk-radios--small">
-                          <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="edit-type-evidence-{{ annotation.id }}" name="type" type="radio" value="evidence" {{ 'checked' if annotation.type == 'evidence' }}>
-                            <label class="govuk-label govuk-radios__label" for="edit-type-evidence-{{ annotation.id }}">Evidence</label>
-                          </div>
-                          <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="edit-type-disclosure-{{ annotation.id }}" name="type" type="radio" value="disclosure" {{ 'checked' if annotation.type == 'disclosure' }}>
-                            <label class="govuk-label govuk-radios__label" for="edit-type-disclosure-{{ annotation.id }}">Disclosure</label>
-                          </div>
-                          <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="edit-type-missing-{{ annotation.id }}" name="type" type="radio" value="missing" {{ 'checked' if annotation.type == 'missing' }}>
-                            <label class="govuk-label govuk-radios__label" for="edit-type-missing-{{ annotation.id }}">Missing item</label>
-                          </div>
-                        </div>
-                      </fieldset>
-                    </div>
-                    <div class="govuk-form-group govuk-!-margin-bottom-2">
-                      <label class="govuk-label govuk-label--s" for="edit-note-{{ annotation.id }}">Note</label>
-                      <textarea class="govuk-textarea govuk-!-margin-bottom-0" id="edit-note-{{ annotation.id }}" name="note" rows="3">{{ annotation.note }}</textarea>
-                    </div>
-                    <div class="app-annotation-card__actions">
-                      <button type="submit" class="govuk-button govuk-button--small govuk-!-margin-bottom-0">Save</button>
-                      <button type="button" class="app-button--link govuk-link govuk-body-s js-cancel-edit">Cancel</button>
-                    </div>
-                  </form>
-                </div>
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key govuk-body-s">Note</dt>
+                    <dd class="govuk-summary-list__value govuk-body-s">{{ annotation.note }}</dd>
+                    <dd class="govuk-summary-list__actions">
+                      <a href="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/remove?from=document" class="govuk-link govuk-body-s">Remove</a>
+                    </dd>
+                  </div>
+                </dl>
               </div>
             </div>
           </div>
         {% endfor %}
 
         {% if not annotations or not annotations.length %}
-          <p class="app-annotation-sidebar__empty govuk-body-s js-sidebar-empty">Select text in the document to mark it as evidence, flag a disclosure issue, or note a missing item.</p>
+          <p class="app-annotation-sidebar__empty govuk-body-s js-sidebar-empty"></p>
         {% endif %}
 
       </div>
@@ -152,10 +128,7 @@
   </div>
 
   <div class="app-annotation-popup js-annotation-popup" hidden aria-hidden="true">
-    <button type="button" class="app-annotation-popup__btn js-annotate-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Annotate
-    </button>
+    <button type="button" class="app-annotation-popup__btn js-annotate-btn">Annotate</button>
   </div>
 
   <form method="post" action="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/add" id="annotation-form" hidden>

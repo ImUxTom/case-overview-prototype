@@ -1,28 +1,3 @@
-// ── Task list ─────────────────────────────────────────────────────────────────
-
-.app-review-annotations {
-  border-left: 4px solid transparent;
-  padding-left: govuk-spacing(3);
-  margin-bottom: govuk-spacing(4);
-
-  &--evidence {
-    border-left-color: #f5c500;
-  }
-
-  &--disclosure {
-    border-left-color: #9c27b0;
-  }
-
-  &--missing {
-    border-left-color: #f47738;
-  }
-
-  .govuk-summary-list__actions {
-    display: flex;
-    gap: govuk-spacing(2);
-    align-items: center;
-  }
-}
 
 
 // ── Sticky toolbar (inside content, below H1) ─────────────────────────────────
@@ -36,7 +11,7 @@
   top: 0;
   z-index: 100;
   background-color: govuk-colour("white");
-  padding: govuk-spacing(2) 0;
+  padding: govuk-spacing(2) 0 0 0;
   margin-bottom: govuk-spacing(6);
 
   &.is-stuck {
@@ -67,6 +42,9 @@
 
 .app-document {
   max-width: 680px;
+  border: 1px solid #b1b4b6;
+  padding: govuk-spacing(8);
+  background: govuk-colour("white");
 }
 
 .app-document__meta {
@@ -135,9 +113,35 @@
   position: fixed;
   z-index: 300;
   background: govuk-colour("white");
-  border: 1px solid #b1b4b6;
-  border-radius: 3px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid $govuk-text-colour;
+
+  // Downward-pointing arrow centered at the bottom
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    pointer-events: none;
+  }
+
+  // Outer arrow — border colour
+  &::before {
+    bottom: -9px;
+    border-top: 9px solid $govuk-text-colour;
+  }
+
+  // Inner arrow — white fill
+  &::after {
+    bottom: -7px;
+    border-top: 8px solid govuk-colour("white");
+  }
+
+  &:hover::after {
+    border-top-color: govuk-colour("light-grey");
+  }
 
   &[hidden] {
     display: none;
@@ -145,24 +149,19 @@
 }
 
 .app-annotation-popup__btn {
-  display: flex;
-  align-items: center;
-  gap: govuk-spacing(1);
-  padding: govuk-spacing(1) govuk-spacing(2);
+  display: block;
+  padding: govuk-spacing(1) govuk-spacing(3);
   background: none;
   border: none;
   cursor: pointer;
-  font-family: inherit;
+  font-family: $govuk-font-family;
   font-size: 16px;
+  line-height: 1.25;
   color: $govuk-text-colour;
   white-space: nowrap;
 
   &:hover {
     background-color: govuk-colour("light-grey");
-  }
-
-  svg {
-    flex-shrink: 0;
   }
 }
 
@@ -190,24 +189,15 @@
 .app-annotation-card {
   background: govuk-colour("white");
   border: 1px solid #b1b4b6;
-  border-left: 4px solid #b1b4b6;
   margin-bottom: govuk-spacing(3);
+}
 
-  &--evidence {
-    border-left-color: #f5c500;
-  }
+.app-annotation-card__tag {
+  padding: govuk-spacing(2) govuk-spacing(2) 0;
+}
 
-  &--disclosure {
-    border-left-color: #9c27b0;
-  }
-
-  &--missing {
-    border-left-color: #f47738;
-  }
-
-  &--form {
-    border-left-color: govuk-colour("mid-grey");
-  }
+.app-annotation-card__summary {
+  margin-bottom: 0;
 }
 
 .app-annotation-card__toggle {
@@ -228,6 +218,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  padding: govuk-spacing(2);
   gap: govuk-spacing(1);
   margin-bottom: govuk-spacing(1);
 }
@@ -264,14 +255,6 @@
   margin-bottom: govuk-spacing(1);
 }
 
-.app-annotation-card__type {
-  font-size: 14px;
-  margin-bottom: govuk-spacing(2);
-
-  &--evidence { color: #7a5c00; }
-  &--disclosure { color: #6a1080; }
-  &--missing { color: #7a3c1c; }
-}
 
 .app-annotation-card__actions {
   display: flex;
