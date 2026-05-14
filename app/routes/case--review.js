@@ -58,6 +58,26 @@ function applyHighlights(sections, annotations) {
   }))
 }
 
+function applyRedactions(sections, redactions) {
+  if (!redactions.length) return sections
+  const sorted = [...redactions].sort((a, b) => b.selectedText.length - a.selectedText.length)
+  return sections.map(section => ({
+    heading: section.heading,
+    paragraphs: section.paragraphs.map(para => {
+      let result = para
+      sorted.forEach(redaction => {
+        const escaped = redaction.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const regex = new RegExp(escaped, 'g')
+        result = result.replace(
+          regex,
+          `<mark class="app-redaction" data-redaction-id="${redaction.id}">${redaction.selectedText}</mark>`
+        )
+      })
+      return result
+    })
+  }))
+}
+
 module.exports = (router) => {
   // Task list
   router.get('/cases/:caseId/review', async (req, res) => {
@@ -109,19 +129,27 @@ module.exports = (router) => {
       })
     }
 
-    const annotations = await prisma.caseReviewAnnotation.findMany({
-      where: { caseReviewDocumentId: docReview.id },
-      orderBy: { createdAt: 'asc' }
-    })
+    const [annotations, redactions] = await Promise.all([
+      prisma.caseReviewAnnotation.findMany({
+        where: { caseReviewDocumentId: docReview.id },
+        orderBy: { createdAt: 'asc' }
+      }),
+      prisma.caseReviewRedaction.findMany({
+        where: { caseReviewDocumentId: docReview.id },
+        orderBy: { createdAt: 'asc' }
+      })
+    ])
 
     const rawSections = generateDocumentContent(document)
-    const sections = applyHighlights(rawSections, annotations)
+    const annotatedSections = applyHighlights(rawSections, annotations)
+    const sections = applyRedactions(annotatedSections, redactions)
 
     res.render('cases/review/document', {
       _case,
       document,
       sections,
       annotations,
+      redactions,
       caseId,
       documentId,
       docReviewId: docReview.id,
@@ -215,6 +243,36 @@ module.exports = (router) => {
     }
   })
 
+  // Add redaction
+  router.post('/cases/:caseId/review/documents/:documentId/redactions/add', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const documentId = parseInt(req.params.documentId)
+    const userId = req.session.data.user.id
+
+    const review = await findOrCreateReview(caseId, userId)
+    const docReview = await findOrCreateDocumentReview(review.id, documentId)
+
+    const { selectedText } = req.body
+    if (selectedText) {
+      await prisma.caseReviewRedaction.create({
+        data: { caseReviewDocumentId: docReview.id, selectedText }
+      })
+    }
+
+    res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
+  })
+
+  // Remove redaction
+  router.post('/cases/:caseId/review/documents/:documentId/redactions/:redactionId/remove', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const documentId = parseInt(req.params.documentId)
+    const redactionId = parseInt(req.params.redactionId)
+
+    await prisma.caseReviewRedaction.delete({ where: { id: redactionId } })
+
+    res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
+  })
+
   // Mark document as reviewed
   router.post('/cases/:caseId/review/documents/:documentId/mark-reviewed', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
@@ -276,6 +334,35 @@ module.exports = (router) => {
     }
 
     res.redirect(`/cases/${caseId}/review`)
+  })
+
+  // Check page
+  router.get('/cases/:caseId/review/check', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const userId = req.session.data.user.id
+
+    const _case = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: { defendants: true }
+    })
+
+    const review = await findOrCreateReview(caseId, userId)
+
+    const documents = await prisma.document.findMany({
+      where: { caseId },
+      take: 5,
+      orderBy: { id: 'asc' }
+    })
+
+    const documentReviews = await prisma.caseReviewDocument.findMany({
+      where: { caseReviewId: review.id },
+      include: { annotations: { orderBy: { createdAt: 'asc' } } }
+    })
+
+    const docReviewMap = {}
+    documentReviews.forEach(dr => { docReviewMap[dr.documentId] = dr })
+
+    res.render('cases/review/check', { _case, documents, review, docReviewMap })
   })
 
   // Summary form — GET

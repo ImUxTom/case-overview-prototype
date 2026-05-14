@@ -4,6 +4,7 @@
   var documentContent = document.getElementById('document-content')
   var popup = document.querySelector('.js-annotation-popup')
   var annotateBtn = document.querySelector('.js-annotate-btn')
+  var redactBtn = document.querySelector('.js-redact-btn')
   var newAnnotationCard = document.querySelector('.js-new-annotation-card')
   var sidebarInner = document.querySelector('.js-sidebar-inner')
   var sidebarEmpty = document.querySelector('.js-sidebar-empty')
@@ -15,9 +16,21 @@
   var noteInput = document.getElementById('annotation-note-input')
   var saveBtn = document.querySelector('.js-save-annotation')
   var cancelBtn = document.querySelector('.js-cancel-annotation')
+  var redactionForm = document.getElementById('redaction-form')
+  var redactionSelectedTextInput = document.getElementById('redaction-selected-text')
+  var redactionRemoveForm = document.getElementById('redaction-remove-form')
+  var toggleRedactionsBtn = document.querySelector('.js-toggle-redactions')
+  var selectionActions = document.querySelector('.js-selection-actions')
+  var redactionActions = document.querySelector('.js-redaction-actions')
+  var removeRedactionBtn = document.querySelector('.js-remove-redaction-btn')
+
+  var caseId = documentContent ? documentContent.getAttribute('data-case-id') : null
+  var documentId = documentContent ? documentContent.getAttribute('data-document-id') : null
 
   var currentRange = null
   var selectionMark = null
+  var redactionsHidden = false
+  var pendingRemoveRedactionId = null
 
   if (!documentContent || !popup) return
 
@@ -30,10 +43,6 @@
     new IntersectionObserver(function (entries) {
       toolbar.classList.toggle('is-stuck', !entries[0].isIntersecting)
     }).observe(sentinel)
-  }
-
-  function positionNewCard() {
-    // Cards flow naturally — no absolute positioning needed
   }
 
   // ── Text selection → popup ─────────────────────────────────────────────────
@@ -52,6 +61,20 @@
   function hidePopup() {
     popup.hidden = true
     popup.setAttribute('aria-hidden', 'true')
+    pendingRemoveRedactionId = null
+  }
+
+  function showSelectionPopup(rect) {
+    if (selectionActions) selectionActions.hidden = false
+    if (redactionActions) redactionActions.hidden = true
+    showPopup(rect)
+  }
+
+  function showRedactionPopup(rect, redactionId) {
+    pendingRemoveRedactionId = redactionId
+    if (selectionActions) selectionActions.hidden = true
+    if (redactionActions) redactionActions.hidden = false
+    showPopup(rect)
   }
 
   function showPopup(rect) {
@@ -62,12 +85,9 @@
     var popupHeight = popup.offsetHeight
     var arrowHeight = 9
 
-    // Centre popup over the selection midpoint
     var left = rect.left + rect.width / 2 - popupWidth / 2
-    // Clamp so it doesn't go off-screen
     left = Math.max(8, Math.min(left, window.innerWidth - popupWidth - 8))
 
-    // Position above the selection top, with room for the arrow
     var top = rect.top - popupHeight - arrowHeight - 4
 
     popup.style.left = left + 'px'
@@ -105,7 +125,7 @@
 
       currentRange = range.cloneRange()
       var rect = range.getBoundingClientRect()
-      showPopup(rect)
+      showSelectionPopup(rect)
     }, 10)
   })
 
@@ -148,7 +168,6 @@
       var selectedText = currentRange.toString().trim()
       if (selectedTextInput) selectedTextInput.value = selectedText
 
-      // Wrap selected text in a temporary highlight span
       clearSelectionHighlight()
       try {
         selectionMark = document.createElement('span')
@@ -171,6 +190,57 @@
         if (sidebarEmpty) sidebarEmpty.hidden = true
         if (noteInput) noteInput.focus()
       }
+    })
+  }
+
+  // ── Redact button → instant redaction ────────────────────────────────────
+
+  if (redactBtn) {
+    redactBtn.addEventListener('click', function () {
+      if (!currentRange || !redactionForm || !redactionSelectedTextInput) return
+
+      var selectedText = currentRange.toString().trim()
+      if (!selectedText) return
+
+      redactionSelectedTextInput.value = selectedText
+      window.getSelection().removeAllRanges()
+      hidePopup()
+      redactionForm.submit()
+    })
+  }
+
+  // ── Click redacted text → show remove popup ───────────────────────────────
+
+  documentContent.addEventListener('click', function (e) {
+    if (redactionsHidden) return
+    var redaction = e.target.closest('.app-redaction')
+    if (!redaction) return
+
+    var redactionId = redaction.getAttribute('data-redaction-id')
+    if (!redactionId) return
+
+    window.getSelection().removeAllRanges()
+    var rect = redaction.getBoundingClientRect()
+    showRedactionPopup(rect, redactionId)
+  })
+
+  // ── Remove redaction button ───────────────────────────────────────────────
+
+  if (removeRedactionBtn) {
+    removeRedactionBtn.addEventListener('click', function () {
+      if (!pendingRemoveRedactionId || !redactionRemoveForm) return
+      redactionRemoveForm.action = '/cases/' + caseId + '/review/documents/' + documentId + '/redactions/' + pendingRemoveRedactionId + '/remove'
+      redactionRemoveForm.submit()
+    })
+  }
+
+  // ── Show/hide redactions toggle ───────────────────────────────────────────
+
+  if (toggleRedactionsBtn) {
+    toggleRedactionsBtn.addEventListener('click', function () {
+      redactionsHidden = !redactionsHidden
+      documentContent.classList.toggle('app-redactions-hidden', redactionsHidden)
+      toggleRedactionsBtn.textContent = redactionsHidden ? 'Show redactions' : 'Hide redactions'
     })
   }
 
@@ -246,6 +316,5 @@
       activateMark(annotationId)
     })
   })
-
 
 })()

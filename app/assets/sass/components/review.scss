@@ -107,6 +107,22 @@
 }
 
 
+// ── Redaction highlights in document ─────────────────────────────────────────
+
+.app-redaction {
+  background: transparent;
+  outline: 2px solid govuk-colour("red");
+  border-radius: 2px;
+  padding: 1px 0;
+  cursor: pointer;
+}
+
+.app-redactions-hidden .app-redaction {
+  outline: none;
+  cursor: auto;
+}
+
+
 // ── Annotation popup (near selection) ────────────────────────────────────────
 
 .app-annotation-popup {
@@ -148,6 +164,10 @@
   }
 }
 
+.app-annotation-popup__actions {
+  display: flex;
+}
+
 .app-annotation-popup__btn {
   display: block;
   padding: govuk-spacing(1) govuk-spacing(3);
@@ -159,6 +179,10 @@
   line-height: 1.25;
   color: $govuk-text-colour;
   white-space: nowrap;
+
+  & + & {
+    border-left: 1px solid $govuk-text-colour;
+  }
 
   &:hover {
     background-color: govuk-colour("light-grey");

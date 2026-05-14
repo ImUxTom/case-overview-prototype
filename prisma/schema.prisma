@@ -432,6 +432,7 @@ model CaseReviewDocument {
   caseReview   CaseReview             @relation(fields: [caseReviewId], references: [id])
   document     Document               @relation(fields: [documentId], references: [id])
   annotations  CaseReviewAnnotation[]
+  redactions   CaseReviewRedaction[]
 }
 
 model CaseReviewAnnotation {
@@ -442,6 +443,14 @@ model CaseReviewAnnotation {
   note                 String
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
+  caseReviewDocument   CaseReviewDocument @relation(fields: [caseReviewDocumentId], references: [id])
+}
+
+model CaseReviewRedaction {
+  id                   Int                @id @default(autoincrement())
+  caseReviewDocumentId Int
+  selectedText         String
+  createdAt            DateTime           @default(now())
   caseReviewDocument   CaseReviewDocument @relation(fields: [caseReviewDocumentId], references: [id])
 }
 

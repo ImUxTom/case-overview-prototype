@@ -1,0 +1,104 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = "Check and submit review" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: 'Back', href: '/cases/' + _case.id + '/review' }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">{{ _case.reference }}</span>
+      <h1 class="govuk-heading-l">{{ pageName }}</h1>
+
+      <h2 class="govuk-heading-m">Review documents</h2>
+
+      {% for document in documents %}
+        {% set docReview = docReviewMap[document.id] %}
+        {% set annotations = docReview.annotations if docReview else [] %}
+
+        <h3 class="govuk-heading-s govuk-!-margin-bottom-1">{{ document.name }}</h3>
+
+        {% if annotations.length %}
+          <table class="govuk-table govuk-!-margin-bottom-4">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Type</th>
+                <th scope="col" class="govuk-table__header">Annotation</th>
+                <th scope="col" class="govuk-table__header">Note</th>
+                <th scope="col" class="govuk-table__header" style="white-space: nowrap; width: 1%;">
+                  <span class="govuk-visually-hidden">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for annotation in annotations %}
+                {% if annotation.type == 'evidence' %}
+                  {% set typeLabel = 'Evidence' %}
+                {% elif annotation.type == 'disclosure' %}
+                  {% set typeLabel = 'Disclosure' %}
+                {% else %}
+                  {% set typeLabel = 'Missing item' %}
+                {% endif %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell">{{ typeLabel }}</td>
+                  <td class="govuk-table__cell">{{ annotation.selectedText | truncate(80) }}</td>
+                  <td class="govuk-table__cell">{{ annotation.note }}</td>
+                  <td class="govuk-table__cell" style="white-space: nowrap;">
+                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">
+                      Change
+                    </a>
+                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove?from=list" class="govuk-link govuk-!-margin-left-3">
+                      Remove
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="govuk-body govuk-!-margin-bottom-4">No annotations added.</p>
+        {% endif %}
+      {% endfor %}
+
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">Additional information</h2>
+
+      {{
+        govukSummaryList({
+          rows: [
+            {
+              key: { text: "Summary of review" },
+              value: { text: review.summary if review.summary else "Not provided" },
+              actions: {
+                items: [{
+                  href: "/cases/" + _case.id + "/review/summary",
+                  text: "Change",
+                  visuallyHiddenText: "summary of review"
+                }]
+              }
+            },
+            {
+              key: { text: "Charging decision" },
+              value: {
+                text: ("Charge" if data.chargingDecision.decision == 'charge' else "Do not charge") if (data.chargingDecision and data.chargingDecision.decision) else "Not provided"
+              },
+              actions: {
+                items: [{
+                  href: "/cases/" + _case.id + "/make-charging-decision",
+                  text: "Change",
+                  visuallyHiddenText: "charging decision"
+                }]
+              }
+            }
+          ]
+        })
+      }}
+
+      <form method="post" action="/cases/{{ _case.id }}/review/submit">
+        {{ govukButton({ text: "Submit review" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -45,6 +45,12 @@
         <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Download
         </a>
+        <button
+          type="button"
+          class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0 js-toggle-redactions"
+        >
+          Hide redactions
+        </button>
       </div>
     </div>
   </div>
@@ -52,7 +58,12 @@
   <div class="app-document-layout">
     <div class="app-document-pane">
       <div class="app-document">
-        <div class="app-document__content" id="document-content">
+        <div
+          class="app-document__content"
+          id="document-content"
+          data-case-id="{{ caseId }}"
+          data-document-id="{{ documentId }}"
+        >
           {% for section in sections %}
             <h2 class="app-document__section-heading">{{ section.heading }}</h2>
             {% for paragraph in section.paragraphs %}
@@ -212,7 +223,13 @@
   </div>
 
   <div class="app-annotation-popup js-annotation-popup" hidden aria-hidden="true">
-    <button type="button" class="app-annotation-popup__btn js-annotate-btn">Annotate</button>
+    <div class="app-annotation-popup__actions js-selection-actions">
+      <button type="button" class="app-annotation-popup__btn js-annotate-btn">Annotate</button>
+      <button type="button" class="app-annotation-popup__btn js-redact-btn">Redact</button>
+    </div>
+    <div class="app-annotation-popup__actions js-redaction-actions" hidden>
+      <button type="button" class="app-annotation-popup__btn js-remove-redaction-btn">Remove redaction</button>
+    </div>
   </div>
 
   <form
@@ -224,6 +241,22 @@
     <input type="hidden" name="selectedText" id="annotation-selected-text" />
     <input type="hidden" name="type" id="annotation-type-hidden" />
     <input type="hidden" name="note" id="annotation-note-hidden" />
+  </form>
+
+  <form
+    method="post"
+    action="/cases/{{ caseId }}/review/documents/{{ documentId }}/redactions/add"
+    id="redaction-form"
+    hidden
+  >
+    <input type="hidden" name="selectedText" id="redaction-selected-text" />
+  </form>
+
+  <form
+    method="post"
+    id="redaction-remove-form"
+    hidden
+  >
   </form>
 {% endblock %}
 
