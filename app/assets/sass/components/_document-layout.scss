@@ -1,0 +1,43 @@
+.app-document-layout {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.app-document-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-document-main {
+  padding: govuk-spacing(6) 0;
+}
+
+.app-document {
+  max-width: 680px;
+  border: 1px solid #b1b4b6;
+  padding: govuk-spacing(8);
+  background: govuk-colour("white");
+}
+
+.app-document__meta {
+  color: govuk-colour("dark-grey");
+  margin-bottom: govuk-spacing(4);
+}
+
+.app-document__section-heading {
+  font-size: 21px;
+  font-weight: bold;
+  margin-top: govuk-spacing(8);
+  margin-bottom: govuk-spacing(2);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.app-document__paragraph {
+  font-size: 19px;
+  margin-bottom: govuk-spacing(4);
+  line-height: 1.7;
+}

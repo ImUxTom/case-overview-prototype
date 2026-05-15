@@ -162,12 +162,10 @@
             </div>
 
             <div class="app-annotation-card__header">
-              <span class="app-annotation-card__name govuk-body-s">
-                {{ user.firstName }} {{ user.lastName }}
-              </span>
-              <span class="app-annotation-card__time govuk-body-s">
+              <p class="app-annotation-card__name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="app-annotation-card__time">
                 {{ annotation.createdAt | isoDateString | govukDateTime }}
-              </span>
+              </p>
             </div>
 
             <button
@@ -175,9 +173,7 @@
               class="app-annotation-card__toggle js-card-toggle"
               aria-expanded="false"
             >
-              <div class="app-annotation-card__preview govuk-body-s">
-                {{ annotation.note | truncate(80) }}
-              </div>
+              <div class="app-annotation-card__preview">{{ annotation.note | truncate(80) }}</div>
             </button>
 
             <div class="js-card-expanded" hidden>
@@ -228,7 +224,9 @@
       <button type="button" class="app-annotation-popup__btn js-redact-btn">Redact</button>
     </div>
     <div class="app-annotation-popup__actions js-redaction-actions" hidden>
-      <button type="button" class="app-annotation-popup__btn js-remove-redaction-btn">Remove redaction</button>
+      <button type="button" class="app-annotation-popup__btn js-remove-redaction-btn">
+        Unredact
+      </button>
     </div>
   </div>
 
@@ -252,12 +250,7 @@
     <input type="hidden" name="selectedText" id="redaction-selected-text" />
   </form>
 
-  <form
-    method="post"
-    id="redaction-remove-form"
-    hidden
-  >
-  </form>
+  <form method="post" id="redaction-remove-form" hidden></form>
 {% endblock %}
 
 {% block pageScripts %}

@@ -1,0 +1,33 @@
+.app-annotation {
+  border-radius: 2px;
+  padding: 1px 0;
+}
+
+.app-annotation--evidence {
+  background-color: #fff7c0;
+
+  &.app-annotation--active {
+    background-color: #f5c500;
+  }
+}
+
+.app-annotation--disclosure {
+  background-color: #f3e5f5;
+
+  &.app-annotation--active {
+    background-color: #ce93d8;
+  }
+}
+
+.app-annotation--missing {
+  background-color: #fde8d8;
+
+  &.app-annotation--active {
+    background-color: #f6b495;
+  }
+}
+
+// Temporary highlight while selecting (before saving)
+.app-annotation-selecting {
+  background-color: #c8d8f0;
+}

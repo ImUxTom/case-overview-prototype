@@ -105,8 +105,9 @@
     currentRange = null
   }
 
-  documentContent.addEventListener('mouseup', function () {
+  documentContent.addEventListener('mouseup', function (e) {
     setTimeout(function () {
+      if (e.target.closest('.app-redaction')) return
       var selection = window.getSelection()
       if (!selection || selection.isCollapsed) {
         hidePopup()

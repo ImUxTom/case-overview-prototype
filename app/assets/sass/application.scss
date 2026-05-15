@@ -4,8 +4,16 @@
 // 
 
 @import "components/hidden.scss";
-@import "components/review.scss";
 @import "components/header.scss";
+
+// Document viewer
+@import "components/document-toolbar.scss";
+@import "components/document-layout.scss";
+@import "components/document-annotated-text.scss";
+@import "components/document-redacted-text.scss";
+@import "components/document-popup-menu.scss";
+@import "components/annotation.scss";
+@import "components/annotation-form.scss";
 
 // Filter bits
 @import "components/action-bar.scss";
