@@ -3,7 +3,7 @@
 
   var documentContent = document.getElementById('document-content')
   var popup = document.querySelector('.js-annotation-popup')
-  var annotateBtn = document.querySelector('.js-annotate-btn')
+  var annotateBtns = document.querySelectorAll('.js-annotate-btn')
   var redactBtn = document.querySelector('.js-redact-btn')
   var newAnnotationCard = document.querySelector('.js-new-annotation-card')
   var sidebarInner = document.querySelector('.js-sidebar-inner')
@@ -12,8 +12,8 @@
   var selectedTextInput = document.getElementById('annotation-selected-text')
   var typeHiddenInput = document.getElementById('annotation-type-hidden')
   var noteHiddenInput = document.getElementById('annotation-note-hidden')
-  var typeRadios = document.querySelectorAll('.js-type-radio')
   var noteInput = document.getElementById('annotation-note-input')
+  var pendingAnnotationType = null
   var saveBtn = document.querySelector('.js-save-annotation')
   var cancelBtn = document.querySelector('.js-cancel-annotation')
   var redactionForm = document.getElementById('redaction-form')
@@ -23,6 +23,12 @@
   var selectionActions = document.querySelector('.js-selection-actions')
   var redactionActions = document.querySelector('.js-redaction-actions')
   var removeRedactionBtn = document.querySelector('.js-remove-redaction-btn')
+  var inadmissibleBtn = document.querySelector('.js-inadmissible-btn')
+  var inadmissibleActions = document.querySelector('.js-inadmissible-actions')
+  var removeInadmissibleBtn = document.querySelector('.js-remove-inadmissible-btn')
+  var inadmissibleForm = document.getElementById('inadmissible-form')
+  var inadmissibleSelectedTextInput = document.getElementById('inadmissible-selected-text')
+  var inadmissibleRemoveForm = document.getElementById('inadmissible-remove-form')
 
   var caseId = documentContent ? documentContent.getAttribute('data-case-id') : null
   var documentId = documentContent ? documentContent.getAttribute('data-document-id') : null
@@ -31,6 +37,7 @@
   var selectionMark = null
   var redactionsHidden = false
   var pendingRemoveRedactionId = null
+  var pendingRemoveInadmissibleId = null
   var formSelectionDocumentY = null
 
   if (!documentContent || !popup) return
@@ -63,12 +70,14 @@
     popup.hidden = true
     popup.setAttribute('aria-hidden', 'true')
     pendingRemoveRedactionId = null
+    pendingRemoveInadmissibleId = null
     window.getSelection().removeAllRanges()
   }
 
   function showSelectionPopup(rect) {
     if (selectionActions) selectionActions.hidden = false
     if (redactionActions) redactionActions.hidden = true
+    if (inadmissibleActions) inadmissibleActions.hidden = true
     showPopup(rect)
   }
 
@@ -76,6 +85,15 @@
     pendingRemoveRedactionId = redactionId
     if (selectionActions) selectionActions.hidden = true
     if (redactionActions) redactionActions.hidden = false
+    if (inadmissibleActions) inadmissibleActions.hidden = true
+    showPopup(rect)
+  }
+
+  function showInadmissiblePopup(rect, inadmissibleId) {
+    pendingRemoveInadmissibleId = inadmissibleId
+    if (selectionActions) selectionActions.hidden = true
+    if (redactionActions) redactionActions.hidden = true
+    if (inadmissibleActions) inadmissibleActions.hidden = false
     showPopup(rect)
   }
 
@@ -103,7 +121,7 @@
     clearSelectionHighlight()
     if (selectedTextInput) selectedTextInput.value = ''
     if (noteInput) noteInput.value = ''
-    typeRadios.forEach(function (r) { r.checked = false })
+    pendingAnnotationType = null
     currentRange = null
     formSelectionDocumentY = null
     positionAllCards()
@@ -111,7 +129,7 @@
 
   documentContent.addEventListener('mouseup', function (e) {
     setTimeout(function () {
-      if (e.target.closest('.app-redaction')) return
+      if (e.target.closest('.app-redaction') || e.target.closest('.app-inadmissible')) return
       var selection = window.getSelection()
       if (!selection || selection.isCollapsed) {
         hidePopup()
@@ -193,11 +211,13 @@
     sidebarInner.style.minHeight = lastBottom + 'px'
   }
 
-  // ── Annotate button → sidebar form ────────────────────────────────────────
+  // ── Annotate buttons → sidebar form ───────────────────────────────────────
 
-  if (annotateBtn) {
-    annotateBtn.addEventListener('click', function () {
+  annotateBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
       if (!currentRange) return
+
+      pendingAnnotationType = btn.getAttribute('data-type')
 
       var selectedText = currentRange.toString().trim()
       if (selectedTextInput) selectedTextInput.value = selectedText
@@ -226,7 +246,7 @@
 
       if (noteInput) noteInput.focus()
     })
-  }
+  })
 
   // ── Redact button → instant redaction ────────────────────────────────────
 
@@ -244,7 +264,7 @@
     })
   }
 
-  // ── Click document content → annotation mark or redaction ─────────────────
+  // ── Click document content → annotation mark, redaction, or inadmissible ───
 
   documentContent.addEventListener('click', function (e) {
     var annotation = e.target.closest('.app-annotation')
@@ -252,6 +272,16 @@
       var annotationId = annotation.getAttribute('data-annotation-id')
       activateCard(annotationId)
       activateMark(annotationId)
+      return
+    }
+
+    var inadmissible = e.target.closest('.app-inadmissible')
+    if (inadmissible) {
+      var inadmissibleId = inadmissible.getAttribute('data-inadmissible-id')
+      if (!inadmissibleId) return
+      window.getSelection().removeAllRanges()
+      var inadmissibleRect = inadmissible.getBoundingClientRect()
+      showInadmissiblePopup(inadmissibleRect, inadmissibleId)
       return
     }
 
@@ -277,6 +307,32 @@
     })
   }
 
+  // ── Inadmissible button → instant mark ───────────────────────────────────
+
+  if (inadmissibleBtn) {
+    inadmissibleBtn.addEventListener('click', function () {
+      if (!currentRange || !inadmissibleForm || !inadmissibleSelectedTextInput) return
+
+      var selectedText = currentRange.toString().trim()
+      if (!selectedText) return
+
+      inadmissibleSelectedTextInput.value = selectedText
+      window.getSelection().removeAllRanges()
+      hidePopup()
+      inadmissibleForm.submit()
+    })
+  }
+
+  // ── Remove inadmissible button ────────────────────────────────────────────
+
+  if (removeInadmissibleBtn) {
+    removeInadmissibleBtn.addEventListener('click', function () {
+      if (!pendingRemoveInadmissibleId || !inadmissibleRemoveForm) return
+      inadmissibleRemoveForm.action = '/cases/' + caseId + '/review/documents/' + documentId + '/inadmissibles/' + pendingRemoveInadmissibleId + '/remove'
+      inadmissibleRemoveForm.submit()
+    })
+  }
+
   // ── Show/hide redactions toggle ───────────────────────────────────────────
 
   if (toggleRedactionsBtn) {
@@ -292,16 +348,13 @@
   if (saveBtn) {
     saveBtn.addEventListener('click', function () {
       var note = noteInput ? noteInput.value.trim() : ''
-      var type = ''
-      typeRadios.forEach(function (r) { if (r.checked) type = r.value })
 
-      if (!note || !type) {
-        if (!type) alert('Please select a type.')
-        else if (!note) noteInput.focus()
+      if (!note) {
+        if (noteInput) noteInput.focus()
         return
       }
 
-      if (typeHiddenInput) typeHiddenInput.value = type
+      if (typeHiddenInput) typeHiddenInput.value = pendingAnnotationType
       if (noteHiddenInput) noteHiddenInput.value = note
 
       if (annotationForm) annotationForm.submit()
@@ -311,7 +364,8 @@
   // ── Cancel annotation ─────────────────────────────────────────────────────
 
   if (cancelBtn) {
-    cancelBtn.addEventListener('click', function () {
+    cancelBtn.addEventListener('click', function (e) {
+      e.preventDefault()
       hideNewCard()
       if (sidebarEmpty && !document.querySelectorAll('.js-annotation-card').length) {
         sidebarEmpty.hidden = false

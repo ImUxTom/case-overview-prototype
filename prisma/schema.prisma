@@ -431,8 +431,9 @@ model CaseReviewDocument {
   status       String                 @default("not_started")
   caseReview   CaseReview             @relation(fields: [caseReviewId], references: [id])
   document     Document               @relation(fields: [documentId], references: [id])
-  annotations  CaseReviewAnnotation[]
-  redactions   CaseReviewRedaction[]
+  annotations    CaseReviewAnnotation[]
+  redactions     CaseReviewRedaction[]
+  inadmissibles  CaseReviewInadmissible[]
 }
 
 model CaseReviewAnnotation {
@@ -447,6 +448,14 @@ model CaseReviewAnnotation {
 }
 
 model CaseReviewRedaction {
+  id                   Int                @id @default(autoincrement())
+  caseReviewDocumentId Int
+  selectedText         String
+  createdAt            DateTime           @default(now())
+  caseReviewDocument   CaseReviewDocument @relation(fields: [caseReviewDocumentId], references: [id])
+}
+
+model CaseReviewInadmissible {
   id                   Int                @id @default(autoincrement())
   caseReviewDocumentId Int
   selectedText         String

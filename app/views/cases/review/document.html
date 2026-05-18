@@ -92,55 +92,7 @@
         <div class="app-annotation-sidebar__new js-new-annotation-card" hidden>
           <div class="app-annotation-card app-annotation-card--form">
             <div class="app-annotation-card__body">
-              <div class="app-annotation-card__header">
-                <span class="app-annotation-card__name govuk-body-s">
-                  {{ user.firstName }} {{ user.lastName }}
-                </span>
-              </div>
-              <div class="govuk-form-group govuk-!-margin-bottom-2">
-                <fieldset class="govuk-fieldset">
-                  <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Mark as</legend>
-                  <div class="govuk-radios govuk-radios--small">
-                    <div class="govuk-radios__item">
-                      <input
-                        class="govuk-radios__input js-type-radio"
-                        id="type-evidence"
-                        name="type-ui"
-                        type="radio"
-                        value="evidence"
-                      />
-                      <label class="govuk-label govuk-radios__label" for="type-evidence">
-                        Evidence
-                      </label>
-                    </div>
-                    <div class="govuk-radios__item">
-                      <input
-                        class="govuk-radios__input js-type-radio"
-                        id="type-disclosure"
-                        name="type-ui"
-                        type="radio"
-                        value="disclosure"
-                      />
-                      <label class="govuk-label govuk-radios__label" for="type-disclosure">
-                        Disclosure
-                      </label>
-                    </div>
-                    <div class="govuk-radios__item">
-                      <input
-                        class="govuk-radios__input js-type-radio"
-                        id="type-police-request"
-                        name="type-ui"
-                        type="radio"
-                        value="police-request"
-                      />
-                      <label class="govuk-label govuk-radios__label" for="type-police-request">
-                        Police request
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-              </div>
-              <div class="govuk-form-group govuk-!-margin-bottom-2">
+              <div class="govuk-form-group govuk-!-margin-bottom-3">
                 <label class="govuk-label govuk-label--s" for="annotation-note-input">Note</label>
                 <textarea
                   class="govuk-textarea govuk-!-margin-bottom-0"
@@ -148,16 +100,14 @@
                   rows="3"
                 ></textarea>
               </div>
-              <div class="app-annotation-card__actions">
+              <div class="govuk-button-group govuk-!-margin-bottom-0">
                 <button
                   type="button"
                   class="govuk-button govuk-button--small govuk-!-margin-bottom-0 js-save-annotation"
                 >
                   Save
                 </button>
-                <button type="button" class="app-button--link govuk-link js-cancel-annotation">
-                  Cancel
-                </button>
+                <a href="#" class="govuk-link js-cancel-annotation">Cancel</a>
               </div>
             </div>
           </div>
@@ -203,12 +153,36 @@
 
   <div class="app-annotation-popup js-annotation-popup" hidden aria-hidden="true">
     <div class="app-annotation-popup__actions js-selection-actions">
-      <button type="button" class="app-annotation-popup__btn js-annotate-btn">Annotate</button>
+      <button type="button" class="app-annotation-popup__btn js-annotate-btn" data-type="evidence">
+        Evidence
+      </button>
+      <button
+        type="button"
+        class="app-annotation-popup__btn js-annotate-btn"
+        data-type="disclosure"
+      >
+        Disclosure
+      </button>
+      <button
+        type="button"
+        class="app-annotation-popup__btn js-annotate-btn"
+        data-type="police-request"
+      >
+        Police request
+      </button>
       <button type="button" class="app-annotation-popup__btn js-redact-btn">Redact</button>
+      <button type="button" class="app-annotation-popup__btn js-inadmissible-btn">
+        Inadmissible
+      </button>
     </div>
     <div class="app-annotation-popup__actions js-redaction-actions" hidden>
       <button type="button" class="app-annotation-popup__btn js-remove-redaction-btn">
         Unredact
+      </button>
+    </div>
+    <div class="app-annotation-popup__actions js-inadmissible-actions" hidden>
+      <button type="button" class="app-annotation-popup__btn js-remove-inadmissible-btn">
+        Restore
       </button>
     </div>
   </div>
@@ -234,6 +208,17 @@
   </form>
 
   <form method="post" id="redaction-remove-form" hidden></form>
+
+  <form
+    method="post"
+    action="/cases/{{ caseId }}/review/documents/{{ documentId }}/inadmissibles/add"
+    id="inadmissible-form"
+    hidden
+  >
+    <input type="hidden" name="selectedText" id="inadmissible-selected-text" />
+  </form>
+
+  <form method="post" id="inadmissible-remove-form" hidden></form>
 {% endblock %}
 
 {% block pageScripts %}

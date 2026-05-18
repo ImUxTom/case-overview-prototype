@@ -64,6 +64,26 @@ function applyHighlights(sections, annotations) {
   }))
 }
 
+function applyInadmissibles(sections, inadmissibles) {
+  if (!inadmissibles.length) return sections
+  const sorted = [...inadmissibles].sort((a, b) => b.selectedText.length - a.selectedText.length)
+  return sections.map(section => ({
+    heading: section.heading,
+    paragraphs: section.paragraphs.map(para => {
+      let result = para
+      sorted.forEach(item => {
+        const escaped = item.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const regex = new RegExp(escaped, 'g')
+        result = result.replace(
+          regex,
+          `<mark class="app-inadmissible" data-inadmissible-id="${item.id}">${item.selectedText}</mark>`
+        )
+      })
+      return result
+    })
+  }))
+}
+
 function applyRedactions(sections, redactions) {
   if (!redactions.length) return sections
   const sorted = [...redactions].sort((a, b) => b.selectedText.length - a.selectedText.length)
@@ -135,7 +155,7 @@ module.exports = (router) => {
       })
     }
 
-    const [annotations, redactions] = await Promise.all([
+    const [annotations, redactions, inadmissibles] = await Promise.all([
       prisma.caseReviewAnnotation.findMany({
         where: { caseReviewDocumentId: docReview.id },
         orderBy: { createdAt: 'asc' }
@@ -143,12 +163,17 @@ module.exports = (router) => {
       prisma.caseReviewRedaction.findMany({
         where: { caseReviewDocumentId: docReview.id },
         orderBy: { createdAt: 'asc' }
+      }),
+      prisma.caseReviewInadmissible.findMany({
+        where: { caseReviewDocumentId: docReview.id },
+        orderBy: { createdAt: 'asc' }
       })
     ])
 
     const rawSections = generateDocumentContent(document)
     const annotatedSections = applyHighlights(rawSections, annotations)
-    const sections = applyRedactions(annotatedSections, redactions)
+    const redactedSections = applyRedactions(annotatedSections, redactions)
+    const sections = applyInadmissibles(redactedSections, inadmissibles)
 
     res.render('cases/review/document', {
       _case,
@@ -156,6 +181,7 @@ module.exports = (router) => {
       sections,
       annotations,
       redactions,
+      inadmissibles,
       caseId,
       documentId,
       docReviewId: docReview.id,
@@ -276,6 +302,36 @@ module.exports = (router) => {
     const redactionId = parseInt(req.params.redactionId)
 
     await prisma.caseReviewRedaction.delete({ where: { id: redactionId } })
+
+    res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
+  })
+
+  // Add inadmissible
+  router.post('/cases/:caseId/review/documents/:documentId/inadmissibles/add', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const documentId = parseInt(req.params.documentId)
+    const userId = req.session.data.user.id
+
+    const review = await findOrCreateReview(caseId, userId)
+    const docReview = await findOrCreateDocumentReview(review.id, documentId)
+
+    const { selectedText } = req.body
+    if (selectedText) {
+      await prisma.caseReviewInadmissible.create({
+        data: { caseReviewDocumentId: docReview.id, selectedText }
+      })
+    }
+
+    res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
+  })
+
+  // Remove inadmissible
+  router.post('/cases/:caseId/review/documents/:documentId/inadmissibles/:inadmissibleId/remove', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const documentId = parseInt(req.params.documentId)
+    const inadmissibleId = parseInt(req.params.inadmissibleId)
+
+    await prisma.caseReviewInadmissible.delete({ where: { id: inadmissibleId } })
 
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
   })
