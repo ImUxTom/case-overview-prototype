@@ -42,6 +42,12 @@
         <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Mark as unused
         </a>
+        <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
+          Add note to summary
+        </a>
+        <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
+          Add police request
+        </a>
         {# <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Download
         </a> #}
@@ -115,13 +121,13 @@
                     <div class="govuk-radios__item">
                       <input
                         class="govuk-radios__input js-type-radio"
-                        id="type-missing"
+                        id="type-police-request"
                         name="type-ui"
                         type="radio"
-                        value="missing"
+                        value="police-request"
                       />
-                      <label class="govuk-label govuk-radios__label" for="type-missing">
-                        Missing item
+                      <label class="govuk-label govuk-radios__label" for="type-police-request">
+                        Police request
                       </label>
                     </div>
                   </div>
@@ -151,15 +157,15 @@
         </div>
 
         {% for annotation in annotations %}
-          {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else 'Missing item') %}
-          {% set tagColour = 'yellow' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else 'orange') %}
+          {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else 'Police request') %}
+          {% set tagColour = 'blue' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else 'orange') %}
           <div
-            class="app-annotation-card js-annotation-card"
+            class="app-annotation-card js-annotation-card app-annotation-card--{{ tagColour }}"
             data-annotation-id="{{ annotation.id }}"
           >
-            <div class="app-annotation-card__tag">
-              <strong class="govuk-tag govuk-tag--{{ tagColour }}">{{ typeLabel }}</strong>
-            </div>
+            <p class="app-annotation-card__tag govuk-!-font-size-16 govuk-!-margin-bottom-0">
+              {{ typeLabel }}
+            </p>
 
             <div class="app-annotation-card__body">
               <div class="app-annotation-card__header">

@@ -15,6 +15,28 @@
   border: 1px solid #b1b4b6;
   cursor: pointer;
 
+  &--blue {
+    .app-annotation-card__tag {
+      background: #cce0ff !important;
+      color: #003078 !important;
+    }
+  }
+
+  &--purple {
+    .app-annotation-card__tag {
+      background: #f3e5f5 !important;
+      color: #3d0e60 !important;
+    }
+  }
+
+  &--orange {
+    .app-annotation-card__tag {
+      background: #fde8d8 !important;
+      color: #6e3619 !important;
+    }
+  }
+
+
   &:hover {
     background-color: #f8f8f8;
   }
@@ -27,13 +49,7 @@
 }
 
 .app-annotation-card__tag {
-  margin-top: 5px;
-
-  .govuk-tag {
-    background: none;
-    @include govuk-font(16);
-    padding: 5px 10px 0;
-  }
+  padding: 5px 10px;
 }
 
 .app-annotation-card__body {

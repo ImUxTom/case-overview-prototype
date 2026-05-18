@@ -249,7 +249,9 @@
   documentContent.addEventListener('click', function (e) {
     var annotation = e.target.closest('.app-annotation')
     if (annotation) {
-      activateCard(annotation.getAttribute('data-annotation-id'))
+      var annotationId = annotation.getAttribute('data-annotation-id')
+      activateCard(annotationId)
+      activateMark(annotationId)
       return
     }
 
