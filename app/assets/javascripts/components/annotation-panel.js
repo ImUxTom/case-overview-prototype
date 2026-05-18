@@ -31,6 +31,7 @@
   var selectionMark = null
   var redactionsHidden = false
   var pendingRemoveRedactionId = null
+  var formSelectionDocumentY = null
 
   if (!documentContent || !popup) return
 
@@ -62,6 +63,7 @@
     popup.hidden = true
     popup.setAttribute('aria-hidden', 'true')
     pendingRemoveRedactionId = null
+    window.getSelection().removeAllRanges()
   }
 
   function showSelectionPopup(rect) {
@@ -103,6 +105,8 @@
     if (noteInput) noteInput.value = ''
     typeRadios.forEach(function (r) { r.checked = false })
     currentRange = null
+    formSelectionDocumentY = null
+    positionAllCards()
   }
 
   documentContent.addEventListener('mouseup', function (e) {
@@ -130,34 +134,63 @@
     }, 10)
   })
 
-  function insertFormCardAtSelectionY(selectionMidY) {
-    if (!newAnnotationCard || !sidebarInner) return
+  // ── Position all cards (saved + form) inline with their marks ─────────────
+  //
+  // The form card uses selectionMark as its anchor, just like saved cards use
+  // their <mark> element. Both are sorted together and pushed down as needed
+  // so nothing overlaps or runs into the footer.
 
-    var cards = Array.from(document.querySelectorAll('.js-annotation-card'))
-    var insertBefore = null
+  function positionAllCards() {
+    if (!sidebarInner) return
 
-    for (var i = 0; i < cards.length; i++) {
-      var id = cards[i].getAttribute('data-annotation-id')
+    var sidebarRect = sidebarInner.getBoundingClientRect()
+    var MIN_GAP = 8
+    var items = []
+
+    // Saved annotation cards
+    Array.from(document.querySelectorAll('.js-annotation-card[data-annotation-id]')).forEach(function (card) {
+      var id = card.getAttribute('data-annotation-id')
       var mark = document.querySelector('.app-annotation[data-annotation-id="' + id + '"]')
+      var markCentreY = 0
       if (mark) {
         var markRect = mark.getBoundingClientRect()
-        if (markRect.top + markRect.height / 2 > selectionMidY) {
-          insertBefore = cards[i]
-          break
-        }
+        markCentreY = markRect.top + markRect.height / 2 - sidebarRect.top
       }
+      items.push({ card: card, height: card.offsetHeight, markCentreY: markCentreY, idealTop: markCentreY - card.offsetHeight / 2 })
+    })
+
+    // New annotation form card — use stored document-relative Y so it works
+    // even when surroundContents threw and selectionMark is null
+    if (newAnnotationCard && !newAnnotationCard.hidden && formSelectionDocumentY !== null) {
+      var formViewportY = formSelectionDocumentY - window.scrollY
+      var formMarkCentreY = formViewportY - sidebarRect.top
+      var formIdealTop = formMarkCentreY - newAnnotationCard.offsetHeight / 2
+      items.push({ card: newAnnotationCard, height: newAnnotationCard.offsetHeight, markCentreY: formMarkCentreY, idealTop: formIdealTop })
     }
 
-    if (insertBefore) {
-      sidebarInner.insertBefore(newAnnotationCard, insertBefore)
-    } else {
-      var emptyEl = sidebarInner.querySelector('.js-sidebar-empty')
-      if (emptyEl) {
-        sidebarInner.insertBefore(newAnnotationCard, emptyEl)
-      } else {
-        sidebarInner.appendChild(newAnnotationCard)
-      }
-    }
+    if (!items.length) return
+
+    // Sort by mark centre position, not idealTop — idealTop includes card height
+    // so taller cards (like the form) would wrongly sort before shorter ones
+    items.sort(function (a, b) { return a.markCentreY - b.markCentreY })
+
+    sidebarInner.style.position = 'relative'
+
+    var nextMinTop = 0
+
+    items.forEach(function (item) {
+      var top = Math.max(0, item.idealTop, nextMinTop)
+      item.card.style.position = 'absolute'
+      item.card.style.top = top + 'px'
+      item.card.style.left = '0'
+      item.card.style.right = '0'
+      item.card.style.marginBottom = '0'
+      nextMinTop = top + item.height + MIN_GAP
+    })
+
+    var lastItem = items[items.length - 1]
+    var lastBottom = parseFloat(lastItem.card.style.top) + lastItem.height
+    sidebarInner.style.minHeight = lastBottom + 'px'
   }
 
   // ── Annotate button → sidebar form ────────────────────────────────────────
@@ -169,6 +202,9 @@
       var selectedText = currentRange.toString().trim()
       if (selectedTextInput) selectedTextInput.value = selectedText
 
+      var selectionRect = currentRange.getBoundingClientRect()
+      formSelectionDocumentY = selectionRect.top + selectionRect.height / 2 + window.scrollY
+
       clearSelectionHighlight()
       try {
         selectionMark = document.createElement('span')
@@ -178,19 +214,17 @@
         selectionMark = null
       }
 
-      var rect = currentRange.getBoundingClientRect()
-      var selectionMidY = rect.top + rect.height / 2
-
       window.getSelection().removeAllRanges()
       hidePopup()
-
-      insertFormCardAtSelectionY(selectionMidY)
 
       if (newAnnotationCard) {
         newAnnotationCard.hidden = false
         if (sidebarEmpty) sidebarEmpty.hidden = true
-        if (noteInput) noteInput.focus()
       }
+
+      positionAllCards()
+
+      if (noteInput) noteInput.focus()
     })
   }
 
@@ -210,9 +244,15 @@
     })
   }
 
-  // ── Click redacted text → show remove popup ───────────────────────────────
+  // ── Click document content → annotation mark or redaction ─────────────────
 
   documentContent.addEventListener('click', function (e) {
+    var annotation = e.target.closest('.app-annotation')
+    if (annotation) {
+      activateCard(annotation.getAttribute('data-annotation-id'))
+      return
+    }
+
     if (redactionsHidden) return
     var redaction = e.target.closest('.app-redaction')
     if (!redaction) return
@@ -280,8 +320,16 @@
   // ── Close popup when clicking outside ────────────────────────────────────
 
   document.addEventListener('mousedown', function (e) {
-    if (!popup.hidden && !popup.contains(e.target) && !documentContent.contains(e.target)) {
+    if (!popup.hidden && !popup.contains(e.target)) {
       hidePopup()
+    }
+    if (!e.target.closest('.js-annotation-card')) {
+      document.querySelectorAll('.js-annotation-card').forEach(function (c) {
+        c.classList.remove('is-selected')
+        c.classList.remove('app-annotation-card--active')
+      })
+      activateMark(null)
+      repositionCards()
     }
   })
 
@@ -300,14 +348,51 @@
     })
     if (annotationId) {
       var mark = document.querySelector('.app-annotation[data-annotation-id="' + annotationId + '"]')
-      if (mark) mark.classList.add('app-annotation--active')
+      if (mark) {
+        mark.classList.add('app-annotation--active')
+        mark.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
     }
   }
 
+  // ── Mark click → highlight annotation card ────────────────────────────────
+
+  function activateCard(annotationId) {
+    document.querySelectorAll('.js-annotation-card').forEach(function (c) {
+      c.classList.remove('is-selected')
+      c.classList.remove('app-annotation-card--active')
+    })
+    if (annotationId) {
+      var card = document.querySelector('.js-annotation-card[data-annotation-id="' + annotationId + '"]')
+      if (card) {
+        card.classList.add('is-selected')
+        card.classList.add('app-annotation-card--active')
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+    repositionCards()
+  }
+
   document.querySelectorAll('.js-annotation-card').forEach(function (card) {
-    card.addEventListener('click', function () {
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('a')) return
+      document.querySelectorAll('.js-annotation-card').forEach(function (c) {
+        c.classList.remove('is-selected')
+        c.classList.remove('app-annotation-card--active')
+      })
+      card.classList.add('is-selected')
       activateMark(card.getAttribute('data-annotation-id'))
+      repositionCards()
     })
   })
+
+  function repositionCards() {
+    requestAnimationFrame(positionAllCards)
+  }
+
+  // ── Initial card positioning and resize handler ───────────────────────────
+
+  positionAllCards()
+  window.addEventListener('resize', positionAllCards)
 
 })()

@@ -13,11 +13,16 @@
 .app-annotation-card {
   background: govuk-colour("white");
   border: 1px solid #b1b4b6;
-  margin-bottom: govuk-spacing(3);
   cursor: pointer;
 
   &:hover {
     background-color: #f8f8f8;
+  }
+
+  &.is-selected {
+    border: 2px solid govuk-colour("black");
+    outline: 3px solid #ffdd00;
+    outline-offset: 0;
   }
 }
 
@@ -63,4 +68,9 @@
 
 .app-annotation-card__remove {
   @include govuk-font(16);
+  display: none;
+
+  .app-annotation-card.is-selected & {
+    display: inline;
+  }
 }

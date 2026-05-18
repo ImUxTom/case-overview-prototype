@@ -217,14 +217,14 @@ module.exports = (router) => {
     const documentId = parseInt(req.params.documentId)
     const annotationId = parseInt(req.params.annotationId)
 
-    const [_case, document, annotation] = await Promise.all([
-      prisma.case.findUnique({ where: { id: caseId } }),
-      prisma.document.findUnique({ where: { id: documentId } }),
-      prisma.caseReviewAnnotation.findUnique({ where: { id: annotationId } })
-    ])
+    await prisma.caseReviewAnnotation.delete({ where: { id: annotationId } })
 
     const from = req.query.from || 'list'
-    res.render('cases/review/annotation-remove', { _case, document, annotation, caseId, documentId, from })
+    if (from === 'document') {
+      res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
+    } else {
+      res.redirect(`/cases/${caseId}/review`)
+    }
   })
 
   // Remove annotation — POST
