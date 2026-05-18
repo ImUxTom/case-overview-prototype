@@ -18,6 +18,12 @@ async function findOrCreateReview(caseId, userId) {
     where: { caseId, userId, status: 'in_progress' }
   })
   if (!review) {
+    review = await prisma.caseReview.findFirst({
+      where: { caseId, userId },
+      orderBy: { updatedAt: 'desc' }
+    })
+  }
+  if (!review) {
     review = await prisma.caseReview.create({
       data: { caseId, userId }
     })
@@ -153,7 +159,8 @@ module.exports = (router) => {
       caseId,
       documentId,
       docReviewId: docReview.id,
-      user: req.session.data.user
+      user: req.session.data.user,
+      isReviewMode: true
     })
   })
 

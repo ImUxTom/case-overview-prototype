@@ -202,7 +202,7 @@
             <tbody class="govuk-table__body">
               {% for item in evidenceItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/review/documents/{{ item.documentId }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
                   <td class="govuk-table__cell">{{ item.documentName }}</td>
                 </tr>
@@ -224,7 +224,7 @@
             <tbody class="govuk-table__body">
               {% for item in disclosureItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/review/documents/{{ item.documentId }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
                   <td class="govuk-table__cell">{{ item.documentName }}</td>
                 </tr>
@@ -246,7 +246,7 @@
             <tbody class="govuk-table__body">
               {% for item in missingItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/review/documents/{{ item.documentId }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
                   <td class="govuk-table__cell">{{ item.documentName }}</td>
                 </tr>

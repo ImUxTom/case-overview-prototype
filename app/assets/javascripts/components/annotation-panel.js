@@ -397,4 +397,16 @@
   positionAllCards()
   window.addEventListener('resize', positionAllCards)
 
+  // ── Activate annotation linked from another page via URL hash ─────────────
+
+  var hash = window.location.hash
+  if (hash) {
+    var match = hash.match(/^#annotation-(\d+)$/)
+    if (match) {
+      var linkedId = match[1]
+      activateCard(linkedId)
+      activateMark(linkedId)
+    }
+  }
+
 })()

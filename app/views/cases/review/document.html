@@ -20,6 +20,7 @@
   <div class="app-toolbar js-toolbar">
     <div class="app-toolbar__inner">
       <div class="govuk-button-group">
+        {% if isReviewMode %}
         <form
           method="post"
           action="/cases/{{ caseId }}/review/documents/{{ documentId }}/mark-reviewed"
@@ -39,12 +40,15 @@
             Mark as in progress
           </button>
         </form>
+        {% endif %}
         <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Mark as unused
         </a>
+        {% if isReviewMode %}
         <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Add note to summary
         </a>
+        {% endif %}
         <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Add police request
         </a>
