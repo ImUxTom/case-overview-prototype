@@ -39,20 +39,9 @@ App.AnnotationPanel = function(params) {
   this.pendingRemoveInadmissibleId = null
   this.formSelectionDocumentY      = null
 
-  this.setupStickyToolbar()
   this.setupEvents()
   this.positionAllCards()
   this.handleUrlHash()
-}
-
-App.AnnotationPanel.prototype.setupStickyToolbar = function() {
-  var sentinel = document.querySelector('.js-toolbar-sentinel')
-  var toolbar = document.querySelector('.js-toolbar')
-  if (sentinel && toolbar && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function(entries) {
-      toolbar.classList.toggle('is-stuck', !entries[0].isIntersecting)
-    }).observe(sentinel)
-  }
 }
 
 App.AnnotationPanel.prototype.setupEvents = function() {

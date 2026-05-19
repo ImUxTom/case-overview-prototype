@@ -11,7 +11,7 @@
 
 .app-annotation-card {
   background: govuk-colour("white");
-  border: 1px solid #b1b4b6;
+  // border: 1px solid #b1b4b6;
   cursor: pointer;
 
   &--blue {
@@ -37,7 +37,9 @@
 
 
   &:hover {
-    background-color: #f8f8f8;
+    // background-color: #f8f8f8;
+    outline: 1px solid govuk-colour("blue");
+    outline-offset: 0;
   }
 
   &.is-selected {
@@ -56,11 +58,11 @@
 }
 
 .app-annotation-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: govuk-spacing(1);
-  margin-bottom: govuk-spacing(1);
+  // display: flex;
+  // justify-content: space-between;
+  // align-items: baseline;
+  // gap: govuk-spacing(1);
+  // margin-bottom: govuk-spacing(1);
 }
 
 .app-annotation-card__name {
@@ -73,7 +75,7 @@
   color: govuk-colour("dark-grey");
   flex-shrink: 0;
   @include govuk-font(16);
-  margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 .app-annotation-card__note {

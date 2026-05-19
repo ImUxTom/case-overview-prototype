@@ -2,6 +2,7 @@
 
 {% set navId = 'cases' %}
 {% set pageName = document.name %}
+{% set mainClasses = "govuk-!-padding-bottom-0" %}
 
 {% block beforeContent %}
   {{
@@ -16,7 +17,6 @@
   <span class="govuk-caption-l">{{ _case.reference }}</span>
   <h1 class="govuk-heading-l">{{ document.name }}</h1>
 
-  <div class="app-toolbar-sentinel js-toolbar-sentinel"></div>
   <div class="app-toolbar js-toolbar">
     <div class="app-toolbar__inner">
       <div class="govuk-button-group">
@@ -68,7 +68,8 @@
     </div>
   </div>
 
-  <div class="app-document-layout">
+  <div class="app-document-area">
+    <div class="app-document-layout">
     <div class="app-document-pane">
       <div class="app-document">
         <div
@@ -149,6 +150,7 @@
         {% endif %}
       </div>
     </aside>
+    </div>
   </div>
 
   <div class="app-annotation-popup js-annotation-popup" hidden aria-hidden="true">
