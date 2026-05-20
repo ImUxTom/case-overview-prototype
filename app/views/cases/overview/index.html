@@ -79,7 +79,10 @@
           {% for defendant in _case.defendants %}
             <div class="app-list__item">
               <p class="govuk-body govuk-!-margin-bottom-0">
-                <a href="/cases/{{ _case.id }}/defendants/{{ defendant.id }}" class="govuk-link govuk-link--no-visited-state">
+                <a
+                  href="/cases/{{ _case.id }}/defendants/{{ defendant.id }}"
+                  class="govuk-link govuk-link--no-visited-state"
+                >
                   {{ defendant.firstName }} {{ defendant.lastName }}
                 </a>
               </p>
@@ -101,7 +104,10 @@
           {% for hearing in _case.hearings %}
             <div class="app-list__item">
               <p class="govuk-body govuk-!-margin-bottom-0">
-                <a href="/cases/{{ _case.id }}/hearings/{{ hearing.id }}" class="govuk-link govuk-link--no-visited-state">
+                <a
+                  href="/cases/{{ _case.id }}/hearings/{{ hearing.id }}"
+                  class="govuk-link govuk-link--no-visited-state"
+                >
                   {{ hearing.type }}
                 </a>
               </p>
@@ -167,8 +173,9 @@
       {% else %}
         {# <p>There is no paralegal officer assigned.</p> #}
       {% endif %}
+
       {% if submittedReview %}
-        <h2 class="govuk-heading-m">Summary</h2>
+        <h2 class="govuk-heading-m">Case summary</h2>
 
         {% if submittedReview.summary %}
           <p class="govuk-body">{{ submittedReview.summary }}</p>
@@ -190,72 +197,90 @@
         {% endfor %}
 
         {% if evidenceItems.length %}
-          <h3 class="govuk-heading-s">Evidence</h3>
+          <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Evidence</h3>
           <table class="govuk-table">
-            <thead class="govuk-table__head">
+            <thead class="govuk-table__head govuk-visually-hidden">
               <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Annotation</th>
+                <th scope="col" class="govuk-table__header">Evidence</th>
                 <th scope="col" class="govuk-table__header">Note</th>
-                <th scope="col" class="govuk-table__header">Document</th>
               </tr>
             </thead>
             <tbody class="govuk-table__body">
               {% for item in evidenceItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell" width="50%">
+                    <a
+                      href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}"
+                      class="govuk-link"
+                    >
+                      {{ item.annotation.selectedText | truncate(60) }}
+                    </a>
+                    <p class="govuk-body-s govuk-!-margin-bottom-0">{{ item.documentName }}</p>
+                  </td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
-                  <td class="govuk-table__cell">{{ item.documentName }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% endif %}
 
-        {% if disclosureItems.length %}
-          <h3 class="govuk-heading-s">Disclosure</h3>
+        {% if disclosureItems.length and false %}
+          <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Disclosure</h3>
           <table class="govuk-table">
-            <thead class="govuk-table__head">
+            <thead class="govuk-table__head govuk-visually-hidden">
               <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Annotation</th>
+                <th scope="col" class="govuk-table__header">Disclosure</th>
                 <th scope="col" class="govuk-table__header">Note</th>
-                <th scope="col" class="govuk-table__header">Document</th>
               </tr>
             </thead>
             <tbody class="govuk-table__body">
               {% for item in disclosureItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell" width="50%">
+                    <a
+                      href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}"
+                      class="govuk-link"
+                    >
+                      {{ item.annotation.selectedText | truncate(60) }}
+                    </a>
+                    <p class="govuk-body-s govuk-!-margin-bottom-0">{{ item.documentName }}</p>
+                  </td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
-                  <td class="govuk-table__cell">{{ item.documentName }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% endif %}
 
-        {% if missingItems.length %}
-          <h3 class="govuk-heading-s">Police requests</h3>
+        {% if missingItems.length and false %}
+          <h3 class="govuk-heading-s govuk-!-margin-bottom-0">Police requests</h3>
           <table class="govuk-table">
-            <thead class="govuk-table__head">
+            <thead class="govuk-table__head govuk-visually-hidden">
               <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Annotation</th>
+                <th scope="col" class="govuk-table__header">Police request</th>
                 <th scope="col" class="govuk-table__header">Note</th>
-                <th scope="col" class="govuk-table__header">Document</th>
               </tr>
             </thead>
             <tbody class="govuk-table__body">
               {% for item in missingItems %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell"><a href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}" class="govuk-link">{{ item.annotation.selectedText | truncate(80) }}</a></td>
+                  <td class="govuk-table__cell" width="50%">
+                    <a
+                      href="/cases/{{ _case.id }}/documents/{{ item.documentId }}#annotation-{{ item.annotation.id }}"
+                      class="govuk-link"
+                    >
+                      {{ item.annotation.selectedText | truncate(60) }}
+                    </a>
+                    <p class="govuk-body-s govuk-!-margin-bottom-0">{{ item.documentName }}</p>
+                  </td>
                   <td class="govuk-table__cell">{{ item.annotation.note }}</td>
-                  <td class="govuk-table__cell">{{ item.documentName }}</td>
+                  {# <td class="govuk-table__cell">{{ item.documentName }}</td> #}
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% endif %}
       {% endif %}
-
     </div>
   </div>
 {% endblock %}

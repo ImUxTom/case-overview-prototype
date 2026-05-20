@@ -1,6 +1,7 @@
 .app-annotation-form {
   background: govuk-colour("white");
-  border: 1px solid #b1b4b6;
+  // border: 1px solid #b1b4b6;
+  @include app-box-shadow;
 }
 
 .app-annotation-form__body {

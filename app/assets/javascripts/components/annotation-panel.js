@@ -4,14 +4,14 @@ App.AnnotationPanel = function(params) {
   this.popup                         = $('.js-annotation-popup')
   this.annotateBtns                  = $('.js-annotate-btn')
   this.redactBtn                     = $('.js-redact-btn')
-  this.newAnnotationCard             = $('.js-new-annotation-card')
+  this.newAnnotationCards            = $('.js-new-annotation-card')
+  this.activeAnnotationCard          = null
   this.sidebarInner                  = $('.js-sidebar-inner')
   this.sidebarEmpty                  = $('.js-sidebar-empty')
   this.annotationForm                = $('#annotation-form')
   this.selectedTextInput             = $('#annotation-selected-text')
   this.typeHiddenInput               = $('#annotation-type-hidden')
   this.noteHiddenInput               = $('#annotation-note-hidden')
-  this.noteInput                     = $('#annotation-note-input')
   this.saveBtn                       = $('.js-save-annotation')
   this.cancelBtn                     = $('.js-cancel-annotation')
   this.redactionForm                 = $('#redaction-form')
@@ -78,9 +78,9 @@ App.AnnotationPanel.prototype.showPopup = function(rect) {
   var popupHeight = popupEl.offsetHeight
   var arrowHeight = 9
 
-  var left = rect.left + rect.width / 2 - popupWidth / 2
-  left = Math.max(8, Math.min(left, window.innerWidth - popupWidth - 8))
-  var top = rect.top - popupHeight - arrowHeight - 4
+  var left = rect.left + window.scrollX + rect.width / 2 - popupWidth / 2
+  left = Math.max(8, Math.min(left, window.scrollX + window.innerWidth - popupWidth - 8))
+  var top = rect.top + window.scrollY - popupHeight - arrowHeight - 4
 
   this.popup.css({ left: left + 'px', top: top + 'px' })
 }
@@ -121,10 +121,11 @@ App.AnnotationPanel.prototype.clearSelectionHighlight = function() {
 }
 
 App.AnnotationPanel.prototype.hideNewCard = function() {
-  this.newAnnotationCard.prop('hidden', true)
+  this.newAnnotationCards.prop('hidden', true)
+  this.newAnnotationCards.find('.js-annotation-note-input').val('')
+  this.activeAnnotationCard = null
   this.clearSelectionHighlight()
   this.selectedTextInput.val('')
-  this.noteInput.val('')
   this.pendingAnnotationType = null
   this.currentRange = null
   this.formSelectionDocumentY = null
@@ -152,7 +153,7 @@ App.AnnotationPanel.prototype.positionAllCards = function() {
     items.push({ card: card, height: card.offsetHeight, markCentreY: markCentreY, idealTop: markCentreY - card.offsetHeight / 2 })
   })
 
-  var formCard = this.newAnnotationCard[0]
+  var formCard = this.activeAnnotationCard ? this.activeAnnotationCard[0] : null
   if (formCard && !formCard.hidden && this.formSelectionDocumentY !== null) {
     var formViewportY = this.formSelectionDocumentY - window.scrollY
     var formMarkCentreY = formViewportY - sidebarRect.top
@@ -245,10 +246,12 @@ App.AnnotationPanel.prototype.onAnnotateBtnClick = function(e) {
 
   window.getSelection().removeAllRanges()
   this.hidePopup()
-  this.newAnnotationCard.prop('hidden', false)
+  this.newAnnotationCards.prop('hidden', true)
+  this.activeAnnotationCard = this.newAnnotationCards.filter('.js-new-annotation-card--' + this.pendingAnnotationType)
+  this.activeAnnotationCard.prop('hidden', false)
   this.sidebarEmpty.prop('hidden', true)
   this.positionAllCards()
-  this.noteInput.focus()
+  this.activeAnnotationCard.find('.js-annotation-note-input').focus()
 }
 
 App.AnnotationPanel.prototype.onRedactClick = function() {
@@ -317,8 +320,9 @@ App.AnnotationPanel.prototype.onToggleRedactionsClick = function() {
 }
 
 App.AnnotationPanel.prototype.onSaveClick = function() {
-  var note = this.noteInput.val().trim()
-  if (!note) { this.noteInput.focus(); return }
+  var noteInput = this.activeAnnotationCard.find('.js-annotation-note-input')
+  var note = noteInput.val().trim()
+  if (!note) { noteInput.focus(); return }
   this.typeHiddenInput.val(this.pendingAnnotationType)
   this.noteHiddenInput.val(note)
   this.annotationForm[0].submit()

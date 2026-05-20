@@ -1,7 +1,7 @@
 .app-toolbar {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 400;
   background-color: govuk-colour("white");
   border-bottom: 1px solid #b1b4b6;
   padding: govuk-spacing(2) calc(50vw - 50%) 0 calc(50vw - 50%);

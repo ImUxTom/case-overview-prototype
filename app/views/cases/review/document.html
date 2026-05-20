@@ -17,6 +17,47 @@
   <span class="govuk-caption-l">{{ _case.reference }}</span>
   <h1 class="govuk-heading-l">{{ document.name }}</h1>
 
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      {% set chargesHtml %}
+        <ul class="govuk-list govuk-list--bullet">
+          <li>Shoplifting</li>
+          <li>Burglary</li>
+        </ul>
+      {% endset %}
+
+      {{
+        govukSummaryList({
+          classes: "govuk-!-margin-bottom-2",
+          rows: [
+            {
+              key: {
+                text: "Charge"
+              },
+              value: {
+                html: chargesHtml
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Add",
+                    visuallyHiddenText: "Add"
+                  },
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "Charge"
+                  }
+                ]
+              }
+            }
+          ]
+        })
+      }}
+    </div>
+  </div>
+
   <div class="app-toolbar js-toolbar">
     <div class="app-toolbar__inner">
       <div class="govuk-button-group">
@@ -25,36 +66,20 @@
             method="post"
             action="/cases/{{ caseId }}/review/documents/{{ documentId }}/mark-reviewed"
           >
-            <button type="submit" class="govuk-button govuk-!-margin-right-1">
-              Mark as reviewed
-            </button>
+            {{ govukButton({ text: "Mark as reviewed" }) }}
           </form>
           <form
             method="post"
             action="/cases/{{ caseId }}/review/documents/{{ documentId }}/save-progress"
           >
-            <button
-              type="submit"
-              class="govuk-button govuk-!-margin-right-1 govuk-button--secondary"
-            >
-              Mark as in progress
-            </button>
+            {{ govukButton({ text: "Mark as in progress", classes: "govuk-button--secondary" }) }}
           </form>
         {% endif %}
-        <a href="#" class="govuk-button govuk-!-margin-right-1 govuk-button--secondary">
-          Mark as unused
-        </a>
+        {{ govukButton({ text: "Mark as unused", classes: "govuk-button--secondary", href: "#" }) }}
         {% if isReviewMode %}
-          <a href="#" class="govuk-button govuk-!-margin-right-1 govuk-button--secondary">
-            Add charge
-          </a>
-          <a href="#" class="govuk-button govuk-!-margin-right-1 govuk-button--secondary">
-            Add note
-          </a>
+          {{ govukButton({ text: "Add case summary note", classes: "govuk-button--secondary", href: "#" }) }}
         {% endif %}
-        <a href="#" class="govuk-button govuk-!-margin-right-1 govuk-button--secondary">
-          Add police request
-        </a>
+        {{ govukButton({ text: "Add police request", classes: "govuk-button--secondary", href: "#" }) }}
         {# <a href="#" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0">
           Download
         </a> #}
@@ -70,86 +95,179 @@
 
   <div class="app-document-area">
     <div class="app-document-layout">
-    <div class="app-document-pane">
-      <div class="app-document">
-        <div
-          class="app-document__content"
-          id="document-content"
-          data-case-id="{{ caseId }}"
-          data-document-id="{{ documentId }}"
-        >
-          {% for section in sections %}
-            <h2 class="app-document__section-heading">{{ section.heading }}</h2>
-            {% for paragraph in section.paragraphs %}
-              <p class="app-document__paragraph">{{ paragraph | safe }}</p>
-            {% endfor %}
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <aside class="app-annotation-sidebar" id="annotation-sidebar" aria-label="Annotations">
-      <div class="app-annotation-sidebar__inner js-sidebar-inner">
-        <div class="app-annotation-sidebar__new js-new-annotation-card" hidden>
-          <div class="app-annotation-form">
-            <div class="app-annotation-form__body">
-              <div class="govuk-form-group govuk-!-margin-bottom-3">
-                <label class="govuk-label govuk-label--s" for="annotation-note-input">Note</label>
-                <textarea
-                  class="govuk-textarea govuk-!-margin-bottom-0"
-                  id="annotation-note-input"
-                  rows="3"
-                ></textarea>
-              </div>
-              <div class="govuk-button-group govuk-!-margin-bottom-0">
-                <button
-                  type="button"
-                  class="govuk-button govuk-button--small govuk-!-margin-bottom-0 js-save-annotation"
-                >
-                  Save
-                </button>
-                <a href="#" class="govuk-link js-cancel-annotation">Cancel</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {% for annotation in annotations %}
-          {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else 'Police request') %}
-          {% set tagColour = 'blue' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else 'orange') %}
+      <div class="app-document-pane">
+        <div class="app-document">
           <div
-            class="app-annotation-card js-annotation-card app-annotation-card--{{ tagColour }}"
-            data-annotation-id="{{ annotation.id }}"
+            class="app-document__content"
+            id="document-content"
+            data-case-id="{{ caseId }}"
+            data-document-id="{{ documentId }}"
           >
-            <p class="app-annotation-card__tag govuk-!-font-size-16 govuk-!-margin-bottom-0">
-              {{ typeLabel }}
-            </p>
+            {% for section in sections %}
+              <h2 class="app-document__section-heading">{{ section.heading }}</h2>
+              {% for paragraph in section.paragraphs %}
+                <p class="app-document__paragraph">{{ paragraph | safe }}</p>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
 
-            <div class="app-annotation-card__body">
-              <div class="app-annotation-card__header">
-                <p class="app-annotation-card__name">{{ user.firstName }} {{ user.lastName }}</p>
-                <p class="app-annotation-card__time">
-                  {{ annotation.createdAt | isoDateString | govukDateTime }}
-                </p>
+      <aside class="app-annotation-sidebar" id="annotation-sidebar" aria-label="Annotations">
+        <div class="app-annotation-sidebar__inner js-sidebar-inner">
+          <div
+            class="app-annotation-sidebar__new js-new-annotation-card js-new-annotation-card--evidence"
+            hidden
+          >
+            <div class="app-annotation-form">
+              <div class="app-annotation-form__body">
+                {{
+                  govukTextarea({
+                    label: {
+                      text: "Note",
+                      classes: "govuk-label--s"
+                    },
+                    classes: "govuk-!-margin-bottom-0 js-annotation-note-input",
+                    rows: 3
+                  })
+                }}
+
+                {{
+                  govukCheckboxes({
+                    name: "charge",
+                    fieldset: {
+                      legend: {
+                        text: "Charge this relates to",
+                        isPageHeading: false,
+                        classes: "govuk-fieldset__legend--s"
+                      }
+                    },
+                    classes: "govuk-checkboxes--small",
+                    items: [
+                      {
+                        value: "Shoplifting",
+                        text: "Shoplifting"
+                      },
+                      {
+                        value: "Burglary",
+                        text: "Burglary"
+                      }
+                    ]
+                  })
+                }}
+
+                <div class="govuk-button-group govuk-!-margin-bottom-0">
+                  {{
+                    govukButton({
+                      text: "Save",
+                      classes: "govuk-button--small govuk-!-margin-bottom-0 js-save-annotation",
+                      attributes: { type: "button" }
+                    })
+                  }}
+                  <a href="#" class="govuk-link js-cancel-annotation">Cancel</a>
+                </div>
               </div>
-
-              <p class="app-annotation-card__note js-annotation-note">{{ annotation.note }}</p>
-
-              <a
-                href="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/remove?from=document"
-                class="govuk-link govuk-body-s app-annotation-card__remove"
-              >
-                Remove
-              </a>
             </div>
           </div>
-        {% endfor %}
 
-        {% if not annotations or not annotations.length %}
-          <p class="app-annotation-sidebar__empty govuk-body-s js-sidebar-empty"></p>
-        {% endif %}
-      </div>
-    </aside>
+          <div
+            class="app-annotation-sidebar__new js-new-annotation-card js-new-annotation-card--disclosure"
+            hidden
+          >
+            <div class="app-annotation-form">
+              <div class="app-annotation-form__body">
+                {{
+                  govukTextarea({
+                    label: {
+                      text: "Note",
+                      classes: "govuk-label--s"
+                    },
+                    classes: "govuk-!-margin-bottom-0 js-annotation-note-input",
+                    rows: 3
+                  })
+                }}
+
+                <div class="govuk-button-group govuk-!-margin-bottom-0">
+                  {{
+                    govukButton({
+                      text: "Save",
+                      classes: "govuk-button--small govuk-!-margin-bottom-0 js-save-annotation",
+                      attributes: { type: "button" }
+                    })
+                  }}
+                  <a href="#" class="govuk-link js-cancel-annotation">Cancel</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="app-annotation-sidebar__new js-new-annotation-card js-new-annotation-card--police-request"
+            hidden
+          >
+            <div class="app-annotation-form">
+              <div class="app-annotation-form__body">
+                {{
+                  govukTextarea({
+                    label: {
+                      text: "Note",
+                      classes: "govuk-label--s"
+                    },
+                    classes: "govuk-!-margin-bottom-0 js-annotation-note-input",
+                    rows: 3
+                  })
+                }}
+
+                <div class="govuk-button-group govuk-!-margin-bottom-0">
+                  {{
+                    govukButton({
+                      text: "Save",
+                      classes: "govuk-button--small govuk-!-margin-bottom-0 js-save-annotation",
+                      attributes: { type: "button" }
+                    })
+                  }}
+                  <a href="#" class="govuk-link js-cancel-annotation">Cancel</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% for annotation in annotations %}
+            {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else 'Police request') %}
+            {% set tagColour = 'blue' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else 'orange') %}
+            <div
+              class="app-annotation-card js-annotation-card app-annotation-card--{{ tagColour }}"
+              data-annotation-id="{{ annotation.id }}"
+            >
+              <p class="app-annotation-card__tag govuk-!-font-size-16 govuk-!-margin-bottom-0">
+                {{ typeLabel }}
+              </p>
+
+              <div class="app-annotation-card__body">
+                <div class="app-annotation-card__header">
+                  <p class="app-annotation-card__name">{{ user.firstName }} {{ user.lastName }}</p>
+                  <p class="app-annotation-card__time">
+                    {{ annotation.createdAt | isoDateString | govukDateTime }}
+                  </p>
+                </div>
+
+                <p class="app-annotation-card__note js-annotation-note">{{ annotation.note }}</p>
+
+                <a
+                  href="/cases/{{ caseId }}/review/documents/{{ documentId }}/annotations/{{ annotation.id }}/remove?from=document"
+                  class="govuk-link govuk-body-s app-annotation-card__remove"
+                >
+                  Remove
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+
+          {% if not annotations or not annotations.length %}
+            <p class="app-annotation-sidebar__empty govuk-body-s js-sidebar-empty"></p>
+          {% endif %}
+        </div>
+      </aside>
     </div>
   </div>
 

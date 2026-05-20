@@ -42,8 +42,10 @@ It is not inferred from documents or reconstructed at each stage. Instead, it is
 - The prosecution case captured can be used across service, and to aid disclosure and advocacy.
 
 Capturing the prosecution case in this way enables the system to generate outputs directly from it. This replaces the need to assemble and manage bundles, where the case is reconstructed into documents for different stages. It could also pre-populate PET forms and support continuous disclosure.
-
+ 
 The case is defined and then used throughout the journey.
+
+[Ian wants to highlight and categorise the material as he reads it. He is unable to do that at the moment for various different reasons such as, the font, the font size, and literally being unable to highlight the case outline from the police (CM01) in CMS and in the new system, he was looking at the outline tab. He was highlighting bits initially for later to then build the case. He's got a big box without structure so he might say the charge is X and that applies to defendant 1 and not 2. A defendant has charges, but the summary is free text versions of that which may go out of date/sync.]
 
 ## The service supports legal quality and procedural compliance
 

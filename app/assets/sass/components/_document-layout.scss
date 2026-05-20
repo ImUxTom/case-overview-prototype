@@ -29,6 +29,7 @@
   padding: govuk-spacing(8);
   background: govuk-colour("white");
   font-family: Georgia, "Times New Roman", serif;
+  @include app-box-shadow;
 }
 
 .app-document__meta {
