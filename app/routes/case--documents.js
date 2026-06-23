@@ -6,6 +6,10 @@ const { addTimeLimitDates } = require('../helpers/timeLimit')
 const { addCaseStatus } = require('../helpers/caseStatus')
 const { generateDocumentContent } = require('../helpers/documentContent')
 
+function deriveDocumentType(filename) {
+  return (filename || '').split('.').pop().toUpperCase()
+}
+
 function applyHighlights(sections, annotations) {
   if (!annotations.length) return sections
   const sorted = [...annotations].sort((a, b) => b.selectedText.length - a.selectedText.length)
@@ -127,21 +131,36 @@ module.exports = router => {
     res.redirect(`/cases/${req.params.caseId}/documents`)
   })
 
-  router.get('/cases/:caseId/documents/add', async (req, res) => {
+  router.get('/cases/:caseId/documents/upload', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const _case = await prisma.case.findUnique({ where: { id: caseId } })
 
-    const documentTypeItems = documentTypes.map(docType => ({
-      text: docType,
-      value: docType
-    }))
-
-    res.render('cases/documents/add', { _case, documentTypeItems })
+    res.render('cases/documents/upload', { _case })
   })
 
-  router.post('/cases/:caseId/documents/add', async (req, res) => {
+  router.post('/cases/:caseId/documents/upload', (req, res) => {
+    const caseId = req.params.caseId
+    const { name, description } = req.body.uploadMaterial || {}
+
+    req.session.data.uploadMaterial = {
+      name,
+      type: deriveDocumentType(name),
+      description,
+    }
+
+    res.redirect(`/cases/${caseId}/documents/upload/check`)
+  })
+
+  router.get('/cases/:caseId/documents/upload/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
-    const { name, type, description } = req.body.newDocument || {}
+    const _case = await prisma.case.findUnique({ where: { id: caseId } })
+
+    res.render('cases/documents/upload-check', { _case })
+  })
+
+  router.post('/cases/:caseId/documents/upload/check', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const { name, type, description } = req.session.data.uploadMaterial || {}
 
     const document = await prisma.document.create({
       data: {
@@ -164,13 +183,15 @@ module.exports = router => {
         model: 'Document',
         recordId: document.id,
         action: 'CREATE',
-        title: 'Document added',
+        title: 'Material uploaded',
         meta: { name, type, description: description || null },
         caseId,
       },
     })
 
-    req.flash('success', 'Document added')
+    delete req.session.data.uploadMaterial
+
+    req.flash('success', 'Material uploaded')
     res.redirect(`/cases/${caseId}/documents`)
   })
 

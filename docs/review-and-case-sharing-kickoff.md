@@ -25,7 +25,7 @@
 ## Scope
 
 1. Update the review flow so annotations take into account things like charges, elements, points to prove and disclosure more realistically; handle action plans etc.
-2. Build the match and mismatch review scenarios (see Routes into CPS below)
+2. Design for the 3 scenarios below see “Routes into CPS” below
 3. Update the review flow so it clearly explains what will happen as a result of submitting the review - for example, that it will notify the advocate the case has been reviewed, with a link to go and look at it
 4. Design a first stab mock-up of what a defendant service might look like
 5. Design a first stab mock-up of what an advocate view might look like
@@ -74,23 +74,25 @@ A defendant's status only becomes Charged when that body sends back authorised c
 
 ### Technical
 
-1. When the police send authorised charges, the first hearing date comes with them. Is that part of the structured data we receive via DCF? We want to know whether, once authorised charges are received, a CMS user still has to touch the case to update the hearing date details. [The date comes in via twif and DCF as structured data that we can use to populate/suggest for filling out the hearing date for first hearing]
+1. When the police send authorised charges, the first hearing date comes with them. Is that part of the structured data we receive via DCF? We want to know whether, once authorised charges are received, a CMS user still has to touch the case to update the hearing date details. [The date comes in via twif and DCF as structured data that we can use to populate/suggest for filling out the hearing date for first hearing] [Nicola, Kirsty]
 
 ### Research
 
-1. When do defendants first need to be notified of the case details by CPS, and what should they have access to?
-2. When do advocates first need to be notified of the case details by CPS, and what should they have access to?
-3. When do defence lawyers first need to be notified of the case details by CPS, and what should they have access to?
-4. When does the court first need to be notified of the case details by CPS, and what should they have access to?
-5. Is there a scenario where the reviewing lawyer makes a decision to charge, but the case isn't ready to share yet? In an ideal world, selecting Decision: Charge is itself the signal that, once the police agree and send back authorised charges, the case is automatically shared with the right people.
-6. Could the police ever disagree with the prosecutor's charging decision and send back authorised charges that differ from what the prosecutor stated? Probably yes.
-7. If a police-charged case comes in already charged, and the reviewing lawyer disagrees with the charges on review, what should happen?
-8. Should the review task list (specifically the Charging decision step) always be the same, regardless of what triggered the review? It's only relevant when CPS is the one deciding (the first review in Routes 1 and 3). When a review is triggered by authorised charges coming back (the second review in Routes 1 and 3, and the only review in Route 2), there's no decision to make - the charges are already set by the police or agency.
-9. Does first hearing details ever need manual entry, or only when the incoming channel isn't structured? Route 1 (police, via DCF/TWIF) may carry structured hearing data that could pre-fill the field. Route 3 (NCA, offline) likely has no structured feed at all, so may always need manual entry - worth confirming with the team whether NCA ever sends structured data, or whether it's always extracted by hand from whatever they send.
-10. Assumption 1 above (that review can never be skipped, even on a matching MG04) is currently just an assumption, not a confirmed decision. It needs explicit sign-off from the team, since it directly determines whether a police-charged case can ever skip CPS review before being shared externally with advocates, defendants, defence lawyers and the court.
+1. When do defendants first need to be notified of the case details by CPS, and what should they have access to? [Rebekah, Shiv]
+2. When do advocates first need to be notified of the case details by CPS, and what should they have access to? [Rebekah, Shiv]
+3. When do defence lawyers first need to be notified of the case details by CPS, and what should they have access to? [Rebekah, Shiv]
+4. When does the court first need to be notified of the case details by CPS, and what should they have access to? [Rebekah, Shiv]
+5. Is there a scenario where the reviewing lawyer makes a decision to charge, but the case isn't ready to share yet? In an ideal world, selecting Decision: Charge is itself the signal that, once the police agree and send back authorised charges, the case is automatically shared with the right people. [Rebekah, Shiv, Kirsty]
+6. Could the police ever disagree with the prosecutor's charging decision and send back authorised charges that differ from what the prosecutor stated? Probably yes. [Rebekah, Shiv, Kirsty]
+7. If a police-charged case comes in already charged, and the reviewing lawyer disagrees with the charges on review, what should happen? [Rebekah, Shiv, Kirsty]
+8. Should the review task list (specifically the Charging decision step) always be the same, regardless of what triggered the review? It's only relevant when CPS is the one deciding (the first review in Routes 1 and 3). When a review is triggered by authorised charges coming back (the second review in Routes 1 and 3, and the only review in Route 2), there's no decision to make - the charges are already set by the police or agency. [Adam]
+9. Does first hearing details ever need manual entry, or only when the incoming channel isn't structured? Route 1 (police, via DCF/TWIF) may carry structured hearing data that could pre-fill the field. Route 3 (NCA, offline) likely has no structured feed at all, so may always need manual entry - worth confirming with the team whether NCA ever sends structured data, or whether it's always extracted by hand from whatever they send. [Adam, Kirsty]
+10. Assumption 1 above (that review can never be skipped, even on a matching MG04) is currently just an assumption, not a confirmed decision. It needs explicit sign-off from the team, since it directly determines whether a police-charged case can ever skip CPS review before being shared externally with advocates, defendants, defence lawyers and the court. [Rebekah, Shiv, Kirsty]
+11. Could paralegal officers do the review or some of the review, or some types of reviews to reduce the amount of work reviewing lawyers have to do? [Shiv, Kirsty]
 
 ## Design notes to consider
 
-- If cases are assessed early and often, every one of those assessments would trigger a notification to the defendant. They'd need at least a clear sentence saying something like "these charges are still being reviewed and may change" - or we decide that's too much information, and only tell defendants once things have settled at specific points (in which case we need to define those points).
-- "Prosecutor" is an ambiguous term. Could we use "Reviewing lawyer" and "Advocate" instead (or similar)?
-
+- If cases are assessed early and often, every one of those assessments would trigger a notification to the defendant. They'd need at least a clear sentence saying something like "these charges are still being reviewed and may change" - or we decide that's too much information, and only tell defendants once things have settled at specific points (in which case we need to define those points). [Adam, John]
+- "Prosecutor" is an ambiguous term. Could we use "Reviewing lawyer" and "Advocate" instead (or similar)? [Adam, John, Kirsty]
+- Do we hold an attribute against a case for which police force/agency created the case? [Knowing this would let us seed realistic scenarios into the proto. Related: is it possible for a DCF/TWIF case via the police to come in with an MG04 but without the first hearing details?] [Kirsty]
+- What are some realistic file names for the material, so we can decide whether we need a rename feature, and how to seed the db? [Kirsty, Adam]

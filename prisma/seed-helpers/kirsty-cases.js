@@ -3,6 +3,7 @@ const statuses = require('../../app/data/case-statuses');
 const { generateCaseReference } = require('./identifiers');
 const { createDivergedCase } = require('./diverged-cases');
 const { addHearings } = require('./hearings');
+const { nextForcedHasHearing } = require('./charged-hearing-balance');
 const {
   generateTodaySTL,
   generateTomorrowSTL,
@@ -116,6 +117,17 @@ async function createSTLCase(prisma, user, taskConfig, config) {
     where: { cases: { some: { id: _case.id } } },
     data: { status: defendantStatus, needsReview: (defendantStatus === statuses.NOT_CHARGED || defendantStatus === statuses.CHARGED) && faker.datatype.boolean() }
   });
+  if (defendantStatus === statuses.CHARGED) {
+    await prisma.document.create({
+      data: {
+        caseId: _case.id,
+        name: 'Authorised charges (MG04)',
+        description: 'Authorised charges received from the police.',
+        type: 'PDF',
+        size: faker.number.int({ min: 50, max: 5000 }),
+      },
+    })
+  }
 
   await prisma.caseProsecutor.create({
     data: {
@@ -248,11 +260,24 @@ async function createCTLCase(prisma, user, taskConfig, config) {
   });
 
   const status = faker.helpers.arrayElement(KIRSTY_STATUSES)
+  const needsReview = (status === statuses.NOT_CHARGED || status === statuses.CHARGED) && faker.datatype.boolean()
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status, needsReview: (status === statuses.NOT_CHARGED || status === statuses.CHARGED) && faker.datatype.boolean() }
+    data: { status, needsReview }
   });
-  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant, ...extraDefendants], status })
+  if (status === statuses.CHARGED) {
+    await prisma.document.create({
+      data: {
+        caseId: _case.id,
+        name: 'Authorised charges (MG04)',
+        description: 'Authorised charges received from the police.',
+        type: 'PDF',
+        size: faker.number.int({ min: 50, max: 5000 }),
+      },
+    })
+  }
+  const forceHasHearing = (status === statuses.CHARGED && needsReview) ? nextForcedHasHearing(user.id) : undefined
+  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant, ...extraDefendants], status, forceHasHearing })
 
   await prisma.caseProsecutor.create({
     data: {
@@ -350,11 +375,24 @@ async function createColleagueCase(prisma, prosecutor, paralegalOfficer, config)
   });
 
   const status = faker.helpers.arrayElement(KIRSTY_STATUSES)
+  const needsReview = (status === statuses.NOT_CHARGED || status === statuses.CHARGED) && faker.datatype.boolean()
   await prisma.defendant.updateMany({
     where: { cases: { some: { id: _case.id } } },
-    data: { status, needsReview: (status === statuses.NOT_CHARGED || status === statuses.CHARGED) && faker.datatype.boolean() }
+    data: { status, needsReview }
   });
-  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant], status })
+  if (status === statuses.CHARGED) {
+    await prisma.document.create({
+      data: {
+        caseId: _case.id,
+        name: 'Authorised charges (MG04)',
+        description: 'Authorised charges received from the police.',
+        type: 'PDF',
+        size: faker.number.int({ min: 50, max: 5000 }),
+      },
+    })
+  }
+  const forceHasHearing = (status === statuses.CHARGED && needsReview) ? nextForcedHasHearing(prosecutor.id) : undefined
+  await addHearings(prisma, { caseId: _case.id, unitId: KIRSTY_UNIT, defendants: [defendant], status, forceHasHearing })
 
   await prisma.caseProsecutor.create({
     data: { caseId: _case.id, userId: prosecutor.id, isLead: true }

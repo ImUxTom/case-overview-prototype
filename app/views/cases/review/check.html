@@ -47,10 +47,16 @@
                   <td class="govuk-table__cell">{{ annotation.selectedText | truncate(80) }}</td>
                   <td class="govuk-table__cell">{{ annotation.note }}</td>
                   <td class="govuk-table__cell" style="white-space: nowrap;">
-                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit" class="govuk-link">
+                    <a
+                      href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/edit"
+                      class="govuk-link"
+                    >
                       Change
                     </a>
-                    <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove?from=list" class="govuk-link govuk-!-margin-left-3">
+                    <a
+                      href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove?from=list"
+                      class="govuk-link govuk-!-margin-left-3"
+                    >
                       Remove
                     </a>
                   </td>
@@ -65,50 +71,56 @@
 
       <h2 class="govuk-heading-m govuk-!-margin-top-6">Additional information</h2>
 
-      {% set additionalInformationRows = [
-        {
-          key: { text: "Summary of review" },
-          value: { text: review.summary if review.summary else "Not provided" },
-          actions: {
-            items: [{
-              href: "/cases/" + _case.id + "/review/summary",
-              text: "Change",
-              visuallyHiddenText: "summary of review"
-            }]
+      {%
+        set additionalInformationRows = [
+          {
+            key: { text: "Summary of review" },
+            value: { text: review.summary if review.summary else "Not provided" },
+            actions: {
+              items: [{
+                href: "/cases/" + _case.id + "/review/summary",
+                text: "Change",
+                visuallyHiddenText: "summary of review"
+              }]
+            }
           }
-        }
-      ] %}
+        ]
+      %}
 
       {% if needsChargingDecision %}
-        {% set additionalInformationRows = additionalInformationRows.concat([{
-          key: { text: "Charging decision" },
-          value: {
-            text: ("Charge" if data.chargingDecision.decision == 'charge' else "Do not charge") if (data.chargingDecision and data.chargingDecision.decision) else "Not provided"
-          },
-          actions: {
-            items: [{
-              href: "/cases/" + _case.id + "/make-charging-decision",
-              text: "Change",
-              visuallyHiddenText: "charging decision"
-            }]
-          }
-        }]) %}
+        {%
+          set additionalInformationRows = additionalInformationRows.concat([{
+            key: { text: "Charging decision" },
+            value: {
+              text: ("Charge" if data.chargingDecision.decision == 'charge' else "Do not charge") if (data.chargingDecision and data.chargingDecision.decision) else "Not provided"
+            },
+            actions: {
+              items: [{
+                href: "/cases/" + _case.id + "/make-charging-decision",
+                text: "Change",
+                visuallyHiddenText: "charging decision"
+              }]
+            }
+          }])
+        %}
       {% endif %}
 
       {% if not firstHearings.length and not needsChargingDecision %}
-        {% set additionalInformationRows = additionalInformationRows.concat([{
-          key: { text: "First hearing" },
-          value: {
-            text: (data.reviewFirstHearing.hearingDate | isoDateFromDateInput | govukDate) + ", " + data.reviewFirstHearing.time + ", " + data.reviewFirstHearing.venue if (data.reviewFirstHearing and data.reviewFirstHearing.confirmed) else "Not provided"
-          },
-          actions: {
-            items: [{
-              href: "/cases/" + _case.id + "/review/first-hearing",
-              text: "Change",
-              visuallyHiddenText: "first hearing"
-            }]
-          }
-        }]) %}
+        {%
+          set additionalInformationRows = additionalInformationRows.concat([{
+            key: { text: "First hearing" },
+            value: {
+              text: (data.reviewFirstHearing.hearingDate | isoDateFromDateInput | govukDate) + ", " + data.reviewFirstHearing.time + ", " + data.reviewFirstHearing.venue if (data.reviewFirstHearing and data.reviewFirstHearing.confirmed) else "Not provided"
+            },
+            actions: {
+              items: [{
+                href: "/cases/" + _case.id + "/review/first-hearing",
+                text: "Change",
+                visuallyHiddenText: "first hearing"
+              }]
+            }
+          }])
+        %}
       {% endif %}
 
       {{
@@ -116,6 +128,32 @@
           rows: additionalInformationRows
         })
       }}
+
+      {% if needsChargingDecision %}
+        {% if data.chargingDecision and data.chargingDecision.decision == 'do-not-charge' %}
+          <p class="govuk-body">When you submit this review, we will notify:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>the police, that the case has been marked as no further action</li>
+            <li>the advocate, that the review is done and the decision is no further action</li>
+          </ul>
+        {% else %}
+          <p class="govuk-body">When you submit this review, we will notify:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>the police, that you have stated what the charges should be</li>
+            <li>
+              the advocate, that the review is done and the decision is to charge, with any
+              additional orders
+            </li>
+          </ul>
+        {% endif %}
+      {% else %}
+        <p class="govuk-body">When you submit this review, we will notify:</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>the advocate, that the case has been reviewed and confirmed as charged</li>
+          <li>the defence lawyer, with the case bundle</li>
+          <li>the court, with the case bundle</li>
+        </ul>
+      {% endif %}
 
       <form method="post" action="/cases/{{ _case.id }}/review/submit">
         {{ govukButton({ text: "Submit review" }) }}

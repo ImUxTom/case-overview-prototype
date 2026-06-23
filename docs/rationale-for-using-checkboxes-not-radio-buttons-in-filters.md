@@ -1,3 +1,5 @@
+# Rationale for using checkboxes over radio buttons in filters
+
 Regarding the point about checkboxes versus radio buttons.
 
 I did provide rationale in the meeting but let me share it here for everyone to see:

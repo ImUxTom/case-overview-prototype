@@ -2,6 +2,7 @@ const { faker } = require('@faker-js/faker')
 const { generateCaseReference } = require('./identifiers')
 const statuses = require('../../app/data/case-statuses')
 const { addHearings } = require('./hearings')
+const { nextForcedHasHearing } = require('./charged-hearing-balance')
 
 const END_STATUSES = [statuses.NOT_GUILTY, statuses.NO_FURTHER_ACTION, statuses.SENTENCED]
 
@@ -12,6 +13,7 @@ async function createDivergedCase(prisma, user, unitId, statusPool, config) {
   const status1 = faker.helpers.arrayElement(activePool)
   const remainingStatuses = activePool.filter((s) => s !== status1)
   const status2 = faker.helpers.arrayElement(remainingStatuses)
+  const needsReview1 = status1 === statuses.NOT_CHARGED || (status1 === statuses.CHARGED && faker.datatype.boolean())
 
   const defendant1 = await prisma.defendant.create({
     data: {
@@ -21,7 +23,7 @@ async function createDivergedCase(prisma, user, unitId, statusPool, config) {
       dateOfBirth: faker.date.birthdate({ min: 18, max: 75, mode: 'age' }),
       remandStatus: faker.helpers.arrayElement(['UNCONDITIONAL_BAIL', 'CONDITIONAL_BAIL', 'REMANDED_IN_CUSTODY']),
       status: status1,
-      needsReview: status1 === statuses.NOT_CHARGED || (status1 === statuses.CHARGED && faker.datatype.boolean()),
+      needsReview: needsReview1,
       defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
       charges: {
         create: {
@@ -88,7 +90,8 @@ async function createDivergedCase(prisma, user, unitId, statusPool, config) {
     data: { caseId: _case.id, userId: user.id, isLead: true },
   })
 
-  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant1, defendant2], status: status1 })
+  const forceHasHearing = (status1 === statuses.CHARGED && needsReview1) ? nextForcedHasHearing(user.id) : undefined
+  await addHearings(prisma, { caseId: _case.id, unitId, defendants: [defendant1, defendant2], status: status1, forceHasHearing })
 
   return _case
 }

@@ -477,17 +477,12 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review`)
   })
 
-  // First hearing details — suggested date, time and venue
-  function buildSuggestedFirstHearing() {
-    const suggestedDate = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000)
+  // First hearing details — start empty, CPS has to find out and enter the real details
+  function buildEmptyFirstHearing() {
     return {
-      hearingDate: {
-        day: String(suggestedDate.getDate()),
-        month: String(suggestedDate.getMonth() + 1),
-        year: String(suggestedDate.getFullYear()),
-      },
-      time: '10am',
-      venue: "Manchester Magistrates' Court",
+      hearingDate: { day: '', month: '', year: '' },
+      time: '',
+      venue: '',
     }
   }
 
@@ -502,7 +497,7 @@ module.exports = (router) => {
     const _case = await prisma.case.findUnique({ where: { id: caseId } })
 
     if (!req.session.data.reviewFirstHearing) {
-      req.session.data.reviewFirstHearing = buildSuggestedFirstHearing()
+      req.session.data.reviewFirstHearing = buildEmptyFirstHearing()
     }
     res.locals.data.reviewFirstHearing = req.session.data.reviewFirstHearing
 

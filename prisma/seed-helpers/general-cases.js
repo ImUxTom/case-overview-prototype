@@ -5,6 +5,7 @@ const { generateUKMobileNumber, generateUKLandlineNumber, generateUKPhoneNumber 
 const { generatePendingTaskDates, generateDueTaskDates, generateOverdueTaskDates, generateEscalatedTaskDates } = require('./task-dates');
 const { prosecutionDirections, defenceDirections } = require('./directions');
 const { addHearings } = require('./hearings');
+const { nextForcedHasHearing } = require('./charged-hearing-balance');
 const { createCtlLogEntries } = require('./ctl-log-entries');
 
 async function seedGeneralCases(prisma, dependencies, config) {
@@ -291,11 +292,14 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
     // Assign defendant statuses — 30% of multi-defendant cases have diverged statuses
     const isDiverged = assignedDefendants.length > 1 && faker.datatype.boolean({ probability: 0.3 })
+    let anyChargedNeedsReview = false
     for (const defendant of assignedDefendants) {
       const defendantStatus = isDiverged ? faker.helpers.arrayElement(defendantStatusPool) : status
+      const defendantNeedsReview = (defendantStatus === statuses.NOT_CHARGED || defendantStatus === statuses.CHARGED) && faker.datatype.boolean()
+      if (defendantStatus === statuses.CHARGED && defendantNeedsReview) anyChargedNeedsReview = true
       await prisma.defendant.update({
         where: { id: defendant.id },
-        data: { status: defendantStatus, needsReview: (defendantStatus === statuses.NOT_CHARGED || defendantStatus === statuses.CHARGED) && faker.datatype.boolean() }
+        data: { status: defendantStatus, needsReview: defendantNeedsReview }
       })
     }
 
@@ -303,6 +307,8 @@ async function seedGeneralCases(prisma, dependencies, config) {
     // Use UNASSIGNED_TARGET to determine how many cases should remain unassigned
     const unassignedProbability = unassignedTarget / totalCases;
     const shouldAssignProsecutor = faker.number.float({ min: 0, max: 1 }) >= unassignedProbability;
+
+    let leadProsecutorId = null;
 
     if (shouldAssignProsecutor) {
       // 99% get 1 prosecutor, 1% get 2-3
@@ -317,6 +323,7 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
       if (unitProsecutors.length > 0) {
         const assignedProsecutors = faker.helpers.arrayElements(unitProsecutors, Math.min(numProsecutors, unitProsecutors.length));
+        leadProsecutorId = assignedProsecutors[0].id;
         for (const [index, prosecutor] of assignedProsecutors.entries()) {
           await prisma.caseProsecutor.create({
             data: {
@@ -358,11 +365,13 @@ async function seedGeneralCases(prisma, dependencies, config) {
     }
 
     // -------------------- Hearings --------------------
+    const forceHasHearing = (status === statuses.CHARGED && anyChargedNeedsReview) ? nextForcedHasHearing(leadProsecutorId) : undefined
     await addHearings(prisma, {
       caseId: createdCase.id,
       unitId: caseUnitId,
       defendants: assignedDefendants,
-      status
+      status,
+      forceHasHearing
     })
 
     // -------------------- Witnesses --------------------

@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Add document" %}
+{% set pageName = "Upload material" %}
 
 {% block beforeContent %}
   {{ govukBackLink({
@@ -17,32 +17,35 @@
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       <form method="post">
-        {{ govukInput({
-          label: { text: "Name" },
-          id: "name",
-          name: "newDocument[name]",
-          value: data.newDocument.name
+        {{ govukFileUpload({
+          id: "file",
+          name: "file",
+          label: { text: "File" }
         }) }}
 
-        {{ govukSelect({
-          id: "type",
-          name: "newDocument[type]",
-          label: { text: "Type" },
-          items: documentTypeItems,
-          value: data.newDocument.type
-        }) }}
+        <input type="hidden" id="upload-material-name" name="uploadMaterial[name]" value="{{ data.uploadMaterial.name }}">
 
         {{ govukCharacterCount({
-          name: "newDocument[description]",
+          name: "uploadMaterial[description]",
           id: "description",
-          value: data.newDocument.description,
+          value: data.uploadMaterial.description,
           label: { text: "Description (optional)" },
           rows: 5,
           maxlength: 500
         }) }}
 
-        {{ govukButton({ text: "Add document" }) }}
+        {{ govukButton({ text: "Continue" }) }}
       </form>
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    document.getElementById('file').addEventListener('change', function (event) {
+      var file = event.target.files[0]
+      document.getElementById('upload-material-name').value = file ? file.name : ''
+    })
+  </script>
 {% endblock %}
