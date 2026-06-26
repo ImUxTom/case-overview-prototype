@@ -15,6 +15,7 @@ const RACHAEL_UNITS = {
 
 const RACHAEL_STATUSES = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.SENTENCED,
@@ -648,7 +649,7 @@ async function seedRachaelCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, RACHAEL_STATUSES, fullConfig);
-  await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, [statuses.NOT_CHARGED, statuses.CHARGED], fullConfig);
+  await createDivergedCase(prisma, rachaelHarvey, RACHAEL_UNITS.WESSEX_CROWN_COURT, [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
 
   return RACHAEL_TASKS.length + 1 + 20 + 1 + 1;
 }

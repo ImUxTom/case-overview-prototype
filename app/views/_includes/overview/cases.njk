@@ -6,6 +6,12 @@
         <span class="app-overview-card__status">{{ needsReviewCaseCount | pluralize("case needs", "cases need") }} review</span>
       </a>
     {% endif %}
+    {% if chargesPendingCaseCount > 0 %}
+      <a href="/cases/shortcut/charges-pending" class="app-overview-card app-overview-card--yellow">
+        <span class="app-overview-card__count">{{ chargesPendingCaseCount }}</span>
+        <span class="app-overview-card__status">{{ chargesPendingCaseCount | pluralize("case has", "cases have") }} charges pending authorisation</span>
+      </a>
+    {% endif %}
     {% if firstHearingNeededCount > 0 %}
       <a href="/cases/shortcut/first-hearing-needed" class="app-overview-card app-overview-card--green">
         <span class="app-overview-card__count">{{ firstHearingNeededCount }}</span>

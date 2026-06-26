@@ -30,6 +30,7 @@ const CROWN_COURT_UNIT_IDS = [TONY_UNITS.WESSEX_CROWN_COURT, TONY_UNITS.WESSEX_R
 
 const TONY_STATUSES = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.NO_FURTHER_ACTION,
@@ -621,7 +622,7 @@ async function seedTonyCases(prisma, dependencies, config) {
   if (tonyStark) {
     await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), TONY_STATUSES, fullConfig);
     count++;
-    await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), [statuses.NOT_CHARGED, statuses.CHARGED], fullConfig);
+    await createDivergedCase(prisma, tonyStark, faker.helpers.arrayElement(ALL_TONY_UNITS), [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
     count++;
   }
 

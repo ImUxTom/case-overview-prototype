@@ -37,6 +37,7 @@ const BRUCE_UNITS = {
 
 const BRUCE_STATUSES = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.NO_FURTHER_ACTION,
@@ -532,7 +533,7 @@ async function seedBruceCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), BRUCE_STATUSES, fullConfig);
-  await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), [statuses.NOT_CHARGED, statuses.CHARGED], fullConfig);
+  await createDivergedCase(prisma, bruceBanner, faker.helpers.arrayElement(units), [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
 
   return TEST_CASES.length + 20 + 1 + 1;
 }

@@ -25,6 +25,7 @@ const statuses = require('../../app/data/case-statuses');
 
 const SIMON_STATUSES = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.SENTENCED,
@@ -770,7 +771,7 @@ async function seedSimonCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), SIMON_STATUSES, fullConfig);
-  await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), [statuses.NOT_CHARGED, statuses.CHARGED], fullConfig);
+  await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
 
   return SIMON_STL_TASKS.length + SIMON_CTL_TASKS.length + 1 + 20 + 1 + 1;
 }

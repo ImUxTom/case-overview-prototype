@@ -44,6 +44,7 @@ async function seedGeneralCases(prisma, dependencies, config) {
 
   const defendantStatusPool = [
     statuses.NOT_CHARGED,
+    statuses.CHARGES_PENDING,
     statuses.CHARGED,
     statuses.NOT_GUILTY,
     statuses.NO_FURTHER_ACTION,

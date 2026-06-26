@@ -14,6 +14,7 @@ const dgaStatuses = ['Awaiting outcome', 'Outcome recorded']
 
 const caseStatuses = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.NO_FURTHER_ACTION,
@@ -62,6 +63,11 @@ module.exports = (router) => {
     res.redirect('/cases/?caseListFilters[statuses][]=Charged')
   })
 
+  router.get('/cases/shortcut/charges-pending', (req, res) => {
+    resetFilters(req)
+    res.redirect('/cases/?caseListFilters[statuses][]=Charges+pending')
+  })
+
   router.get('/cases/shortcut/first-hearing-needed', (req, res) => {
     resetFilters(req)
     _.set(req.session.data.caseListFilters, 'firstHearing', ['Needs set up'])
@@ -78,6 +84,7 @@ module.exports = (router) => {
     _.set(req.session.data.caseListFilters, 'unit', magsUnits.map(u => u.id.toString()))
     _.set(req.session.data.caseListFilters, 'statuses', [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ])
     res.redirect('/cases')
@@ -93,6 +100,7 @@ module.exports = (router) => {
     _.set(req.session.data.caseListFilters, 'unit', crownUnits.map(u => u.id.toString()))
     _.set(req.session.data.caseListFilters, 'statuses', [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ])
     res.redirect('/cases')
@@ -108,6 +116,7 @@ module.exports = (router) => {
     _.set(req.session.data.caseListFilters, 'unit', crownUnits.map(u => u.id.toString()))
     _.set(req.session.data.caseListFilters, 'statuses', [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ])
     res.redirect('/cases')
@@ -118,6 +127,7 @@ module.exports = (router) => {
     _.set(req.session.data.caseListFilters, 'prosecutors', ['Unassigned'])
     _.set(req.session.data.caseListFilters, 'statuses', [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ])
     res.redirect('/cases')
@@ -128,6 +138,7 @@ module.exports = (router) => {
     _.set(req.session.data.caseListFilters, 'paralegalOfficers', ['Unassigned'])
     _.set(req.session.data.caseListFilters, 'statuses', [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ])
     res.redirect('/cases')
@@ -312,6 +323,7 @@ module.exports = (router) => {
 
   const unitBreakdownActiveStatuses = [
     statuses.NOT_CHARGED,
+    statuses.CHARGES_PENDING,
     statuses.CHARGED
   ]
 

@@ -1,11 +1,16 @@
-# Epic: Helping users review a case and share it with the relevant parties as early as possible
+# Epic: Helping reviewing lawyers review a case and share it with the relevant parties as early as possible
 
 ## Problems
 
-1. Comms go out manually as a separate task to the review. This means the reviewing lawyer, or someone else, has to create reminder tasks to make sure the next step happens. This is long-winded and unnecessary administration.
-2. Reviews are either not done or done badly, and information, evidence or elements are not captured. As a result, the advocate can't do their job properly. It also means advocates have to start early on the day of the hearing to get a grip on the case, effectively doing a review from scratch. That means they're doing two jobs at once, one of which should already have been done.
-3. Defendants don't receive the case ahead of trial, which doesn't comply with the rules. It's not clear why, but it's unnecessary - we could build a service that gives the defendant access to their own case and updates them whenever CPS updates the case. Making the case easy to see for the defence also matters strategically: if the prosecution case is clear, the defence won't fight it, and the defendant will plead guilty more quickly - meaning fewer hearings, shorter hearings, and fewer adjournments.
-4. Advocates do the review during court, quickly and badly, as a result of the problems above. In an ideal world we'd solve those problems, but we probably have to account for the early stages not being done perfectly and the case still making its way to advocates in court. So we should make it easy for advocates to review in court, by making structured annotations that can be recorded and maintained later.
+1. At the moment, multiple users and multiple separate tasks have to be performed between a case and it's material coming in and the case being shared to advocates, defence, defendant, court etc. For example, a case work assistant opens a case, tidies it (housekeeping), may raise a task for a reviewing lawyer, reviewing lawyer eventually opens that task, then reviews the case, then raises another task for others users to prepare a bundle, warn a witness, and whatever else may be needed before it gets shared. This is long-winded and unnecessary adminstration. [Solution: Lawyer opens case, reviews it, the act of reviewing will send off the right notifcations/bundles/whatever those things are to the right people.]
+
+[The act of sharing materials to common platform is long winded and error prone - manually adding materials, organising materials and collating the materials into a PDF.....tbc]
+
+2. Reviews are either not done or done badly, and information, evidence or elements are not captured. As a result, the advocate can't do their job properly. It also means advocates have to start early on the day of the hearing to get a grip on the case, effectively doing a review from scratch. That means they're doing multiple jobs at once, one of which should already have been done. [Shiv to expand on this another time]
+
+3. Defendants don't receive the case ahead of first hearing, which doesn't comply with the rules. [Shiv to explain why] and it's unnecessary. It's also crucial because if the prosecution case is clear to the defence, they won't fight it, and the defendant will plead guilty more quickly - meaning fewer hearings, shorter hearings, and fewer adjournments. [Solution: build a service that gives the defendant access to their own case and updates them whenever CPS updates the case.]
+
+4. Advocates do the review during court quickly, as a result of the problems above. In an ideal world we'd solve the problems above, but we probably have to account for the early stages not being done perfectly and the case still making its way to advocates in court. For example, perhaps there are too many cases for laywers to handle so some unfortunately make their way into court for the advocate to deal with last minute. So we should make it easy for advocates to review in court, by making structured annotations that can be recorded and maintained later. [We know that reviewing lawyers are doing unnecessary shit 40% of the time. So if we get rid of the 40% there's a much better chance that a review can be done before court, BUT that doesn't guarantee that]
 
 ## What gets shared
 
@@ -96,3 +101,7 @@ A defendant's status only becomes Charged when that body sends back authorised c
 - "Prosecutor" is an ambiguous term. Could we use "Reviewing lawyer" and "Advocate" instead (or similar)? [Adam, John, Kirsty]
 - Do we hold an attribute against a case for which police force/agency created the case? [Knowing this would let us seed realistic scenarios into the proto. Related: is it possible for a DCF/TWIF case via the police to come in with an MG04 but without the first hearing details?] [Kirsty]
 - What are some realistic file names for the material, so we can decide whether we need a rename feature, and how to seed the db? [Kirsty, Adam]
+
+## Todo
+
+[ ] Reinstate "waiting on authorised charges" status inbetween Not charged and Charged

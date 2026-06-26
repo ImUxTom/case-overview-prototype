@@ -33,6 +33,10 @@ module.exports = router => {
       where: { ...unitFilter, defendants: { some: { status: statuses.CHARGED } } }
     })
 
+    const chargesPendingCaseCount = await prisma.case.count({
+      where: { ...unitFilter, defendants: { some: { status: statuses.CHARGES_PENDING } } }
+    })
+
     const firstHearingNeededCount = await prisma.case.count({
       where: {
         ...unitFilter,
@@ -55,6 +59,7 @@ module.exports = router => {
 
     const activeStatuses = [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ]
 
@@ -84,6 +89,7 @@ module.exports = router => {
             status: {
               in: [
                 statuses.NOT_CHARGED,
+                statuses.CHARGES_PENDING,
                 statuses.CHARGED
               ]
             }
@@ -464,6 +470,7 @@ module.exports = router => {
 
     const unitBreakdownActiveStatuses = [
       statuses.NOT_CHARGED,
+      statuses.CHARGES_PENDING,
       statuses.CHARGED
     ]
 
@@ -507,6 +514,7 @@ module.exports = router => {
       unassignedCaseCount,
       needsReviewCaseCount,
       chargedCaseCount,
+      chargesPendingCaseCount,
       firstHearingNeededCount,
       hearingPrepNeededCaseCount,
       hearingOutcomeNeededCaseCount,

@@ -136,6 +136,8 @@ addFilter('caseStatusTagClass', (status) => {
       return 'govuk-tag--yellow'
     case statuses.NOT_CHARGED:
       return 'govuk-tag--blue'
+    case statuses.CHARGES_PENDING:
+      return 'govuk-tag--yellow'
     case statuses.CHARGED:
       return 'govuk-tag--green'
     case statuses.NO_FURTHER_ACTION:

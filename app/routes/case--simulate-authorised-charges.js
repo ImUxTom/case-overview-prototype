@@ -20,7 +20,7 @@ module.exports = (router) => {
     })
 
     const chargedDefendantIds = _case.defendants
-      .filter(d => d.status === statuses.NOT_CHARGED)
+      .filter(d => d.status === statuses.CHARGES_PENDING)
       .map(d => d.id)
 
     if (chargedDefendantIds.length) {

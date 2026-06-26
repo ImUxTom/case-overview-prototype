@@ -16,6 +16,7 @@ const KIRSTY_UNIT = 3; // Wessex Crown Court
 
 const KIRSTY_STATUSES = [
   statuses.NOT_CHARGED,
+  statuses.CHARGES_PENDING,
   statuses.CHARGED,
   statuses.NOT_GUILTY,
   statuses.SENTENCED,
@@ -466,7 +467,7 @@ async function seedKirstyCases(prisma, dependencies, config) {
   }
 
   await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, KIRSTY_STATUSES, fullConfig);
-  await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, [statuses.NOT_CHARGED, statuses.CHARGED], fullConfig);
+  await createDivergedCase(prisma, kirstyPriest, KIRSTY_UNIT, [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
 
   return KIRSTY_STL_TASKS.length + KIRSTY_CTL_TASKS.length + 20 + 1 + 1;
 }

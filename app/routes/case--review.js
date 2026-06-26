@@ -5,10 +5,11 @@ const statuses = require('../data/case-statuses')
 const hearingStatuses = require('../data/hearing-statuses')
 
 // CPS only ever states what the charges should be - it never charges a
-// defendant directly. A "Charge" decision here doesn't change status; the
-// defendant only becomes Charged once the police or referring agency send
-// back authorised charges.
+// defendant directly. A "Charge" decision here moves the defendant to
+// Charges pending; they only become Charged once the police or referring
+// agency send back authorised charges.
 const decisionStatusMap = {
+  'charge': statuses.CHARGES_PENDING,
   'do-not-charge': statuses.NO_FURTHER_ACTION,
 }
 
