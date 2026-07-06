@@ -112,75 +112,117 @@ async function seedDGAMonths(prisma, defendants) {
   };
 
 
-  // Build month configs dynamically based on today's date.
-  // The active month is the most recent month within its 6-week recording window.
-  // The two months before it are shown as fully completed.
-  // The frozen month is 3 months before the active month — its deadline has passed with outcomes unrecorded.
-  const active = getActiveDGAMonth();
-  const prev1 = offsetMonth(active.year, active.month, -1);
-  const prev2 = offsetMonth(active.year, active.month, -2);
-  const frozen = offsetMonth(active.year, active.month, -3);
-
-  // Completed months: sentToPoliceDate is early in the month following the review month
-  const sent2 = { met: new Date(prev2.year, prev2.month + 1, 5), thames: new Date(prev2.year, prev2.month + 1, 3), westMids: new Date(prev2.year, prev2.month + 1, 1) };
-  const sent1 = { met: new Date(prev1.year, prev1.month + 1, 5), thames: new Date(prev1.year, prev1.month + 1, 3), westMids: new Date(prev1.year, prev1.month + 1, 1) };
-  const sentFrozen = { met: new Date(frozen.year, frozen.month + 1, 5), thames: new Date(frozen.year, frozen.month + 1, 3) };
-
-  // Active month: some units sent to police on day 1 of following month, some on day 25 of active month
-  const activeSentFollowingMonth = new Date(active.year, active.month + 1, 1);
-  const activeSentWithinMonth = new Date(active.year, active.month, 25);
-
+  // 12 months: May 2026 (most recent) → June 2025.
+  // May/April/March have unrecorded outcomes; February and earlier are fully completed.
+  // To revert to the original dynamic 4-month config, restore the block that was here
+  // (uses getActiveDGAMonth / offsetMonth — those functions are still available above).
   const monthConfigs = [
     {
-      name: `${monthNames[frozen.month]} ${frozen.year}`,
-      year: frozen.year,
-      month: frozen.month,
+      name: 'May 2026', year: 2026, month: 4,
       policeUnits: [
-        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: sentFrozen.met, casesPerUnit: 20 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: sentFrozen.met, casesPerUnit: 5 },
-        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: sentFrozen.thames, casesPerUnit: 10 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: sentFrozen.thames, casesPerUnit: 3 }
+        { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: new Date(2026, 5, 5), casesPerUnit: 1 },
+        { name: 'Metropolitan Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 5, 5), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: new Date(2026, 5, 3), casesPerUnit: 1 },
+        { name: 'Thames Valley Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 5, 3), casesPerUnit: 4 }
       ]
     },
     {
-      name: `${monthNames[prev2.month]} ${prev2.year}`,
-      year: prev2.year,
-      month: prev2.month,
+      name: 'April 2026', year: 2026, month: 3,
       policeUnits: [
-        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: sent2.met, casesPerUnit: 37 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: sent2.met, casesPerUnit: 8 },
-        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: sent2.thames, casesPerUnit: 37 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: sent2.thames, casesPerUnit: 10 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: sent2.westMids, casesPerUnit: 3 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: sent2.westMids, casesPerUnit: 2 }
+        { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: new Date(2026, 4, 5), casesPerUnit: 14 },
+        { name: 'Metropolitan Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 4, 5), casesPerUnit: 10 },
+        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: new Date(2026, 4, 3), casesPerUnit: 10 },
+        { name: 'Thames Valley Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 4, 3), casesPerUnit: 6 }
       ]
     },
     {
-      name: `${monthNames[prev1.month]} ${prev1.year}`,
-      year: prev1.year,
-      month: prev1.month,
+      name: 'March 2026', year: 2026, month: 2,
       policeUnits: [
-        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: sent1.met, casesPerUnit: 37 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: sent1.met, casesPerUnit: 12 },
-        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: sent1.thames, casesPerUnit: 37 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: sent1.thames, casesPerUnit: 8 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: sent1.westMids, casesPerUnit: 3 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: sent1.westMids, casesPerUnit: 1 }
+        { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: new Date(2026, 3, 5), casesPerUnit: 12 },
+        { name: 'Metropolitan Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 3, 5), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: new Date(2026, 3, 3), casesPerUnit: 9 },
+        { name: 'Thames Valley Police', state: 'compliant',   sentToPoliceDate: new Date(2026, 3, 3), casesPerUnit: 5 }
       ]
     },
     {
-      name: `${monthNames[active.month]} ${active.year}`,
-      year: active.year,
-      month: active.month,
+      name: 'February 2026', year: 2026, month: 1,
       policeUnits: [
-        { name: 'Metropolitan Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 37 },
-        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: null, casesPerUnit: 15 },
-        { name: 'Thames Valley Police', state: 'not-started', sentToPoliceDate: null, casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'in-progress', sentToPoliceDate: activeSentFollowingMonth, casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: activeSentFollowingMonth, casesPerUnit: 1 },
-        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: activeSentFollowingMonth, casesPerUnit: 5 },
-        { name: 'West Midlands Police', state: 'completed', sentToPoliceDate: activeSentWithinMonth, casesPerUnit: 26 },
-        { name: 'West Midlands Police', state: 'compliant', sentToPoliceDate: activeSentWithinMonth, casesPerUnit: 4 }
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2026, 2, 5), casesPerUnit: 20 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2026, 2, 5), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2026, 2, 3), casesPerUnit: 15 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2026, 2, 3), casesPerUnit: 5 }
+      ]
+    },
+    {
+      name: 'January 2026', year: 2026, month: 0,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2026, 1, 5), casesPerUnit: 18 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2026, 1, 5), casesPerUnit: 7 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2026, 1, 3), casesPerUnit: 12 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2026, 1, 3), casesPerUnit: 4 }
+      ]
+    },
+    {
+      name: 'December 2025', year: 2025, month: 11,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2026, 0, 5), casesPerUnit: 15 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2026, 0, 5), casesPerUnit: 6 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2026, 0, 3), casesPerUnit: 10 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2026, 0, 3), casesPerUnit: 3 }
+      ]
+    },
+    {
+      name: 'November 2025', year: 2025, month: 10,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 5), casesPerUnit: 16 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 5), casesPerUnit: 6 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 11, 3), casesPerUnit: 11 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 11, 3), casesPerUnit: 4 }
+      ]
+    },
+    {
+      name: 'October 2025', year: 2025, month: 9,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 14 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 5), casesPerUnit: 5 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 9 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 10, 3), casesPerUnit: 3 }
+      ]
+    },
+    {
+      name: 'September 2025', year: 2025, month: 8,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 13 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 5), casesPerUnit: 5 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 9, 3), casesPerUnit: 3 }
+      ]
+    },
+    {
+      name: 'August 2025', year: 2025, month: 7,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 8, 5), casesPerUnit: 12 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 8, 5), casesPerUnit: 4 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 8, 3), casesPerUnit: 8 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 8, 3), casesPerUnit: 3 }
+      ]
+    },
+    {
+      name: 'July 2025', year: 2025, month: 6,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 7, 5), casesPerUnit: 11 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 7, 5), casesPerUnit: 4 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 7, 3), casesPerUnit: 7 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 7, 3), casesPerUnit: 3 }
+      ]
+    },
+    {
+      name: 'June 2025', year: 2025, month: 5,
+      policeUnits: [
+        { name: 'Metropolitan Police', state: 'completed', sentToPoliceDate: new Date(2025, 6, 5), casesPerUnit: 10 },
+        { name: 'Metropolitan Police', state: 'compliant', sentToPoliceDate: new Date(2025, 6, 5), casesPerUnit: 4 },
+        { name: 'Thames Valley Police', state: 'completed', sentToPoliceDate: new Date(2025, 6, 3), casesPerUnit: 7 },
+        { name: 'Thames Valley Police', state: 'compliant', sentToPoliceDate: new Date(2025, 6, 3), casesPerUnit: 2 }
       ]
     }
   ];
