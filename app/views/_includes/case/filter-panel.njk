@@ -1,6 +1,6 @@
 {% set filterOptionsHtml %}
 
-  {{ govukCheckboxes({
+  {# {{ govukCheckboxes({
     idPrefix: "caseListFilters[statuses]",
     name: "caseListFilters[statuses]",
     classes: "govuk-checkboxes--small",
@@ -12,7 +12,7 @@
     },
     items: statusItems,
     values: selectedStatusFilters
-  }) if statusItems.length }}
+  }) if statusItems.length }} #}
 
   {{ govukCheckboxes({
     idPrefix: "caseListFilters[review]",
