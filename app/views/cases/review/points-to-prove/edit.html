@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Assess point to prove" %}
+{% set pageName = "Element strength" %}
 
 {% block beforeContent %}
   {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
@@ -21,19 +21,20 @@
           value: pointToProve.strength,
           fieldset: {
             legend: {
-              text: "How strong is this point to prove?",
+              text: "Strength of this element",
               isPageHeading: false,
               classes: "govuk-fieldset__legend--m"
             }
           },
           items: [
             { value: "Strong", text: "Strong" },
+            { value: "Moderate", text: "Moderate" },
             { value: "Weak", text: "Weak" },
             { value: "Unknown", text: "Unknown" }
           ]
         }) }}
 
-        {{ govukButton({ text: "Save" }) }}
+        {{ govukButton({ text: "Update strength of element" }) }}
       </form>
     </div>
   </div>
