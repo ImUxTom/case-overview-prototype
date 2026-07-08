@@ -37,6 +37,20 @@
     }
   }
 
+  &--grey {
+    .app-annotation-card__tag {
+      background: #f3f2f1 !important;
+      color: #383f43 !important;
+    }
+  }
+
+  &--yellow {
+    .app-annotation-card__tag {
+      background: govuk-colour("yellow", $variant: "tint-50") !important;
+      color: govuk-colour("orange", $variant: "shade-50") !important;
+    }
+  }
+
 
   &:hover {
     // background-color: #f8f8f8;
@@ -68,7 +82,7 @@
 }
 
 .app-annotation-card__name {
-  @include govuk-font(16);
+  @include govuk-font($size: 19);
   margin-bottom: 0;
   font-weight: bold;
 }
@@ -76,12 +90,12 @@
 .app-annotation-card__time {
   color: govuk-colour("dark-grey");
   flex-shrink: 0;
-  @include govuk-font(16);
+  @include govuk-font($size: 19);
   margin-bottom: 10px;
 }
 
 .app-annotation-card__note {
-  @include govuk-font(16);
+  @include govuk-font($size: 19);
   margin-bottom: govuk-spacing(2);
 }
 
@@ -89,6 +103,6 @@
   display: none;
 
   .app-annotation-card.is-selected & {
-    display: block;
+    display: flex;
   }
 }

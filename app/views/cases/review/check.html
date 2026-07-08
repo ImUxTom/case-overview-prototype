@@ -47,6 +47,8 @@
                   {% set typeLabel = 'Evidence' %}
                 {% elif annotation.type == 'disclosure' %}
                   {% set typeLabel = 'Disclosure' %}
+                {% elif annotation.type == 'note' %}
+                  {% set typeLabel = 'Note' %}
                 {% else %}
                   {% set typeLabel = 'Information request' %}
                 {% endif %}
@@ -114,6 +116,22 @@
             }
           }
         ]
+      %}
+
+      {%
+        set additionalInformationRows = additionalInformationRows.concat([{
+          key: { text: "Action plan" },
+          value: {
+            text: data.newInformationRequest.description if (data.newInformationRequest and data.newInformationRequest.description) else "Not provided"
+          },
+          actions: {
+            items: [{
+              href: "/cases/" + _case.id + "/review/action-plan/check" if data.newInformationRequest else "/cases/" + _case.id + "/information-requests/new?context=review",
+              text: "Change",
+              visuallyHiddenText: "action plan"
+            }]
+          }
+        }])
       %}
 
       {%

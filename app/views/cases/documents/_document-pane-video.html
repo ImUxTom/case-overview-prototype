@@ -10,28 +10,40 @@
 
       {% if isReviewMode %}
         <div class="app-video-annotation-actions govuk-button-group govuk-!-margin-bottom-0">
-          {{
-            govukButton({
-              text: "Mark as evidence",
-              classes: "govuk-button--secondary js-video-annotate-btn",
-              type: "button",
-              attributes: { "data-type": "evidence" }
-            })
-          }}
-          {{
-            govukButton({
-              text: "Mark as disclosure",
-              classes: "govuk-button--secondary js-video-annotate-btn",
-              type: "button",
-              attributes: { "data-type": "disclosure" }
-            })
-          }}
+          {% if offences.length %}
+            {{
+              govukButton({
+                text: "Mark as evidence",
+                classes: "govuk-button--secondary js-video-annotate-btn",
+                type: "button",
+                attributes: { "data-type": "evidence" }
+              })
+            }}
+          {% endif %}
+          {% if offences.length %}
+            {{
+              govukButton({
+                text: "Mark as disclosure",
+                classes: "govuk-button--secondary js-video-annotate-btn",
+                type: "button",
+                attributes: { "data-type": "disclosure" }
+              })
+            }}
+          {% endif %}
           {{
             govukButton({
               text: "Add information request",
               classes: "govuk-button--secondary js-video-annotate-btn",
               type: "button",
               attributes: { "data-type": "information-request" }
+            })
+          }}
+          {{
+            govukButton({
+              text: "Add note",
+              classes: "govuk-button--secondary js-video-annotate-btn",
+              type: "button",
+              attributes: { "data-type": "note" }
             })
           }}
         </div>

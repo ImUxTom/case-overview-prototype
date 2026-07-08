@@ -63,6 +63,14 @@
         {% set chargingStatus = { tag: { text: "Not started", classes: "govuk-tag--grey" } } %}
       {% endif %}
 
+      {% if data.newInformationRequest and data.newInformationRequest.complete == true %}
+        {% set actionPlanStatus = { text: "Completed" } %}
+      {% elif data.newInformationRequest %}
+        {% set actionPlanStatus = { tag: { text: "In progress", classes: "govuk-tag--blue" } } %}
+      {% else %}
+        {% set actionPlanStatus = { tag: { text: "Not started", classes: "govuk-tag--grey" } } %}
+      {% endif %}
+
       {% if data.reviewFirstHearing and data.reviewFirstHearing.confirmed %}
         {% set firstHearingStatus = { text: "Completed" } %}
       {% elif data.reviewFirstHearing and data.reviewFirstHearing.hearingDate.day %}
@@ -79,6 +87,14 @@
             status: summaryStatus
           }
         ]
+      %}
+
+      {%
+        set additionalInformationItems = additionalInformationItems.concat([{
+          title: { text: "Action plan" },
+          href: "/cases/" + _case.id + "/review/action-plan/check" if data.newInformationRequest else "/cases/" + _case.id + "/information-requests/new?context=review",
+          status: actionPlanStatus
+        }])
       %}
 
       {% if needsChargingDecision %}

@@ -2,6 +2,13 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { addTimeLimitDates } = require('../helpers/timeLimit')
 const { addCaseStatus } = require('../helpers/caseStatus')
+const {
+  buildDate,
+  formatSessionDate,
+  cleanDefendantIds,
+  formatDefendantNames,
+  createInformationRequestFromSession,
+} = require('../helpers/informationRequest')
 
 const ITEM_CATEGORIES = [
   'Documents and forms',
@@ -39,16 +46,6 @@ function getInformationRequestStatus(request) {
   return 'Pending'
 }
 
-function buildDate({ day, month, year }) {
-  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-}
-
-function formatSessionDate({ day, month, year }) {
-  if (!day || !month || !year) return ''
-  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
 function dateFields(date) {
   const d = new Date(date)
   return { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() }
@@ -56,15 +53,6 @@ function dateFields(date) {
 
 function buildDefendantItems(defendants) {
   return defendants.map(d => ({ value: String(d.id), text: `${d.firstName} ${d.lastName}` }))
-}
-
-function cleanDefendantIds(raw) {
-  return [].concat(raw || []).filter(id => id !== '_unchecked')
-}
-
-function formatDefendantNames(ids, defendants) {
-  const map = Object.fromEntries(defendants.map(d => [String(d.id), `${d.firstName} ${d.lastName}`]))
-  return cleanDefendantIds(ids).map(id => map[id]).filter(Boolean).join(', ')
 }
 
 async function fetchCase(caseId) {
@@ -104,7 +92,7 @@ module.exports = (router) => {
   router.get('/cases/:caseId/information-requests/new', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const _case = await fetchCase(caseId)
-    res.render('cases/information-requests/new', { _case })
+    res.render('cases/information-requests/new', { _case, context: req.query.context || '' })
   })
 
   router.post('/cases/:caseId/information-requests/new', (req, res) => {
@@ -113,6 +101,7 @@ module.exports = (router) => {
       description: req.body.newInformationRequest?.description || '',
       sentDate: new Date().toISOString(),
       items: req.session.data.newInformationRequest?.items || [],
+      context: req.body.context || '',
     }
     res.redirect(`/cases/${caseId}/information-requests/new/item`)
   })
@@ -162,6 +151,10 @@ module.exports = (router) => {
     const caseId = req.params.caseId
     if (req.body.addAnother === 'yes') {
       res.redirect(`/cases/${caseId}/information-requests/new/item`)
+    } else if (req.session.data.newInformationRequest.context === 'review') {
+      // Action plan items go straight to the review's own check-answers page
+      // rather than this flow's "Create request" step - see /review/submit.
+      res.redirect(`/cases/${caseId}/review/action-plan/check`)
     } else {
       res.redirect(`/cases/${caseId}/information-requests/new/check`)
     }
@@ -230,49 +223,13 @@ module.exports = (router) => {
 
   router.post('/cases/:caseId/information-requests/new/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
-    const { description, sentDate, items } = req.session.data.newInformationRequest
 
-    const informationRequest = await prisma.informationRequest.create({
-      data: {
-        caseId,
-        description: description || null,
-        sentDate: new Date(sentDate),
-        items: {
-          create: items.map((item) => ({
-            description: item.description,
-            category: item.category || null,
-            dueDate: buildDate(item.dueDate),
-            defendants: {
-              connect: cleanDefendantIds(item.defendants).map(id => ({ id: parseInt(id) })),
-            },
-          })),
-        },
-      },
-    })
-
-    await prisma.activityLog.create({
-      data: {
-        userId: req.session.data.user.id,
-        model: 'InformationRequest',
-        recordId: informationRequest.id,
-        action: 'CREATE',
-        title: 'Information request created',
-        caseId,
-        meta: {
-          description: description || null,
-          items: items.map((item) => ({
-            description: item.description,
-            category: item.category || null,
-            dueDate: formatSessionDate(item.dueDate),
-          })),
-        },
-      },
-    })
-
-    await prisma.defendant.updateMany({
-      where: { cases: { some: { id: caseId } } },
-      data: { needsReview: false },
-    })
+    await createInformationRequestFromSession(
+      prisma,
+      caseId,
+      req.session.data.newInformationRequest,
+      req.session.data.user.id
+    )
 
     delete req.session.data.newInformationRequest
 

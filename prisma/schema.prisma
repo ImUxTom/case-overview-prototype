@@ -453,6 +453,8 @@ model CaseReviewAnnotation {
   caseReviewDocumentId Int
   type                 String
   selectedText         String
+  paragraphIndex       Int                @default(0)
+  occurrenceIndex      Int                @default(0)
   note                 String
   timestampSeconds     Float?
   createdAt            DateTime           @default(now())
@@ -485,6 +487,8 @@ model CaseReviewInadmissible {
   id                   Int                @id @default(autoincrement())
   caseReviewDocumentId Int
   selectedText         String
+  paragraphIndex       Int                @default(0)
+  occurrenceIndex      Int                @default(0)
   createdAt            DateTime           @default(now())
   caseReviewDocument   CaseReviewDocument @relation(fields: [caseReviewDocumentId], references: [id])
 }

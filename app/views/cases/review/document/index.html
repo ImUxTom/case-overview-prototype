@@ -87,22 +87,29 @@
 
   <div class="app-annotation-popup js-annotation-popup" hidden aria-hidden="true">
     <div class="app-annotation-popup__actions js-selection-actions">
-      <button type="button" class="app-annotation-popup__btn js-annotate-btn" data-type="evidence">
-        Evidence
-      </button>
-      <button
-        type="button"
-        class="app-annotation-popup__btn js-annotate-btn"
-        data-type="disclosure"
-      >
-        Disclosure
-      </button>
+      {% if offences.length %}
+        <button type="button" class="app-annotation-popup__btn js-annotate-btn" data-type="evidence">
+          Evidence
+        </button>
+      {% endif %}
+      {% if offences.length %}
+        <button
+          type="button"
+          class="app-annotation-popup__btn js-annotate-btn"
+          data-type="disclosure"
+        >
+          Disclosure
+        </button>
+      {% endif %}
       <button
         type="button"
         class="app-annotation-popup__btn js-annotate-btn"
         data-type="information-request"
       >
         Information request
+      </button>
+      <button type="button" class="app-annotation-popup__btn js-annotate-btn" data-type="note">
+        Note
       </button>
       <button type="button" class="app-annotation-popup__btn js-redact-btn">Redact</button>
       <button type="button" class="app-annotation-popup__btn js-inadmissible-btn">
@@ -143,6 +150,8 @@
     hidden
   >
     <input type="hidden" name="selectedText" id="inadmissible-selected-text" />
+    <input type="hidden" name="paragraphIndex" id="inadmissible-paragraph-index" />
+    <input type="hidden" name="occurrenceIndex" id="inadmissible-occurrence-index" />
   </form>
 
   <form method="post" id="inadmissible-remove-form" hidden></form>

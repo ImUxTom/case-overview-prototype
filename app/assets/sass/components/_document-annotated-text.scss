@@ -28,6 +28,14 @@
   }
 }
 
+.app-annotation--note {
+  background-color: govuk-colour("yellow", $variant: "tint-50");
+
+  &.app-annotation--active {
+    background-color: govuk-colour("yellow");
+  }
+}
+
 // Temporary highlight while selecting (before saving)
 .app-annotation-selecting {
   background-color: #c8d8f0;

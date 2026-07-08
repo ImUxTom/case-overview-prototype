@@ -26,7 +26,7 @@ module.exports = (router) => {
     if (chargedDefendantIds.length) {
       await prisma.defendant.updateMany({
         where: { id: { in: chargedDefendantIds } },
-        data: { status: statuses.CHARGED, needsReview: true },
+        data: { status: statuses.CHARGED, needsReview: false },
       })
     }
 

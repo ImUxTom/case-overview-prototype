@@ -6,6 +6,11 @@ const statuses = require('../data/case-statuses')
 const hearingStatuses = require('../data/hearing-statuses')
 const charges = require('../data/charges')
 const elementsByChargeCode = require('../data/elements')
+const {
+  formatSessionDate,
+  formatDefendantNames,
+  createInformationRequestFromSession,
+} = require('../helpers/informationRequest')
 
 // CPS only ever states what the charges should be - it never charges a
 // defendant directly. A "Charge" decision here moves the defendant to
@@ -63,45 +68,39 @@ async function findOrCreateDocumentReview(caseReviewId, documentId) {
   return docReview
 }
 
-function applyHighlights(sections, annotations) {
-  if (!annotations.length) return sections
-  const sorted = [...annotations].sort((a, b) => b.selectedText.length - a.selectedText.length)
+// Targets the exact paragraph/occurrence the user selected, rather than
+// replacing every matching string across the document (mirrors applyRedactions).
+function applyMarks(sections, items, markUp) {
+  if (!items.length) return sections
+  const flatParagraphs = sections.flatMap(s => s.paragraphs)
+  items.forEach(item => {
+    const paraIdx = item.paragraphIndex
+    if (paraIdx < 0 || paraIdx >= flatParagraphs.length) return
+    const escaped = item.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(escaped, 'g')
+    const target = item.occurrenceIndex
+    let count = 0
+    flatParagraphs[paraIdx] = flatParagraphs[paraIdx].replace(regex, function(match) {
+      return count++ === target ? markUp(item) : match
+    })
+  })
+  let flatIdx = 0
   return sections.map(section => ({
     heading: section.heading,
-    paragraphs: section.paragraphs.map(para => {
-      let result = para
-      sorted.forEach(annotation => {
-        const escaped = annotation.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        const regex = new RegExp(escaped, 'g')
-        const cls = `app-annotation app-annotation--${annotation.type}`
-        result = result.replace(
-          regex,
-          `<mark class="${cls}" data-annotation-id="${annotation.id}">${annotation.selectedText}</mark>`
-        )
-      })
-      return result
-    })
+    paragraphs: section.paragraphs.map(() => flatParagraphs[flatIdx++])
   }))
 }
 
+function applyHighlights(sections, annotations) {
+  return applyMarks(sections, annotations, annotation =>
+    `<mark class="app-annotation app-annotation--${annotation.type}" data-annotation-id="${annotation.id}">${annotation.selectedText}</mark>`
+  )
+}
+
 function applyInadmissibles(sections, inadmissibles) {
-  if (!inadmissibles.length) return sections
-  const sorted = [...inadmissibles].sort((a, b) => b.selectedText.length - a.selectedText.length)
-  return sections.map(section => ({
-    heading: section.heading,
-    paragraphs: section.paragraphs.map(para => {
-      let result = para
-      sorted.forEach(item => {
-        const escaped = item.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        const regex = new RegExp(escaped, 'g')
-        result = result.replace(
-          regex,
-          `<mark class="app-inadmissible" data-inadmissible-id="${item.id}">${item.selectedText}</mark>`
-        )
-      })
-      return result
-    })
-  }))
+  return applyMarks(sections, inadmissibles, item =>
+    `<mark class="app-inadmissible" data-inadmissible-id="${item.id}">${item.selectedText}</mark>`
+  )
 }
 
 function buildElementCheckboxItems(elements, options) {
@@ -131,27 +130,9 @@ function formatTimestamp(totalSeconds) {
 }
 
 function applyRedactions(sections, redactions) {
-  if (!redactions.length) return sections
-  const flatParagraphs = sections.flatMap(s => s.paragraphs)
-  redactions.forEach(redaction => {
-    const paraIdx = redaction.paragraphIndex
-    if (paraIdx < 0 || paraIdx >= flatParagraphs.length) return
-    const escaped = redaction.selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const regex = new RegExp(escaped, 'g')
-    const target = redaction.occurrenceIndex
-    let count = 0
-    flatParagraphs[paraIdx] = flatParagraphs[paraIdx].replace(regex, function(match) {
-      if (count++ === target) {
-        return `<mark class="app-redaction" data-redaction-id="${redaction.id}">${redaction.selectedText}</mark>`
-      }
-      return match
-    })
-  })
-  let flatIdx = 0
-  return sections.map(section => ({
-    heading: section.heading,
-    paragraphs: section.paragraphs.map(() => flatParagraphs[flatIdx++])
-  }))
+  return applyMarks(sections, redactions, redaction =>
+    `<mark class="app-redaction" data-redaction-id="${redaction.id}">${redaction.selectedText}</mark>`
+  )
 }
 
 module.exports = (router) => {
@@ -261,16 +242,19 @@ module.exports = (router) => {
       elementRows: buildElementRows(charge.elements || []),
       elementCheckboxItems: buildElementCheckboxItems(charge.elements || [], {
         idPrefix: `reasoning-charge-${charge.id}`
+      }),
+      disclosureElementCheckboxItems: buildElementCheckboxItems(charge.elements || [], {
+        idPrefix: `disclosure-reasoning-charge-${charge.id}`
       })
     }))
 
     const hasElements = offences.some(offence => offence.elementCheckboxItems.length)
 
-    // Each evidence annotation gets its own copy of the checkbox groups, pre-checked
-    // and pre-filled with whatever elements it's already linked to, so "Change"
-    // can re-open the same form used when the evidence was first added.
+    // Each evidence, disclosure or note annotation gets its own copy of the checkbox
+    // groups, pre-checked and pre-filled with whatever elements it's already linked
+    // to, so "Change" can re-open the same form used when it was first added.
     annotations.forEach(annotation => {
-      if (annotation.type !== 'evidence') return
+      if (!['evidence', 'disclosure', 'note'].includes(annotation.type)) return
       const linkedByElementId = {}
       annotation.elements.forEach(item => { linkedByElementId[item.elementId] = item.reasoning })
       annotation.editOffences = offences.map(offence => ({
@@ -631,16 +615,18 @@ module.exports = (router) => {
       ? parseFloat(req.body.timestampSeconds)
       : null
     const selectedText = timestampSeconds !== null ? formatTimestamp(timestampSeconds) : req.body.selectedText
+    const paragraphIndex = parseInt(req.body.paragraphIndex) || 0
+    const occurrenceIndex = parseInt(req.body.occurrenceIndex) || 0
 
     const reasoningByElementId = req.body.elements || {}
     const elementIds = Object.keys(reasoningByElementId)
       .filter(id => reasoningByElementId[id])
       .map(id => parseInt(id))
 
-    // Evidence is only linked to elements when some are selected — if
-    // none exist yet (no offence added) it falls back to a plain note, same
-    // as disclosure and information-request, and can be linked later.
-    if (type === 'evidence' && selectedText && elementIds.length) {
+    // Evidence and disclosure are only linked to elements when some are selected —
+    // if none exist yet (no offence added) they fall back to a plain note, same
+    // as information-request, and can be linked later.
+    if ((type === 'evidence' || type === 'disclosure') && selectedText && elementIds.length) {
       const elements = await prisma.element.findMany({
         where: { id: { in: elementIds } }
       })
@@ -650,7 +636,7 @@ module.exports = (router) => {
         .join('; ')
 
       const annotation = await prisma.caseReviewAnnotation.create({
-        data: { caseReviewDocumentId: docReview.id, type, selectedText, note, timestampSeconds }
+        data: { caseReviewDocumentId: docReview.id, type, selectedText, paragraphIndex, occurrenceIndex, note, timestampSeconds }
       })
 
       await prisma.caseReviewAnnotationElement.createMany({
@@ -664,7 +650,7 @@ module.exports = (router) => {
       const { note } = req.body
       if (selectedText && type && note) {
         await prisma.caseReviewAnnotation.create({
-          data: { caseReviewDocumentId: docReview.id, type, selectedText, note, timestampSeconds }
+          data: { caseReviewDocumentId: docReview.id, type, selectedText, paragraphIndex, occurrenceIndex, note, timestampSeconds }
         })
       }
     }
@@ -799,7 +785,12 @@ module.exports = (router) => {
     const { selectedText } = req.body
     if (selectedText) {
       await prisma.caseReviewInadmissible.create({
-        data: { caseReviewDocumentId: docReview.id, selectedText }
+        data: {
+          caseReviewDocumentId: docReview.id,
+          selectedText,
+          paragraphIndex: parseInt(req.body.paragraphIndex) || 0,
+          occurrenceIndex: parseInt(req.body.occurrenceIndex) || 0
+        }
       })
     }
 
@@ -959,6 +950,42 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review`)
   })
 
+  // Action plan — check answers (the information request itself isn't
+  // created until the review is submitted, see /review/submit)
+  router.get('/cases/:caseId/review/action-plan/check', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const sessionData = req.session.data.newInformationRequest
+
+    if (!sessionData) {
+      return res.redirect(`/cases/${caseId}/information-requests/new?context=review`)
+    }
+
+    const _case = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: { defendants: true },
+    })
+
+    const formattedSentDate = new Date(sessionData.sentDate)
+      .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
+    const formattedItems = sessionData.items.map((item) => ({
+      ...item,
+      formattedDueDate: formatSessionDate(item.dueDate),
+      defendantNames: formatDefendantNames(item.defendants, _case.defendants),
+    }))
+
+    res.render('cases/review/action-plan/check', {
+      _case,
+      informationRequest: { ...sessionData, formattedSentDate, items: formattedItems },
+    })
+  })
+
+  router.post('/cases/:caseId/review/action-plan/check', (req, res) => {
+    const caseId = req.params.caseId
+    req.session.data.newInformationRequest.complete = req.body.complete === 'yes'
+    res.redirect(`/cases/${caseId}/review`)
+  })
+
   // First hearing details — start empty, CPS has to find out and enter the real details
   function buildEmptyFirstHearing() {
     return {
@@ -1114,6 +1141,11 @@ module.exports = (router) => {
       })
     }
 
+    const newInformationRequest = req.session.data.newInformationRequest
+    if (newInformationRequest?.complete) {
+      await createInformationRequestFromSession(prisma, caseId, newInformationRequest, userId)
+    }
+
     const review = await prisma.caseReview.findFirst({
       where: { caseId, status: 'in_progress' }
     })
@@ -1143,6 +1175,7 @@ module.exports = (router) => {
     const referrer = req.session.data.chargingDecision?.referrer
     delete req.session.data.chargingDecision
     delete req.session.data.reviewFirstHearing
+    delete req.session.data.newInformationRequest
 
     req.flash('success', 'Review submitted')
     res.redirect(referrer || `/cases/${caseId}`)

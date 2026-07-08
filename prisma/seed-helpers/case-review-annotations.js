@@ -1,8 +1,21 @@
 const { faker } = require('@faker-js/faker')
 const statuses = require('../../app/data/case-statuses')
 const annotationSnippets = require('../../app/data/annotation-snippets')
+const { generateDocumentContent } = require('../../app/helpers/documentContent')
 
 const photoTypes = ['JPG', 'PNG']
+
+// Snippets are exact substrings of the fixed templates in documentContent.js,
+// each appearing only once, so the review page can highlight just that
+// instance rather than every matching string in the document.
+function findParagraphOccurrence(document, selectedText) {
+  if (photoTypes.includes(document.type) || document.type === 'MP4') {
+    return { paragraphIndex: 0, occurrenceIndex: 0 }
+  }
+  const flatParagraphs = generateDocumentContent(document).flatMap(section => section.paragraphs)
+  const paragraphIndex = flatParagraphs.findIndex(para => para.includes(selectedText))
+  return { paragraphIndex: Math.max(paragraphIndex, 0), occurrenceIndex: 0 }
+}
 
 // Mirrors selectTemplate() in app/helpers/documentContent.js so the snippets
 // picked here always exist in the paragraphs the review page renders.
@@ -111,12 +124,15 @@ async function seedCaseReviewAnnotations(prisma, { users }) {
 
       for (const snippet of chosen) {
         const { note, links } = buildNoteAndLinks(snippet, elements)
+        const { paragraphIndex, occurrenceIndex } = findParagraphOccurrence(document, snippet.selectedText)
 
         const annotation = await prisma.caseReviewAnnotation.create({
           data: {
             caseReviewDocumentId: docReview.id,
             type: snippet.type,
             selectedText: snippet.selectedText,
+            paragraphIndex,
+            occurrenceIndex,
             note
           }
         })

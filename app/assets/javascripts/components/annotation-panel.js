@@ -12,6 +12,8 @@ App.AnnotationPanel = function(params) {
   this.selectedTextInput             = $('#annotation-selected-text')
   this.typeHiddenInput               = $('#annotation-type-hidden')
   this.noteHiddenInput               = $('#annotation-note-hidden')
+  this.annotationParagraphIndexInput  = $('#annotation-paragraph-index')
+  this.annotationOccurrenceIndexInput = $('#annotation-occurrence-index')
   this.saveBtn                       = $('.js-save-annotation')
   this.cancelBtn                     = $('.js-cancel-annotation')
   this.redactionForm                  = $('#redaction-form')
@@ -28,6 +30,8 @@ App.AnnotationPanel = function(params) {
   this.removeInadmissibleBtn         = $('.js-remove-inadmissible-btn')
   this.inadmissibleForm              = $('#inadmissible-form')
   this.inadmissibleSelectedTextInput = $('#inadmissible-selected-text')
+  this.inadmissibleParagraphIndexInput  = $('#inadmissible-paragraph-index')
+  this.inadmissibleOccurrenceIndexInput = $('#inadmissible-occurrence-index')
   this.inadmissibleRemoveForm        = $('#inadmissible-remove-form')
 
   this.caseId     = this.container.data('case-id')
@@ -249,7 +253,12 @@ App.AnnotationPanel.prototype.onAnnotateBtnClick = function(e) {
   if (!this.currentRange) return
 
   this.pendingAnnotationType = $(e.currentTarget).data('type')
-  this.selectedTextInput.val(this.currentRange.toString().trim())
+  var selectedText = this.currentRange.toString().trim()
+  this.selectedTextInput.val(selectedText)
+
+  var position = this.getParagraphOccurrence(this.currentRange, selectedText)
+  this.annotationParagraphIndexInput.val(position.paragraphIndex)
+  this.annotationOccurrenceIndexInput.val(position.occurrenceIndex)
 
   var rect = this.currentRange.getBoundingClientRect()
   this.formSelectionDocumentY = rect.top + rect.height / 2 + window.scrollY
@@ -271,19 +280,18 @@ App.AnnotationPanel.prototype.onAnnotateBtnClick = function(e) {
   this.sidebarEmpty.prop('hidden', true)
   this.positionAllCards()
   var checkboxes = this.activeAnnotationCard.find('input[name="elementsCheckbox"]')
-  if (this.pendingAnnotationType === 'evidence' && checkboxes.length) {
+  if (checkboxes.length) {
     checkboxes.first().focus()
   } else {
     this.activeAnnotationCard.find('.js-annotation-note-input').focus()
   }
 }
 
-App.AnnotationPanel.prototype.onRedactClick = function() {
-  if (!this.currentRange) return
-  var selectedText = this.currentRange.toString().trim()
-  if (!selectedText) return
-
-  var range = this.currentRange
+// Finds which paragraph a range's selection starts in and which occurrence
+// of the selected text within that paragraph it is, so the server can target
+// the exact instance the user selected rather than every matching string in
+// the document.
+App.AnnotationPanel.prototype.getParagraphOccurrence = function(range, selectedText) {
   var allParas = this.container.find('.app-document__paragraph').toArray()
   var startNode = range.startContainer
   var startEl = startNode.nodeType === 3 ? startNode.parentNode : startNode
@@ -306,9 +314,19 @@ App.AnnotationPanel.prototype.onRedactClick = function() {
     }
   }
 
+  return { paragraphIndex: paragraphIndex, occurrenceIndex: occurrenceIndex }
+}
+
+App.AnnotationPanel.prototype.onRedactClick = function() {
+  if (!this.currentRange) return
+  var selectedText = this.currentRange.toString().trim()
+  if (!selectedText) return
+
+  var position = this.getParagraphOccurrence(this.currentRange, selectedText)
+
   this.redactionSelectedTextInput.val(selectedText)
-  this.redactionParagraphIndexInput.val(paragraphIndex)
-  this.redactionOccurrenceIndexInput.val(occurrenceIndex)
+  this.redactionParagraphIndexInput.val(position.paragraphIndex)
+  this.redactionOccurrenceIndexInput.val(position.occurrenceIndex)
   window.getSelection().removeAllRanges()
   this.hidePopup()
   this.redactionForm[0].submit()
@@ -351,7 +369,12 @@ App.AnnotationPanel.prototype.onInadmissibleClick = function() {
   if (!this.currentRange) return
   var selectedText = this.currentRange.toString().trim()
   if (!selectedText) return
+
+  var position = this.getParagraphOccurrence(this.currentRange, selectedText)
+
   this.inadmissibleSelectedTextInput.val(selectedText)
+  this.inadmissibleParagraphIndexInput.val(position.paragraphIndex)
+  this.inadmissibleOccurrenceIndexInput.val(position.occurrenceIndex)
   window.getSelection().removeAllRanges()
   this.hidePopup()
   this.inadmissibleForm[0].submit()
@@ -370,7 +393,7 @@ App.AnnotationPanel.prototype.onToggleRedactionsClick = function() {
 }
 
 App.AnnotationPanel.prototype.onSaveClick = function() {
-  if (this.pendingAnnotationType === 'evidence' && this.activeAnnotationCard.find('input[name="elementsCheckbox"]').length) {
+  if (this.activeAnnotationCard.find('input[name="elementsCheckbox"]').length) {
     this.onSaveEvidenceClick()
     return
   }
@@ -382,8 +405,9 @@ App.AnnotationPanel.prototype.onSaveClick = function() {
   this.annotationForm[0].submit()
 }
 
-// Evidence annotations link one or more elements, each with its own
-// reasoning (revealed under its checkbox), rather than a single shared note.
+// Evidence and disclosure annotations link one or more elements, each with
+// its own reasoning (revealed under its checkbox), rather than a single
+// shared note.
 App.AnnotationPanel.prototype.onSaveEvidenceClick = function() {
   var self = this
   var checked = this.activeAnnotationCard.find('input[name="elementsCheckbox"]:checked')
@@ -419,7 +443,7 @@ App.AnnotationPanel.prototype.onSaveEvidenceClick = function() {
     }).appendTo(self.annotationForm)
   })
 
-  this.typeHiddenInput.val('evidence')
+  this.typeHiddenInput.val(this.pendingAnnotationType)
   this.noteHiddenInput.val('')
   this.annotationForm[0].submit()
 }
