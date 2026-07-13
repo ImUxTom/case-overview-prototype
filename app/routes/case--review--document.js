@@ -2,7 +2,7 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { generateDocumentContent } = require('../helpers/documentContent')
-const { findOrCreateReview, findOrCreateDocumentReview } = require('../helpers/caseReview')
+const { findOrCreateReview, findOrCreateDocumentReview, syncChargingDecisionAfterOffenceChange } = require('../helpers/caseReview')
 const charges = require('../data/charges')
 const elementsByChargeCode = require('../data/elements')
 
@@ -127,7 +127,12 @@ module.exports = (router) => {
     function buildElementRows(elements) {
       return elements.map(element => ({
         key: { text: element.description },
-        value: { text: element.strength || 'Not assessed' },
+        value: {
+          html: _.escape(element.strength || 'Not assessed') +
+            (element.strengthReasoning
+              ? `<br><span class="govuk-hint govuk-!-margin-bottom-0">${_.escape(element.strengthReasoning)}</span>`
+              : '')
+        },
         actions: {
           items: [
             {
@@ -236,9 +241,12 @@ module.exports = (router) => {
     const documentId = parseInt(req.params.documentId)
     const elementId = parseInt(req.params.elementId)
 
+    const { strength } = req.body
+    const strengthReasoning = req.body.strengthReasoning?.[strength] || null
+
     await prisma.element.update({
       where: { id: elementId },
-      data: { strength: req.body.strength }
+      data: { strength, strengthReasoning }
     })
 
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
@@ -342,6 +350,8 @@ module.exports = (router) => {
         }
       })
     }
+
+    await syncChargingDecisionAfterOffenceChange(prisma, req, caseId, defendant.id)
 
     delete req.session.data.addOffence
 
@@ -452,6 +462,8 @@ module.exports = (router) => {
       })
     }
 
+    await syncChargingDecisionAfterOffenceChange(prisma, req, caseId, defendant.id)
+
     delete req.session.data.changeOffence
 
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
@@ -515,6 +527,8 @@ module.exports = (router) => {
         caseId
       }
     })
+
+    await syncChargingDecisionAfterOffenceChange(prisma, req, caseId, charge.defendantId)
 
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
   })

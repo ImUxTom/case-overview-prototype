@@ -16,42 +16,6 @@
   cursor: pointer;
   margin-bottom: 8px;
 
-  &--blue {
-    .app-annotation-card__tag {
-      background: #cce0ff !important;
-      color: #003078 !important;
-    }
-  }
-
-  &--purple {
-    .app-annotation-card__tag {
-      background: #f3e5f5 !important;
-      color: #3d0e60 !important;
-    }
-  }
-
-  &--orange {
-    .app-annotation-card__tag {
-      background: #fde8d8 !important;
-      color: #6e3619 !important;
-    }
-  }
-
-  &--grey {
-    .app-annotation-card__tag {
-      background: #f3f2f1 !important;
-      color: #383f43 !important;
-    }
-  }
-
-  &--yellow {
-    .app-annotation-card__tag {
-      background: govuk-colour("yellow", $variant: "tint-50") !important;
-      color: govuk-colour("orange", $variant: "shade-50") !important;
-    }
-  }
-
-
   &:hover {
     // background-color: #f8f8f8;
     outline: 1px solid govuk-colour("blue");
@@ -67,6 +31,49 @@
 
 .app-annotation-card__tag {
   padding: 5px 10px;
+
+  &--blue {
+    background: #cce0ff;
+    color: #003078;
+  }
+
+  &--purple {
+    background: #f3e5f5;
+    color: #3d0e60;
+  }
+
+  &--orange {
+    background: #fde8d8;
+    color: #6e3619;
+  }
+
+  &--grey {
+    background: #f3f2f1;
+    color: #383f43;
+  }
+
+  &--yellow {
+    background: govuk-colour("yellow", $variant: "tint-50");
+    color: govuk-colour("orange", $variant: "shade-50");
+  }
+}
+
+.app-annotation-type {
+  &--blue {
+    color: #003078;
+  }
+
+  &--purple {
+    color: #3d0e60;
+  }
+
+  &--orange {
+    color: #6e3619;
+  }
+
+  &--yellow {
+    color: govuk-colour("orange", $variant: "shade-50");
+  }
 }
 
 .app-annotation-card__body {

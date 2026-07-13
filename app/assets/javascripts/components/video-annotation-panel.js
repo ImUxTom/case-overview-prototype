@@ -49,7 +49,7 @@ App.VideoAnnotationPanel.prototype.onTypeBtnClick = function(e) {
   this.sidebarEmpty.prop('hidden', true)
 
   var checkboxes = this.activeAnnotationCard.find('input[name="elementsCheckbox"]')
-  if (this.pendingAnnotationType === 'evidence' && checkboxes.length) {
+  if (checkboxes.length) {
     checkboxes.first().focus()
   } else {
     this.activeAnnotationCard.find('.js-annotation-note-input').focus()
@@ -71,7 +71,7 @@ App.VideoAnnotationPanel.prototype.hideNewCard = function() {
 
 App.VideoAnnotationPanel.prototype.onSaveClick = function() {
   if (!this.pendingAnnotationType) return
-  if (this.pendingAnnotationType === 'evidence' && this.activeAnnotationCard.find('input[name="elementsCheckbox"]').length) {
+  if (this.activeAnnotationCard.find('input[name="elementsCheckbox"]').length) {
     this.onSaveEvidenceClick()
     return
   }
@@ -84,8 +84,9 @@ App.VideoAnnotationPanel.prototype.onSaveClick = function() {
   this.annotationForm[0].submit()
 }
 
-// Evidence annotations link one or more elements, each with its own
-// reasoning (revealed under its checkbox), rather than a single shared note.
+// Evidence and disclosure annotations link one or more elements, each with
+// its own reasoning (revealed under its checkbox), rather than a single
+// shared note.
 App.VideoAnnotationPanel.prototype.onSaveEvidenceClick = function() {
   var self = this
   var checked = this.activeAnnotationCard.find('input[name="elementsCheckbox"]:checked')
@@ -121,7 +122,7 @@ App.VideoAnnotationPanel.prototype.onSaveEvidenceClick = function() {
     }).appendTo(self.annotationForm)
   })
 
-  this.typeHiddenInput.val('evidence')
+  this.typeHiddenInput.val(this.pendingAnnotationType)
   this.noteHiddenInput.val('')
   this.timestampHiddenInput.val(this.pendingTimestamp)
   this.annotationForm[0].submit()

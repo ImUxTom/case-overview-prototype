@@ -306,13 +306,14 @@ model Charge {
 }
 
 model Element {
-  id          Int      @id @default(autoincrement())
-  description String
-  strength    String?  // 'Weak' | 'Not assessed' | 'Strong'
-  order       Int      @default(0)
-  chargeId    Int
-  charge      Charge   @relation(fields: [chargeId], references: [id])
-  annotations CaseReviewAnnotationElement[]
+  id                Int      @id @default(autoincrement())
+  description       String
+  strength          String?  // 'Weak' | 'Moderate' | 'Not assessed' | 'Strong'
+  strengthReasoning String?
+  order             Int      @default(0)
+  chargeId          Int
+  charge            Charge   @relation(fields: [chargeId], references: [id])
+  annotations       CaseReviewAnnotationElement[]
 }
 
 enum RemandStatus {
@@ -428,6 +429,7 @@ model CaseReview {
   status    String               @default("in_progress")
   summary   String?
   summaryComplete Boolean?
+  chargingDecisionComplete Boolean?
   decision  String?
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt

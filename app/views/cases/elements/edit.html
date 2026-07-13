@@ -31,9 +31,42 @@
               }
             },
             items: [
-              { value: "Strong", text: "Strong" },
-              { value: "Moderate", text: "Moderate" },
-              { value: "Weak", text: "Weak" },
+              {
+                value: "Strong",
+                text: "Strong",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Strong]",
+                    id: "strength-reasoning-strong",
+                    value: element.strengthReasoning if element.strength == "Strong" else "",
+                    label: { text: "Reasoning" }
+                  })
+                }
+              },
+              {
+                value: "Moderate",
+                text: "Moderate",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Moderate]",
+                    id: "strength-reasoning-moderate",
+                    value: element.strengthReasoning if element.strength == "Moderate" else "",
+                    label: { text: "Reasoning" }
+                  })
+                }
+              },
+              {
+                value: "Weak",
+                text: "Weak",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Weak]",
+                    id: "strength-reasoning-weak",
+                    value: element.strengthReasoning if element.strength == "Weak" else "",
+                    label: { text: "Reasoning" }
+                  })
+                }
+              },
               { value: "Not assessed", text: "Not assessed" }
             ]
           })

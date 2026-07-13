@@ -55,7 +55,7 @@
         {% set summaryStatus = { tag: { text: "Not started", classes: "govuk-tag--grey" } } %}
       {% endif %}
 
-      {% if data.chargingDecision and data.chargingDecision.complete == true %}
+      {% if review.chargingDecisionComplete == true %}
         {% set chargingStatus = { text: "Completed" } %}
       {% elif chargingDecisionStarted %}
         {% set chargingStatus = { tag: { text: "In progress", classes: "govuk-tag--blue" } } %}
@@ -101,7 +101,7 @@
         {%
           set additionalInformationItems = additionalInformationItems.concat([{
             title: { text: "Charging decision" },
-            href: "/cases/" + _case.id + "/review/charging-decision/check" if ((data.chargingDecision and data.chargingDecision.complete == true) or chargingDecisionAllAnswered) else "/cases/" + _case.id + "/review/charging-decision",
+            href: "/cases/" + _case.id + "/review/charging-decision/check" if ((review.chargingDecisionComplete == true) or chargingDecisionAllAnswered) else "/cases/" + _case.id + "/review/charging-decision",
             status: chargingStatus
           }])
         %}

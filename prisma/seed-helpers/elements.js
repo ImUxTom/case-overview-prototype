@@ -17,15 +17,18 @@ async function seedElements(prisma) {
     if (!descriptions) return;
 
     descriptions.forEach((description, index) => {
+      const strength = faker.helpers.weightedArrayElement([
+        { value: "Strong", weight: 3 },
+        { value: "Weak", weight: 2 },
+        { value: "Not assessed", weight: 3 }
+      ]);
+
       rows.push({
         chargeId: charge.id,
         description,
         order: index,
-        strength: faker.helpers.weightedArrayElement([
-          { value: "Strong", weight: 3 },
-          { value: "Weak", weight: 2 },
-          { value: "Not assessed", weight: 3 }
-        ])
+        strength,
+        strengthReasoning: strength !== "Not assessed" ? faker.lorem.sentence() : null
       });
     });
   });

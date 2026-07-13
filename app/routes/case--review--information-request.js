@@ -19,7 +19,7 @@ async function fetchCase(caseId) {
 }
 
 module.exports = (router) => {
-  // ─── Step 1 — description ──────────────────────────────────────────────────
+  // ─── Step 0 — do you want to request information? ───────────────────────────
 
   router.get('/cases/:caseId/review/information-request', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
@@ -29,7 +29,31 @@ module.exports = (router) => {
 
   router.post('/cases/:caseId/review/information-request', (req, res) => {
     const caseId = req.params.caseId
+    const wantsInformationRequest = req.body.wantsInformationRequest
     req.session.data.reviewInformationRequest = {
+      ...req.session.data.reviewInformationRequest,
+      wantsInformationRequest,
+      items: req.session.data.reviewInformationRequest?.items || [],
+    }
+    if (wantsInformationRequest === 'yes') {
+      res.redirect(`/cases/${caseId}/review/information-request/description`)
+    } else {
+      res.redirect(`/cases/${caseId}/review/information-request/check`)
+    }
+  })
+
+  // ─── Step 1 — description ──────────────────────────────────────────────────
+
+  router.get('/cases/:caseId/review/information-request/description', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const _case = await fetchCase(caseId)
+    res.render('cases/review/information-request/description', { _case })
+  })
+
+  router.post('/cases/:caseId/review/information-request/description', (req, res) => {
+    const caseId = req.params.caseId
+    req.session.data.reviewInformationRequest = {
+      ...req.session.data.reviewInformationRequest,
       description: req.body.reviewInformationRequest?.description || '',
       sentDate: new Date().toISOString(),
       items: req.session.data.reviewInformationRequest?.items || [],

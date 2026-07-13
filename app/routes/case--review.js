@@ -66,7 +66,12 @@ module.exports = (router) => {
 
     const documentReviews = await prisma.caseReviewDocument.findMany({
       where: { caseReviewId: review.id },
-      include: { annotations: { orderBy: { createdAt: 'asc' } } }
+      include: {
+        annotations: {
+          orderBy: { createdAt: 'asc' },
+          include: { elements: { include: { element: { include: { charge: true } } } } }
+        }
+      }
     })
 
     const docReviewMap = {}
@@ -186,7 +191,7 @@ module.exports = (router) => {
     }
 
     const reviewInformationRequest = req.session.data.reviewInformationRequest
-    if (reviewInformationRequest?.complete) {
+    if (reviewInformationRequest?.complete && reviewInformationRequest?.wantsInformationRequest === 'yes') {
       await createInformationRequestFromSession(prisma, caseId, reviewInformationRequest, userId)
     }
 

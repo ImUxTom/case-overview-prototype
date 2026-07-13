@@ -1,6 +1,7 @@
+const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const { getEligibleCharges } = require('../helpers/caseReview')
+const { getEligibleCharges, findOrCreateReview } = require('../helpers/caseReview')
 
 module.exports = (router) => {
   // Entry point — send the reviewer to the first charge that still needs a decision
@@ -25,7 +26,9 @@ module.exports = (router) => {
   // Registered before the /:chargeId routes below so "check" isn't matched as a chargeId.
   router.get('/cases/:caseId/review/charging-decision/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
+    const userId = req.session.data.user.id
     const { _case, eligibleDefendants, charges } = await getEligibleCharges(prisma, caseId)
+    const review = await findOrCreateReview(prisma, caseId, userId)
 
     const decisions = req.session.data.chargingDecision?.decisions || {}
     const chargeRows = charges.map(charge => ({
@@ -35,17 +38,22 @@ module.exports = (router) => {
 
     res.render('cases/review/charging-decision/check', {
       _case,
+      review,
       charges: chargeRows,
       showDefendantName: eligibleDefendants.length > 1,
     })
   })
 
-  router.post('/cases/:caseId/review/charging-decision/check', (req, res) => {
-    const caseId = req.params.caseId
-    req.session.data.chargingDecision = {
-      ...req.session.data.chargingDecision,
-      complete: req.body.complete === 'yes',
-    }
+  router.post('/cases/:caseId/review/charging-decision/check', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const userId = req.session.data.user.id
+    const review = await findOrCreateReview(prisma, caseId, userId)
+
+    await prisma.caseReview.update({
+      where: { id: review.id },
+      data: { chargingDecisionComplete: req.body.complete === 'yes' },
+    })
+
     res.redirect(`/cases/${caseId}/review`)
   })
 
@@ -63,7 +71,12 @@ module.exports = (router) => {
     const charge = charges[chargeIndex]
     const elementRows = (charge.elements || []).map(element => ({
       key: { text: element.description },
-      value: { text: element.strength || 'Not assessed' }
+      value: {
+        html: _.escape(element.strength || 'Not assessed') +
+          (element.strengthReasoning
+            ? `<br><span class="govuk-hint govuk-!-margin-bottom-0">${_.escape(element.strengthReasoning)}</span>`
+            : '')
+      }
     }))
 
     res.render('cases/review/charging-decision/index', {

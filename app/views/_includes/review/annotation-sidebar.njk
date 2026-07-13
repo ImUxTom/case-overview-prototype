@@ -5,7 +5,7 @@
       hidden
     >
       <div class="app-annotation-form app-annotation-card--blue">
-        <p class="app-annotation-card__tag govuk-!-margin-bottom-0">Evidence</p>
+        <p class="app-annotation-card__tag app-annotation-card__tag--blue govuk-!-margin-bottom-0">Evidence</p>
         <div class="app-annotation-form__body">
           {% if hasElements %}
             {% for offence in offences %}
@@ -59,7 +59,7 @@
       hidden
     >
       <div class="app-annotation-form app-annotation-card--purple">
-        <p class="app-annotation-card__tag govuk-!-margin-bottom-0">Disclosure</p>
+        <p class="app-annotation-card__tag app-annotation-card__tag--purple govuk-!-margin-bottom-0">Disclosure</p>
         <div class="app-annotation-form__body">
           {% if hasElements %}
             {% for offence in offences %}
@@ -180,7 +180,7 @@
         {% if annotation.timestampSeconds != null %}data-timestamp-seconds="{{ annotation.timestampSeconds }}"{% endif %}
       >
         <div class="js-annotation-view">
-          <p class="app-annotation-card__tag govuk-!-margin-bottom-0">
+          <p class="app-annotation-card__tag app-annotation-card__tag--{{ tagColour }} govuk-!-margin-bottom-0">
             {{ typeLabel }}
           </p>
 
@@ -252,15 +252,15 @@
         <div class="app-annotation-form js-annotation-edit-form" hidden>
           {% if isLinkable %}
             <div class="app-annotation-card--{{ 'purple' if annotation.type == 'disclosure' else 'blue' }} js-annotation-edit-tag-checkboxes" hidden>
-              <p class="app-annotation-card__tag govuk-!-margin-bottom-0">{{ 'Disclosure' if annotation.type == 'disclosure' else 'Evidence' }}</p>
+              <p class="app-annotation-card__tag app-annotation-card__tag--{{ 'purple' if annotation.type == 'disclosure' else 'blue' }} govuk-!-margin-bottom-0">{{ 'Disclosure' if annotation.type == 'disclosure' else 'Evidence' }}</p>
             </div>
             {% if annotation.type == 'note' %}
               <div class="app-annotation-card--purple js-annotation-edit-tag-checkboxes-disclosure" hidden>
-                <p class="app-annotation-card__tag govuk-!-margin-bottom-0">Disclosure</p>
+                <p class="app-annotation-card__tag app-annotation-card__tag--purple govuk-!-margin-bottom-0">Disclosure</p>
               </div>
             {% endif %}
             <div class="app-annotation-card--{{ tagColour }} js-annotation-edit-tag-note" hidden>
-              <p class="app-annotation-card__tag govuk-!-margin-bottom-0">{{ typeLabel }}</p>
+              <p class="app-annotation-card__tag app-annotation-card__tag--{{ tagColour }} govuk-!-margin-bottom-0">{{ typeLabel }}</p>
             </div>
 
             <div class="app-annotation-form__body">
@@ -362,7 +362,7 @@
             </div>
           {% elif (annotation.type == 'evidence' or annotation.type == 'disclosure') and hasElements %}
             <div class="app-annotation-card--{{ tagColour }}">
-              <p class="app-annotation-card__tag govuk-!-margin-bottom-0">{{ typeLabel }}</p>
+              <p class="app-annotation-card__tag app-annotation-card__tag--{{ tagColour }} govuk-!-margin-bottom-0">{{ typeLabel }}</p>
             </div>
 
             <div class="app-annotation-form__body">
@@ -401,7 +401,7 @@
             </div>
           {% else %}
             <div class="app-annotation-card--{{ tagColour }}">
-              <p class="app-annotation-card__tag govuk-!-margin-bottom-0">{{ typeLabel }}</p>
+              <p class="app-annotation-card__tag app-annotation-card__tag--{{ tagColour }} govuk-!-margin-bottom-0">{{ typeLabel }}</p>
             </div>
 
             <div class="app-annotation-form__body">

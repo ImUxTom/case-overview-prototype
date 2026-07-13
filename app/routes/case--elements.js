@@ -27,10 +27,11 @@ module.exports = (router) => {
     const caseId = parseInt(req.params.caseId)
     const elementId = parseInt(req.params.elementId)
     const { from, documentId, strength } = req.body
+    const strengthReasoning = req.body.strengthReasoning?.[strength] || null
 
     await prisma.element.update({
       where: { id: elementId },
-      data: { strength }
+      data: { strength, strengthReasoning }
     })
 
     res.redirect(buildReturnUrl(caseId, from, documentId))

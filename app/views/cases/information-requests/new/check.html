@@ -20,11 +20,11 @@
         govukSummaryList({
           rows: [
             {
-              key: { text: "Description" },
+              key: { text: "Title" },
               value: { text: informationRequest.description or "—" },
               actions: {
                 items: [
-                  { href: "/cases/" + _case.id + "/information-requests/new", text: "Change", visuallyHiddenText: "description" }
+                  { href: "/cases/" + _case.id + "/information-requests/new", text: "Change", visuallyHiddenText: "title" }
                 ]
               }
             }

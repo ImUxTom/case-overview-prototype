@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Check and submit review" %}
+{% set pageName = "Check details and submit review" %}
 
 {% block beforeContent %}
   {{ govukBackLink({ text: 'Back', href: '/cases/' + _case.id + '/review' }) }}
@@ -33,10 +33,9 @@
           <table class="govuk-table govuk-!-margin-bottom-7">
             <thead class="govuk-table__head">
               <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Type</th>
-                <th scope="col" class="govuk-table__header">Annotation</th>
-                <th scope="col" class="govuk-table__header">Reasoning</th>
-                <th scope="col" class="govuk-table__header" style="white-space: nowrap; width: 1%;">
+                <th scope="col" class="govuk-table__header">Highlighted text</th>
+                <th scope="col" class="govuk-table__header">Element</th>
+                <th scope="col" class="govuk-table__header app-table__cell--actions">
                   <span class="govuk-visually-hidden">Actions</span>
                 </th>
               </tr>
@@ -45,29 +44,38 @@
               {% for annotation in annotations %}
                 {% if annotation.type == 'evidence' %}
                   {% set typeLabel = 'Evidence' %}
+                  {% set typeColour = 'blue' %}
                 {% elif annotation.type == 'disclosure' %}
                   {% set typeLabel = 'Disclosure' %}
+                  {% set typeColour = 'purple' %}
                 {% elif annotation.type == 'note' %}
                   {% set typeLabel = 'Note' %}
+                  {% set typeColour = 'yellow' %}
                 {% else %}
                   {% set typeLabel = 'Information request' %}
+                  {% set typeColour = 'orange' %}
                 {% endif %}
                 <tr class="govuk-table__row">
-                  <td class="govuk-table__cell">{{ typeLabel }}</td>
-                  <td class="govuk-table__cell">{{ annotation.selectedText | truncate(80) }}</td>
-                  <td class="govuk-table__cell">{{ annotation.note }}</td>
-                  <td class="govuk-table__cell" style="white-space: nowrap;">
+                  <td class="govuk-table__cell">
+                    <p class="govuk-!-margin-bottom-0">{{ annotation.selectedText | truncate(80) }}</p>
+                    <p class="govuk-!-font-size-16 govuk-!-margin-bottom-0 app-annotation-type--{{ typeColour }}">{{ typeLabel }}</p>
+                  </td>
+                  <td class="govuk-table__cell">
+                    {% if annotation.elements.length %}
+                      {% for link in annotation.elements %}
+                        <p class="govuk-!-margin-bottom-0">{{ link.element.description }}: {{ link.reasoning }}</p>
+                        <p class="govuk-!-font-size-16 govuk-!-margin-bottom-{{ '2' if not loop.last else '0' }}">{{ link.element.charge.description }}</p>
+                      {% endfor %}
+                    {% else %}
+                      {{ annotation.note }}
+                    {% endif %}
+                  </td>
+                  <td class="govuk-table__cell app-table__cell--actions">
                     <a
                       href="/cases/{{ _case.id }}/review/documents/{{ document.id }}#annotation-{{ annotation.id }}"
                       class="govuk-link"
                     >
                       Change
-                    </a>
-                    <a
-                      href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ annotation.id }}/remove?from=check"
-                      class="govuk-link govuk-!-margin-left-3"
-                    >
-                      Remove
                     </a>
                   </td>
                 </tr>
@@ -75,9 +83,9 @@
             </tbody>
           </table>
         {% else %}
-          <p class="govuk-!-margin-bottom-1">Not provided</p>
+          <p class="govuk-!-margin-bottom-1">Not provided.</p>
           <p class="govuk-!-margin-bottom-7">
-            <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}" class="govuk-link">
+            <a href="/cases/{{ _case.id }}/review/documents/{{ document.id }}" class="govuk-link govuk-link--no-visited-state">
               Add annotation
             </a>
           </p>
@@ -119,15 +127,15 @@
           classes: "govuk-!-margin-bottom-4",
           rows: [
             {
-              key: { text: "Description" },
+              key: { text: "Do you want to request information?" },
               value: {
-                text: data.reviewInformationRequest.description if (data.reviewInformationRequest and data.reviewInformationRequest.description) else "Not provided"
+                text: "Yes" if (data.reviewInformationRequest and data.reviewInformationRequest.wantsInformationRequest == "yes") else "No"
               },
               actions: {
                 items: [{
-                  href: "/cases/" + _case.id + "/review/information-request/check" if data.reviewInformationRequest else "/cases/" + _case.id + "/review/information-request",
+                  href: "/cases/" + _case.id + "/review/information-request",
                   text: "Change",
-                  visuallyHiddenText: "information request description"
+                  visuallyHiddenText: "whether you want to request information"
                 }]
               }
             }
@@ -135,36 +143,59 @@
         })
       }}
 
-      {% for item in informationRequest.items %}
-        <h3 class="govuk-heading-s">Item {{ loop.index }}</h3>
+      {% if data.reviewInformationRequest and data.reviewInformationRequest.wantsInformationRequest == "yes" %}
         {{
           govukSummaryList({
             classes: "govuk-!-margin-bottom-4",
             rows: [
               {
-                key: { text: "Category" },
-                value: { text: item.category },
-                actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "category for item " + loop.index }] }
-              },
-              {
-                key: { text: "Description" },
-                value: { text: item.description },
-                actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "description for item " + loop.index }] }
-              },
-              {
-                key: { text: "Due date" },
-                value: { text: item.formattedDueDate },
-                actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "due date for item " + loop.index }] }
-              },
-              {
-                key: { text: "Defendants" },
-                value: { text: item.defendantNames or "—" },
-                actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "defendants for item " + loop.index }] }
-              } if _case.defendants.length > 1
+                key: { text: "Title" },
+                value: {
+                  text: data.reviewInformationRequest.description or "Not provided"
+                },
+                actions: {
+                  items: [{
+                    href: "/cases/" + _case.id + "/review/information-request/description",
+                    text: "Change",
+                    visuallyHiddenText: "information request title"
+                  }]
+                }
+              }
             ]
           })
         }}
-      {% endfor %}
+
+        {% for item in informationRequest.items %}
+          <h3 class="govuk-heading-s">Item {{ loop.index }}</h3>
+          {{
+            govukSummaryList({
+              classes: "govuk-!-margin-bottom-4",
+              rows: [
+                {
+                  key: { text: "Category" },
+                  value: { text: item.category },
+                  actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "category for item " + loop.index }] }
+                },
+                {
+                  key: { text: "Description" },
+                  value: { text: item.description },
+                  actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "description for item " + loop.index }] }
+                },
+                {
+                  key: { text: "Due date" },
+                  value: { text: item.formattedDueDate },
+                  actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "due date for item " + loop.index }] }
+                },
+                {
+                  key: { text: "Defendants" },
+                  value: { text: item.defendantNames or "—" },
+                  actions: { items: [{ href: "/cases/" + _case.id + "/review/information-request/items/" + loop.index0 + "/edit", text: "Change", visuallyHiddenText: "defendants for item " + loop.index }] }
+                } if _case.defendants.length > 1
+              ]
+            })
+          }}
+        {% endfor %}
+      {% endif %}
 
       {% if needsChargingDecision %}
         <div class="govuk-grid-row">

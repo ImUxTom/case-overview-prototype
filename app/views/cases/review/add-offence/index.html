@@ -19,8 +19,10 @@
 
       <form method="post">
         {{
-          govukCheckboxes({
+          appCheckboxFilter({
             name: "addOffence[chargeCodes]",
+            classes: "offence-filter",
+            attributes: { id: "offence-filter" },
             values: data.addOffence.chargeCodes,
             fieldset: {
               legend: {
@@ -29,6 +31,7 @@
                 classes: "govuk-fieldset__legend--l"
               }
             },
+            maxHeight: true,
             items: offenceItems
           })
         }}
@@ -37,4 +40,16 @@
       </form>
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    new App.ListFilter({
+      container: $('.offence-filter'),
+      textBox: {
+        label: 'Find an offence'
+      }
+    })
+  </script>
 {% endblock %}
