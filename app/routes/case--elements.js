@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const { getElementAnnotations } = require('../helpers/caseReview')
 
 function buildReturnUrl(caseId, from, documentId) {
   if (from === 'document' && documentId) {
@@ -15,12 +16,13 @@ module.exports = (router) => {
     const from = req.query.from || 'make-charging-decision'
     const documentId = req.query.documentId || ''
 
-    const [_case, element] = await Promise.all([
+    const [_case, element, annotations] = await Promise.all([
       prisma.case.findUnique({ where: { id: caseId } }),
-      prisma.element.findUnique({ where: { id: elementId } })
+      prisma.element.findUnique({ where: { id: elementId } }),
+      getElementAnnotations(prisma, elementId)
     ])
 
-    res.render('cases/elements/edit', { _case, element, caseId, from, documentId })
+    res.render('cases/elements/edit', { _case, element, annotations, caseId, from, documentId })
   })
 
   router.post('/cases/:caseId/elements/:elementId/edit', async (req, res) => {

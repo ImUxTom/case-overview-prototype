@@ -1,5 +1,4 @@
 {% extends "_layouts/main.html" %}
-{% from "_components/page-header/macro.njk" import appPageHeader %}
 
 {% set navId = 'cases' %}
 {% set pageName = document.name %}
@@ -18,63 +17,7 @@
   <span class="govuk-caption-l">{{ _case.reference }}</span>
   <h1 class="govuk-heading-l">{{ document.name }}</h1>
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      {% if offences.length %}
-        {% set offencesHtml %}
-          <p class="govuk-body">
-            <a
-              class="govuk-link"
-              href="/cases/{{ caseId }}/review/documents/{{ documentId }}/add-offence?reset=1"
-            >
-              Add offence
-            </a>
-          </p>
-
-          {% for offence in offences %}
-            {{
-              appPageHeader({
-                classes: 'govuk-!-margin-bottom-1',
-                heading: {
-                  level: 2,
-                  text: offence.charge.description,
-                  classes: 'govuk-heading-m'
-                },
-                items: [
-                  {
-                    text: 'Change',
-                    href: '/cases/' + caseId + '/review/documents/' + documentId + '/change-offence?reset=1'
-                  },
-                  {
-                    text: 'Remove',
-                    href: '/cases/' + caseId + '/review/documents/' + documentId + '/offences/' + offence.charge.id + '/remove'
-                  }
-                ]
-              })
-            }}
-
-            {{ govukSummaryList({ rows: offence.elementRows }) }}
-          {% endfor %}
-        {% endset %}
-
-        {{
-          govukDetails({
-            summaryText: "Offences and element strength assessment",
-            html: offencesHtml
-          })
-        }}
-      {% else %}
-        <p class="govuk-body">
-          <a
-            class="govuk-link"
-            href="/cases/{{ caseId }}/review/documents/{{ documentId }}/add-offence?reset=1"
-          >
-            Add offence
-          </a>
-        </p>
-      {% endif %}
-    </div>
-  </div>
+  {% include "_includes/review/offences.njk" %}
 
   {% include "_includes/review/toolbar.njk" %}
 

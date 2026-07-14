@@ -2,7 +2,7 @@ const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const { generateDocumentContent } = require('../helpers/documentContent')
-const { findOrCreateReview, findOrCreateDocumentReview, syncChargingDecisionAfterOffenceChange } = require('../helpers/caseReview')
+const { findOrCreateReview, findOrCreateDocumentReview, getElementAnnotations, syncChargingDecisionAfterOffenceChange } = require('../helpers/caseReview')
 const charges = require('../data/charges')
 const elementsByChargeCode = require('../data/elements')
 
@@ -228,12 +228,13 @@ module.exports = (router) => {
     const documentId = parseInt(req.params.documentId)
     const elementId = parseInt(req.params.elementId)
 
-    const [_case, element] = await Promise.all([
+    const [_case, element, annotations] = await Promise.all([
       prisma.case.findUnique({ where: { id: caseId } }),
-      prisma.element.findUnique({ where: { id: elementId } })
+      prisma.element.findUnique({ where: { id: elementId } }),
+      getElementAnnotations(prisma, elementId)
     ])
 
-    res.render('cases/review/elements/edit', { _case, element, caseId, documentId })
+    res.render('cases/review/elements/edit', { _case, element, annotations, caseId, documentId })
   })
 
   router.post('/cases/:caseId/review/documents/:documentId/elements/:elementId/edit', async (req, res) => {

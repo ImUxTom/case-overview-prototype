@@ -1,13 +1,13 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = charge.description %}
+{% set pageName = element.description %}
 
 {% block beforeContent %}
   {{
     govukBackLink({
       text: 'Back',
-      href: '/cases/' + _case.id + '/review' if isFirstCharge else 'javascript:history.back()'
+      href: '/cases/' + _case.id + '/review' if isFirstElement else 'javascript:history.back()'
     })
   }}
 {% endblock %}
@@ -15,73 +15,74 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <span class="govuk-caption-l">{{ _case.reference }}</span>
+      <span class="govuk-caption-l">{{ _case.reference }} – {{ charge.description }}</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       {% if showDefendantName %}
         <p class="govuk-body">{{ charge.defendant.firstName }} {{ charge.defendant.lastName }}</p>
       {% endif %}
 
+      {% set annotationCardsShowChange = false %}
+      {% set annotationCardsShowElementMeta = false %}
+      {% include "_includes/element-annotation-cards.njk" %}
+
       <form method="post">
         {% if from == 'check' %}
           <input type="hidden" name="from" value="check" />
         {% endif %}
 
-        {% for element in charge.elements %}
-          {{
-            govukRadios({
-              idPrefix: "strength-" + element.id,
-              name: "strength[" + element.id + "]",
-              value: element.strength or "Not assessed",
-              fieldset: {
-                legend: {
-                  text: element.description,
-                  isPageHeading: false,
-                  classes: "govuk-fieldset__legend--m"
+        {{
+          govukRadios({
+            name: "strength",
+            value: element.strength or "Not assessed",
+            fieldset: {
+              legend: {
+                text: "Element strength",
+                isPageHeading: false,
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            items: [
+              {
+                value: "Strong",
+                text: "Strong",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Strong]",
+                    id: "strength-reasoning-strong",
+                    value: element.strengthReasoning if element.strength == "Strong" else "",
+                    label: { text: "Reasoning" }
+                  })
                 }
               },
-              items: [
-                {
-                  value: "Strong",
-                  text: "Strong",
-                  conditional: {
-                    html: govukTextarea({
-                      name: "strengthReasoning[" + element.id + "][Strong]",
-                      id: "strength-reasoning-" + element.id + "-strong",
-                      value: element.strengthReasoning if element.strength == "Strong" else "",
-                      label: { text: "Reasoning" }
-                    })
-                  }
-                },
-                {
-                  value: "Moderate",
-                  text: "Moderate",
-                  conditional: {
-                    html: govukTextarea({
-                      name: "strengthReasoning[" + element.id + "][Moderate]",
-                      id: "strength-reasoning-" + element.id + "-moderate",
-                      value: element.strengthReasoning if element.strength == "Moderate" else "",
-                      label: { text: "Reasoning" }
-                    })
-                  }
-                },
-                {
-                  value: "Weak",
-                  text: "Weak",
-                  conditional: {
-                    html: govukTextarea({
-                      name: "strengthReasoning[" + element.id + "][Weak]",
-                      id: "strength-reasoning-" + element.id + "-weak",
-                      value: element.strengthReasoning if element.strength == "Weak" else "",
-                      label: { text: "Reasoning" }
-                    })
-                  }
-                },
-                { value: "Not assessed", text: "Not assessed" }
-              ]
-            })
-          }}
-        {% endfor %}
+              {
+                value: "Moderate",
+                text: "Moderate",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Moderate]",
+                    id: "strength-reasoning-moderate",
+                    value: element.strengthReasoning if element.strength == "Moderate" else "",
+                    label: { text: "Reasoning" }
+                  })
+                }
+              },
+              {
+                value: "Weak",
+                text: "Weak",
+                conditional: {
+                  html: govukTextarea({
+                    name: "strengthReasoning[Weak]",
+                    id: "strength-reasoning-weak",
+                    value: element.strengthReasoning if element.strength == "Weak" else "",
+                    label: { text: "Reasoning" }
+                  })
+                }
+              },
+              { value: "Not assessed", text: "Not assessed" }
+            ]
+          })
+        }}
 
         {{ govukButton({ text: "Continue" }) }}
       </form>

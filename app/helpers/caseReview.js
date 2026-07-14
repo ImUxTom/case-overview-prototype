@@ -51,6 +51,25 @@ async function getEligibleCharges(prisma, caseId) {
   return { _case, eligibleDefendants, charges }
 }
 
+// Evidence and disclosure annotations linked to an element, with enough
+// included context to render annotation cards (source document, and every
+// element each annotation is linked to).
+async function getElementAnnotations(prisma, elementId) {
+  const annotationLinks = await prisma.caseReviewAnnotationElement.findMany({
+    where: { elementId, annotation: { type: { in: ['evidence', 'disclosure'] } } },
+    orderBy: { createdAt: 'asc' },
+    include: {
+      annotation: {
+        include: {
+          caseReviewDocument: { include: { document: true } },
+          elements: { include: { element: { include: { charge: true } } } }
+        }
+      }
+    }
+  })
+  return annotationLinks.map(link => link.annotation)
+}
+
 // Offences (charges) can be added, changed or removed after the Charging
 // decision or Strength assessment tasks have already been marked complete.
 // When that happens, the recorded per-charge decisions and element strengths
@@ -86,5 +105,6 @@ module.exports = {
   findOrCreateReview,
   findOrCreateDocumentReview,
   getEligibleCharges,
+  getElementAnnotations,
   syncChargingDecisionAfterOffenceChange,
 }

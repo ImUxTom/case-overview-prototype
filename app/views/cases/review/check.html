@@ -40,7 +40,7 @@
                 {% set typeLabel = 'Note' %}
                 {% set typeColour = 'yellow' %}
               {% else %}
-                {% set typeLabel = 'Information request' %}
+                {% set typeLabel = 'Information request note' %}
                 {% set typeColour = 'orange' %}
               {% endif %}
               <div class="app-review-annotation-card app-review-annotation-card--{{ typeColour }}">
@@ -54,7 +54,9 @@
                       class="govuk-link govuk-link--no-visited-state"
                     >
                       Change
-                      <span class="govuk-visually-hidden">{{ typeLabel | lower }}{{ ' annotation' if item.kind == 'annotation' }}</span>
+                      <span class="govuk-visually-hidden">
+                        {{ typeLabel | lower }}{{ ' annotation' if item.kind == 'annotation' }}
+                      </span>
                     </a>
                   </p>
                 </div>
@@ -233,7 +235,7 @@
                 },
                 actions: {
                   items: [{
-                    href: "/cases/" + _case.id + "/review/strength-assessment/" + charge.id + "?from=check",
+                    href: "/cases/" + _case.id + "/review/strength-assessment/" + element.id + "?from=check",
                     text: "Change",
                     visuallyHiddenText: element.description
                   }]
@@ -308,8 +310,8 @@
           {% endif %}
 
           <p>
-            If the police charge the defendant with your suggested charges, we’ll share all
-            documents which have evidence connected to the charges or are required for disclosure.
+            If the police charge the defendant with your suggested charges, we’ll share all material
+            which has evidence connected to the charges or are required for disclosure.
           </p>
 
           <p>We’ll share them with:</p>

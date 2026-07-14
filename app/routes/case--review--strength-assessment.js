@@ -1,28 +1,35 @@
 const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const { getEligibleCharges, findOrCreateReview } = require('../helpers/caseReview')
+const { getEligibleCharges, getElementAnnotations, findOrCreateReview } = require('../helpers/caseReview')
 
 function elementAssessed (element) {
   return Boolean(element.strength) && element.strength !== 'Not assessed'
 }
 
+// Elements across all eligible charges, flattened into a single ordered list
+// so the task can step through them one per page.
+function flattenElements (charges) {
+  return charges.flatMap(charge => (charge.elements || []).map(element => ({ ...element, charge })))
+}
+
 module.exports = (router) => {
-  // Entry point — send the reviewer to the first offence with an unassessed element
+  // Entry point — send the reviewer to the first unassessed element
   router.get('/cases/:caseId/review/strength-assessment', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
 
     const { charges } = await getEligibleCharges(prisma, caseId)
-    if (!charges.length) {
+    const elements = flattenElements(charges)
+    if (!elements.length) {
       return res.redirect(`/cases/${caseId}/review`)
     }
 
-    const nextCharge = charges.find(charge => (charge.elements || []).some(element => !elementAssessed(element))) || charges[0]
-    res.redirect(`/cases/${caseId}/review/strength-assessment/${nextCharge.id}`)
+    const nextElement = elements.find(element => !elementAssessed(element)) || elements[0]
+    res.redirect(`/cases/${caseId}/review/strength-assessment/${nextElement.id}`)
   })
 
   // Strength assessment — check answers
-  // Registered before the /:chargeId routes below so "check" isn't matched as a chargeId.
+  // Registered before the /:elementId routes below so "check" isn't matched as an elementId.
   router.get('/cases/:caseId/review/strength-assessment/check', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const userId = req.session.data.user.id
@@ -41,7 +48,7 @@ module.exports = (router) => {
         },
         actions: {
           items: [{
-            href: `/cases/${caseId}/review/strength-assessment/${charge.id}?from=check`,
+            href: `/cases/${caseId}/review/strength-assessment/${element.id}?from=check`,
             text: 'Change',
             visuallyHiddenText: element.description
           }]
@@ -70,53 +77,64 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review`)
   })
 
-  // Strength assessment — one offence per page, all its elements assessed together
-  router.get('/cases/:caseId/review/strength-assessment/:chargeId', async (req, res) => {
+  // Strength assessment — one element per page
+  router.get('/cases/:caseId/review/strength-assessment/:elementId', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
-    const chargeId = parseInt(req.params.chargeId)
+    const elementId = parseInt(req.params.elementId)
     const { _case, eligibleDefendants, charges } = await getEligibleCharges(prisma, caseId)
 
-    const chargeIndex = charges.findIndex(charge => charge.id === chargeId)
-    if (chargeIndex === -1) {
+    const elements = flattenElements(charges)
+    const elementIndex = elements.findIndex(element => element.id === elementId)
+    if (elementIndex === -1) {
       return res.redirect(`/cases/${caseId}/review/strength-assessment`)
     }
 
+    const element = elements[elementIndex]
+
+    // Only show the reasoning relevant to the element being assessed, not
+    // every element an annotation happens to be linked to.
+    const annotations = (await getElementAnnotations(prisma, elementId)).map(annotation => ({
+      ...annotation,
+      elements: annotation.elements.filter(link => link.elementId === elementId)
+    }))
+
     res.render('cases/review/strength-assessment/index', {
       _case,
-      charge: charges[chargeIndex],
+      element,
+      charge: element.charge,
+      annotations,
       showDefendantName: eligibleDefendants.length > 1,
-      isFirstCharge: chargeIndex === 0,
+      isFirstElement: elementIndex === 0,
       from: req.query.from,
     })
   })
 
-  router.post('/cases/:caseId/review/strength-assessment/:chargeId', async (req, res) => {
+  router.post('/cases/:caseId/review/strength-assessment/:elementId', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
-    const chargeId = parseInt(req.params.chargeId)
+    const elementId = parseInt(req.params.elementId)
     const { charges } = await getEligibleCharges(prisma, caseId)
 
-    const chargeIndex = charges.findIndex(charge => charge.id === chargeId)
-    if (chargeIndex === -1) {
+    const elements = flattenElements(charges)
+    const elementIndex = elements.findIndex(element => element.id === elementId)
+    if (elementIndex === -1) {
       return res.redirect(`/cases/${caseId}/review/strength-assessment`)
     }
 
-    for (const element of charges[chargeIndex].elements || []) {
-      const strength = req.body.strength?.[element.id]
-      if (!strength) continue
-      const strengthReasoning = req.body.strengthReasoning?.[element.id]?.[strength] || null
-      await prisma.element.update({
-        where: { id: element.id },
-        data: { strength, strengthReasoning }
-      })
-    }
+    const { strength } = req.body
+    const strengthReasoning = req.body.strengthReasoning?.[strength] || null
+
+    await prisma.element.update({
+      where: { id: elementId },
+      data: { strength, strengthReasoning }
+    })
 
     if (req.body.from === 'check') {
       return res.redirect(`/cases/${caseId}/review/strength-assessment/check`)
     }
 
-    const nextCharge = charges[chargeIndex + 1]
-    if (nextCharge) {
-      res.redirect(`/cases/${caseId}/review/strength-assessment/${nextCharge.id}`)
+    const nextElement = elements[elementIndex + 1]
+    if (nextElement) {
+      res.redirect(`/cases/${caseId}/review/strength-assessment/${nextElement.id}`)
     } else {
       res.redirect(`/cases/${caseId}/review/strength-assessment/check`)
     }

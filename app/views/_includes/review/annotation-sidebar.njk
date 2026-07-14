@@ -171,7 +171,7 @@
     </div>
 
     {% for annotation in annotations %}
-      {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else ('Note' if annotation.type == 'note' else 'Information request')) %}
+      {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else ('Note' if annotation.type == 'note' else 'Information request note')) %}
       {% set tagColour = 'blue' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else ('yellow' if annotation.type == 'note' else 'orange')) %}
       {% set noteLabel = 'Evidence note' if annotation.type == 'evidence' else ('Disclosure note' if annotation.type == 'disclosure' else ('Note' if annotation.type == 'note' else 'Information request note')) %}
       <div

@@ -69,7 +69,7 @@
     <div class="app-toolbar__inner">
       <div class="govuk-button-group">
         {{ govukButton({ text: "Mark as unused", classes: "govuk-button--secondary", href: "#" }) }}
-        {{ govukButton({ text: "Add information request", classes: "govuk-button--secondary", href: "#" }) }}
+        {{ govukButton({ text: "Add information request note", classes: "govuk-button--secondary", href: "#" }) }}
       </div>
     </div>
   </div>
@@ -81,7 +81,7 @@
       <aside class="app-annotation-sidebar" id="annotation-sidebar" aria-label="Annotations">
         <div class="app-annotation-sidebar__inner js-sidebar-inner">
           {% for annotation in annotations %}
-            {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else ('Note' if annotation.type == 'note' else 'Information request')) %}
+            {% set typeLabel = 'Evidence' if annotation.type == 'evidence' else ('Disclosure' if annotation.type == 'disclosure' else ('Note' if annotation.type == 'note' else 'Information request note')) %}
             {% set tagColour = 'blue' if annotation.type == 'evidence' else ('purple' if annotation.type == 'disclosure' else ('yellow' if annotation.type == 'note' else 'orange')) %}
             <div
               class="app-annotation-card js-annotation-card app-annotation-card--{{ tagColour }}"

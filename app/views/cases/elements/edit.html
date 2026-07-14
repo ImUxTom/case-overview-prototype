@@ -1,7 +1,7 @@
 {% extends "_layouts/main.html" %}
 
 {% set navId = 'cases' %}
-{% set pageName = "Element strength" %}
+{% set pageName = element.description %}
 
 {% block beforeContent %}
   {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
@@ -10,10 +10,10 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-l">{{ _case.reference }}</span>
+      <span class="govuk-caption-l">{{ _case.reference }} – element strength</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
-      {{ govukInsetText({ text: element.description }) }}
+      {% include "_includes/element-annotation-cards.njk" %}
 
       <form method="post">
         <input type="hidden" name="from" value="{{ from }}" />

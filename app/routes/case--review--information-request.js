@@ -8,6 +8,7 @@ const {
   cleanDefendantIds,
   formatDefendantNames,
 } = require('../helpers/informationRequest')
+const { findOrCreateReview } = require('../helpers/caseReview')
 
 const ITEM_CATEGORY_RADIO_ITEMS = ITEM_CATEGORIES.map((c) => ({ value: c, text: c }))
 
@@ -15,6 +16,13 @@ async function fetchCase(caseId) {
   return prisma.case.findUnique({
     where: { id: caseId },
     include: { defendants: true },
+  })
+}
+
+async function getInformationRequestNotes(reviewId) {
+  return prisma.caseReviewAnnotation.findMany({
+    where: { type: 'information-request', caseReviewDocument: { caseReviewId: reviewId } },
+    include: { caseReviewDocument: { include: { document: true } } },
   })
 }
 
@@ -27,8 +35,8 @@ module.exports = (router) => {
     res.render('cases/review/information-request/index', { _case })
   })
 
-  router.post('/cases/:caseId/review/information-request', (req, res) => {
-    const caseId = req.params.caseId
+  router.post('/cases/:caseId/review/information-request', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
     const wantsInformationRequest = req.body.wantsInformationRequest
     req.session.data.reviewInformationRequest = {
       ...req.session.data.reviewInformationRequest,
@@ -36,10 +44,46 @@ module.exports = (router) => {
       items: req.session.data.reviewInformationRequest?.items || [],
     }
     if (wantsInformationRequest === 'yes') {
-      res.redirect(`/cases/${caseId}/review/information-request/description`)
+      return res.redirect(`/cases/${caseId}/review/information-request/description`)
+    }
+
+    const review = await findOrCreateReview(prisma, caseId, req.session.data.user.id)
+    const notes = await getInformationRequestNotes(review.id)
+    if (notes.length) {
+      res.redirect(`/cases/${caseId}/review/information-request/notes`)
     } else {
       res.redirect(`/cases/${caseId}/review/information-request/check`)
     }
+  })
+
+  // ─── Existing information request notes — answered no but notes exist ───────
+
+  router.get('/cases/:caseId/review/information-request/notes', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+    const _case = await fetchCase(caseId)
+    const review = await findOrCreateReview(prisma, caseId, req.session.data.user.id)
+    const notes = await getInformationRequestNotes(review.id)
+
+    if (!notes.length) {
+      return res.redirect(`/cases/${caseId}/review/information-request/check`)
+    }
+
+    res.render('cases/review/information-request/notes', { _case, notes })
+  })
+
+  router.post('/cases/:caseId/review/information-request/notes', async (req, res) => {
+    const caseId = parseInt(req.params.caseId)
+
+    if (req.body.notesDecision === 'add') {
+      req.session.data.reviewInformationRequest.wantsInformationRequest = 'yes'
+      return res.redirect(`/cases/${caseId}/review/information-request/description`)
+    }
+
+    const review = await findOrCreateReview(prisma, caseId, req.session.data.user.id)
+    await prisma.caseReviewAnnotation.deleteMany({
+      where: { type: 'information-request', caseReviewDocument: { caseReviewId: review.id } },
+    })
+    res.redirect(`/cases/${caseId}/review/information-request/check`)
   })
 
   // ─── Step 1 — description ──────────────────────────────────────────────────
