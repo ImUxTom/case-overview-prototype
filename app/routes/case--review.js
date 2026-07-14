@@ -73,14 +73,30 @@ module.exports = (router) => {
       where: { caseReviewId: review.id },
       include: {
         annotations: {
-          orderBy: { createdAt: 'asc' },
           include: { elements: { include: { element: { include: { charge: true } } } } }
-        }
+        },
+        redactions: true,
+        inadmissibles: true
       }
     })
 
+    // Sort by position in the document so cards appear in the same order as
+    // the marks on the document page, not the order they were created in
+    const byDocumentPosition = (a, b) =>
+      (a.paragraphIndex - b.paragraphIndex) ||
+      (a.occurrenceIndex - b.occurrenceIndex) ||
+      ((a.timestampSeconds || 0) - (b.timestampSeconds || 0)) ||
+      (a.createdAt - b.createdAt)
+
     const docReviewMap = {}
-    documentReviews.forEach(dr => { docReviewMap[dr.documentId] = dr })
+    documentReviews.forEach(dr => {
+      const items = [
+        ...dr.annotations.map(annotation => ({ ...annotation, kind: 'annotation' })),
+        ...dr.redactions.map(redaction => ({ ...redaction, kind: 'redaction' })),
+        ...dr.inadmissibles.map(inadmissible => ({ ...inadmissible, kind: 'inadmissible' }))
+      ].sort(byDocumentPosition)
+      docReviewMap[dr.documentId] = { ...dr, items }
+    })
 
     const decisions = req.session.data.chargingDecision?.decisions || {}
     const needsChargingDecision = eligibleDefendants.length > 0

@@ -52,6 +52,11 @@
     color: #383f43;
   }
 
+  &--red {
+    background: #f4cdc6;
+    color: #942514;
+  }
+
   &--yellow {
     background: govuk-colour("yellow", $variant: "tint-50");
     color: govuk-colour("orange", $variant: "shade-50");
