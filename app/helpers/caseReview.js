@@ -70,6 +70,30 @@ async function getElementAnnotations(prisma, elementId) {
   return annotationLinks.map(link => link.annotation)
 }
 
+// A live review keeps the per-charge charging decisions and the information
+// request answer in the session, but seeded in-progress reviews arrive with
+// both already made, stored on the review row (decision). Copy them into the
+// session the first time the review is opened so the task list and check
+// pages reflect the seeded state.
+function hydrateSeededReviewSession(req, review, charges) {
+  if (review.status !== 'in_progress' || !review.decision) return
+
+  const decisions = req.session.data.chargingDecision?.decisions || {}
+  if (charges.length && !charges.some(charge => decisions[charge.id])) {
+    req.session.data.chargingDecision = {
+      ...req.session.data.chargingDecision,
+      decisions: {
+        ...decisions,
+        ...Object.fromEntries(charges.map(charge => [charge.id, review.decision]))
+      }
+    }
+  }
+
+  if (!req.session.data.reviewInformationRequest) {
+    req.session.data.reviewInformationRequest = { wantsInformationRequest: 'no', complete: true, items: [] }
+  }
+}
+
 // Offences (charges) can be added, changed or removed after the Charging
 // decision or Strength assessment tasks have already been marked complete.
 // When that happens, the recorded per-charge decisions and element strengths
@@ -106,5 +130,6 @@ module.exports = {
   findOrCreateDocumentReview,
   getEligibleCharges,
   getElementAnnotations,
+  hydrateSeededReviewSession,
   syncChargingDecisionAfterOffenceChange,
 }

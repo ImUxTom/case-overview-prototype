@@ -1,8 +1,10 @@
 App.VideoAnnotationPanel = function(params) {
   this.container = params.container
 
-  this.video              = $('#document-video')
-  this.typeBtns           = $('.js-video-annotate-btn')
+  // Audio reviews share this panel - <audio> and <video> expose the same
+  // pause/currentTime API, so timestamp annotation works identically.
+  this.video              = $('#document-video, #document-audio')
+  this.typeBtns           = $('.js-video-annotate-btn, .js-audio-annotate-btn')
   this.newAnnotationCards = $('.js-new-annotation-card')
   this.activeAnnotationCard = null
   this.sidebarInner         = $('.js-sidebar-inner')

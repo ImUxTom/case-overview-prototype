@@ -9,7 +9,7 @@ const photoTypes = ['JPG', 'PNG']
 // each appearing only once, so the review page can highlight just that
 // instance rather than every matching string in the document.
 function findParagraphOccurrence(document, selectedText) {
-  if (photoTypes.includes(document.type) || document.type === 'MP4') {
+  if (photoTypes.includes(document.type) || document.type === 'MP4' || document.type === 'MP3') {
     return { paragraphIndex: 0, occurrenceIndex: 0 }
   }
   const flatParagraphs = generateDocumentContent(document).flatMap(section => section.paragraphs)
@@ -41,6 +41,14 @@ function buildCandidates(document) {
   if (document.type === 'MP4') {
     const seconds = faker.helpers.arrayElements([5, 20, 45, 70, 95, 130, 165, 210, 250], 3).sort((a, b) => a - b)
     return annotationSnippets.video.map((snippet, index) => ({
+      ...snippet,
+      selectedText: formatTimestamp(seconds[index])
+    }))
+  }
+  // Timestamps stay within the 10-second placeholder recording.
+  if (document.type === 'MP3') {
+    const seconds = faker.helpers.arrayElements([1, 2, 3, 4, 5, 6, 7, 8, 9], 3).sort((a, b) => a - b)
+    return annotationSnippets.audio.map((snippet, index) => ({
       ...snippet,
       selectedText: formatTimestamp(seconds[index])
     }))
@@ -154,4 +162,4 @@ async function seedCaseReviewAnnotations(prisma, { users }) {
   return { reviews: reviewCount, documentReviews: documentReviewCount, annotations: annotationCount }
 }
 
-module.exports = { seedCaseReviewAnnotations }
+module.exports = { seedCaseReviewAnnotations, buildCandidates, findParagraphOccurrence }

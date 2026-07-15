@@ -12,9 +12,72 @@
       <span class="govuk-caption-l">{{ document.name }}</span>
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
-      {{ govukInsetText({
-        text: annotation.selectedText
-      }) }}
+      {% if annotation.type == 'evidence' %}
+        {% set typeLabel = 'Evidence' %}
+        {% set typeColour = 'blue' %}
+      {% elif annotation.type == 'disclosure' %}
+        {% set typeLabel = 'Disclosure' %}
+        {% set typeColour = 'purple' %}
+      {% elif annotation.type == 'note' %}
+        {% set typeLabel = 'Note' %}
+        {% set typeColour = 'yellow' %}
+      {% else %}
+        {% set typeLabel = 'Information request note' %}
+        {% set typeColour = 'orange' %}
+      {% endif %}
+      <div class="app-review-annotation-card app-review-annotation-card--{{ typeColour }} govuk-!-margin-bottom-6">
+        <div
+          class="app-review-annotation-card__header app-annotation-card__tag--{{ typeColour }}"
+        >
+          <p class="govuk-!-margin-bottom-0">{{ typeLabel }}</p>
+        </div>
+        <div class="app-review-annotation-card__body">
+          {% if annotation.selectedText == 'Whole photo' %}
+            <img
+              src="/public/images/evidence-photo-placeholder.jpg"
+              alt="{{ document.name }}"
+              class="app-review-annotation-card__photo"
+            />
+          {% else %}
+            {% if annotation.timestampSeconds != null %}
+              {% if document.type == 'MP3' %}
+                <audio
+                  src="/public/audio/999-call-placeholder.mp3#t={{ annotation.timestampSeconds }}"
+                  class="app-review-annotation-card__audio"
+                  controls
+                ></audio>
+              {% else %}
+                <video
+                  src="/public/videos/cctv-placeholder.mp4#t={{ annotation.timestampSeconds }}"
+                  class="app-review-annotation-card__video"
+                  controls
+                ></video>
+              {% endif %}
+              <p class="app-review-annotation-card__label">Timestamp</p>
+              <p>{{ annotation.selectedText }}</p>
+            {% else %}
+              <p>‘{{ annotation.selectedText | truncate(80) }}’</p>
+            {% endif %}
+          {% endif %}
+
+          {% if annotation.elements.length %}
+            {% for link in annotation.elements %}
+              <p class="app-review-annotation-card__label">
+                {{ link.element.description }}
+              </p>
+              <p class="govuk-!-margin-bottom-0">{{ link.reasoning }}</p>
+              <p
+                class="govuk-!-font-size-16 govuk-!-margin-bottom-{{ '0' if loop.last else '4' }}"
+              >
+                {{ link.element.charge.description }}
+              </p>
+            {% endfor %}
+          {% else %}
+            <p class="app-review-annotation-card__label">Note</p>
+            <p class="govuk-!-margin-bottom-0">{{ annotation.note }}</p>
+          {% endif %}
+        </div>
+      </div>
 
       <form method="post">
         <input type="hidden" name="from" value="{{ from }}">

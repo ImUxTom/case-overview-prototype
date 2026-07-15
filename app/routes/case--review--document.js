@@ -103,6 +103,7 @@ module.exports = (router) => {
     }
 
     const isVideo = document.type === 'MP4'
+    const isAudio = document.type === 'MP3'
     const isPhoto = document.type === 'JPG' || document.type === 'PNG'
 
     const annotations = await prisma.caseReviewAnnotation.findMany({
@@ -111,7 +112,7 @@ module.exports = (router) => {
       include: { elements: { include: { element: true } } }
     })
 
-    const [redactions, inadmissibles] = (isVideo || isPhoto) ? [[], []] : await Promise.all([
+    const [redactions, inadmissibles] = (isVideo || isAudio || isPhoto) ? [[], []] : await Promise.all([
       prisma.caseReviewRedaction.findMany({
         where: { caseReviewDocumentId: docReview.id },
         orderBy: { createdAt: 'asc' }
@@ -190,7 +191,7 @@ module.exports = (router) => {
     })
 
     let sections = []
-    if (!isVideo && !isPhoto) {
+    if (!isVideo && !isAudio && !isPhoto) {
       const rawSections = generateDocumentContent(document)
       const annotatedSections = applyHighlights(rawSections, annotations)
       const redactedSections = applyRedactions(annotatedSections, redactions)
@@ -199,6 +200,7 @@ module.exports = (router) => {
 
     let template = 'cases/review/document/index'
     if (isVideo) template = 'cases/review/video/index'
+    if (isAudio) template = 'cases/review/audio/index'
     if (isPhoto) template = 'cases/review/photo/index'
 
     res.render(template, {
@@ -211,8 +213,10 @@ module.exports = (router) => {
       redactions,
       inadmissibles,
       isVideo,
+      isAudio,
       isPhoto,
       videoUrl: isVideo ? '/public/videos/cctv-placeholder.mp4' : null,
+      audioUrl: isAudio ? '/public/audio/999-call-placeholder.mp3' : null,
       photoUrl: isPhoto ? '/public/images/evidence-photo-placeholder.jpg' : null,
       caseId,
       documentId,
@@ -647,7 +651,10 @@ module.exports = (router) => {
     const [_case, document, annotation] = await Promise.all([
       prisma.case.findUnique({ where: { id: caseId } }),
       prisma.document.findUnique({ where: { id: documentId } }),
-      prisma.caseReviewAnnotation.findUnique({ where: { id: annotationId } })
+      prisma.caseReviewAnnotation.findUnique({
+        where: { id: annotationId },
+        include: { elements: { include: { element: { include: { charge: true } } } } }
+      })
     ])
 
     const from = req.query.from || 'list'

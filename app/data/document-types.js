@@ -6,5 +6,6 @@ module.exports = [
   'JPG',
   'PNG',
   'MP4',
+  'MP3',
   'Other'
 ]

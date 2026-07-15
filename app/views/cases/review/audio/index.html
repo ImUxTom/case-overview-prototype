@@ -1,0 +1,47 @@
+{% extends "_layouts/main.html" %}
+
+{% set navId = 'cases' %}
+{% set pageName = document.name %}
+{% set mainClasses = "govuk-!-padding-bottom-0" %}
+
+{% block beforeContent %}
+  {{
+    govukBackLink({
+      text: 'Back',
+      href: '/cases/' + caseId + '/review'
+    })
+  }}
+{% endblock %}
+
+{% block content %}
+  <span class="govuk-caption-l">{{ _case.reference }}</span>
+  <h1 class="govuk-heading-l">{{ document.name }}</h1>
+
+  {% include "_includes/review/offences.njk" %}
+
+  {% include "_includes/review/toolbar.njk" %}
+
+  <div class="app-document-area">
+    <div class="app-document-layout">
+      {% include "cases/documents/_document-pane-audio.html" %}
+      {% include "_includes/review/annotation-sidebar.njk" %}
+    </div>
+  </div>
+
+  {% include "_includes/review/annotation-form.njk" %}
+{% endblock %}
+
+{% block pageScripts %}
+  {{ super() }}
+  <script src="/public/javascripts/components/video-annotation-panel.js"></script>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    new App.VideoAnnotationPanel({ container: $('#document-content') })
+    $('.js-annotation-note').each(function () {
+      new App.TextExpander({ container: $(this), maxLength: 50 })
+    })
+  </script>
+{% endblock %}

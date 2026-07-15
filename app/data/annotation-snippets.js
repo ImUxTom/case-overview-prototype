@@ -141,5 +141,20 @@ module.exports = {
       type: 'information-request',
       note: 'Additional camera angle requested from the system operator to confirm continuity.'
     }
+  ],
+
+  audio: [
+    {
+      type: 'evidence',
+      note: 'Caller describes the assault in progress, consistent with the witness account of the push.'
+    },
+    {
+      type: 'disclosure',
+      note: 'Timing of the call corroborates when the incident took place.'
+    },
+    {
+      type: 'information-request',
+      note: 'Request the full call log and any further calls made about the incident.'
+    }
   ]
 }

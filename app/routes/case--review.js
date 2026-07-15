@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const statuses = require('../data/case-statuses')
 const hearingStatuses = require('../data/hearing-statuses')
-const { findOrCreateReview, getEligibleCharges } = require('../helpers/caseReview')
+const { findOrCreateReview, getEligibleCharges, hydrateSeededReviewSession } = require('../helpers/caseReview')
 const { createInformationRequestFromSession, formatSessionDate, formatDefendantNames } = require('../helpers/informationRequest')
 
 function parseHearingTime(time) {
@@ -28,6 +28,7 @@ module.exports = (router) => {
     const { _case, eligibleDefendants, charges } = await getEligibleCharges(prisma, caseId)
 
     const review = await findOrCreateReview(prisma, caseId, userId)
+    hydrateSeededReviewSession(req, review, charges)
 
     const documents = await prisma.document.findMany({
       where: { caseId },
@@ -63,6 +64,7 @@ module.exports = (router) => {
     const { _case, eligibleDefendants, charges } = await getEligibleCharges(prisma, caseId)
 
     const review = await findOrCreateReview(prisma, caseId, userId)
+    hydrateSeededReviewSession(req, review, charges)
 
     const documents = await prisma.document.findMany({
       where: { caseId },

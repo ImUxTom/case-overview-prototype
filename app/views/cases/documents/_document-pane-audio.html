@@ -1,0 +1,53 @@
+<div class="app-document-pane">
+  <div class="app-document app-document--audio">
+    <div
+      class="app-document__content"
+      id="document-content"
+      data-case-id="{{ caseId }}"
+      data-document-id="{{ documentId }}"
+    >
+      <audio id="document-audio" class="app-document__audio" src="{{ audioUrl }}" controls></audio>
+
+      {% if isReviewMode %}
+        <div class="app-audio-annotation-actions govuk-button-group govuk-!-margin-bottom-0">
+          {% if offences.length %}
+            {{
+              govukButton({
+                text: "Mark as evidence",
+                classes: "govuk-button--secondary js-audio-annotate-btn",
+                type: "button",
+                attributes: { "data-type": "evidence" }
+              })
+            }}
+          {% endif %}
+          {% if offences.length %}
+            {{
+              govukButton({
+                text: "Mark as disclosure",
+                classes: "govuk-button--secondary js-audio-annotate-btn",
+                type: "button",
+                attributes: { "data-type": "disclosure" }
+              })
+            }}
+          {% endif %}
+          {{
+            govukButton({
+              text: "Add information request note",
+              classes: "govuk-button--secondary js-audio-annotate-btn",
+              type: "button",
+              attributes: { "data-type": "information-request" }
+            })
+          }}
+          {{
+            govukButton({
+              text: "Add note",
+              classes: "govuk-button--secondary js-audio-annotate-btn",
+              type: "button",
+              attributes: { "data-type": "note" }
+            })
+          }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

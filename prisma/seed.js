@@ -49,6 +49,7 @@ const { seedRecentCases } = require("./seed-helpers/recent-cases");
 const { seedInformationRequests } = require("./seed-helpers/information-requests");
 const { seedElements } = require("./seed-helpers/elements");
 const { seedCaseReviewAnnotations } = require("./seed-helpers/case-review-annotations");
+const { seedSimonInProgressReview } = require("./seed-helpers/simon-in-progress-review");
 
 const prisma = new PrismaClient();
 
@@ -280,6 +281,14 @@ async function main() {
   step("Case review annotations");
   const caseReviewStats = await seedCaseReviewAnnotations(prisma, { users });
   done(caseReviewStats.annotations);
+
+  step("Simon's in-progress review");
+  const inProgressReviewCount = await seedSimonInProgressReview(
+    prisma,
+    { defenceLawyers, victims, policeUnits },
+    { charges, firstNames, lastNames, types, complexities, ukCities, documentNames, documentTypes }
+  );
+  done(inProgressReviewCount);
 
   console.log("\n✅ Seed complete\n");
 }

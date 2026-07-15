@@ -10,7 +10,7 @@
     text: "Narrative",
     href: "/cases/:caseId/narrative" | replace(':caseId', _case.id),
     current: secondaryNavId == 'narrative'
-  },
+  } if false,
   {
     text: "Key evidence",
     href: "/cases/:caseId/key-evidence" | replace(':caseId', _case.id),

@@ -58,6 +58,15 @@
                         {{ typeLabel | lower }}{{ ' annotation' if item.kind == 'annotation' }}
                       </span>
                     </a>
+                    {% if item.kind == 'annotation' %}
+                      <a
+                        href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ item.id }}/remove?from=check"
+                        class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-3"
+                      >
+                        Remove
+                        <span class="govuk-visually-hidden">{{ typeLabel | lower }} annotation</span>
+                      </a>
+                    {% endif %}
                   </p>
                 </div>
                 <div class="app-review-annotation-card__body">
@@ -72,11 +81,19 @@
                       />
                     {% else %}
                       {% if item.timestampSeconds != null %}
-                        <video
-                          src="/public/videos/cctv-placeholder.mp4#t={{ item.timestampSeconds }}"
-                          class="app-review-annotation-card__video"
-                          controls
-                        ></video>
+                        {% if document.type == 'MP3' %}
+                          <audio
+                            src="/public/audio/999-call-placeholder.mp3#t={{ item.timestampSeconds }}"
+                            class="app-review-annotation-card__audio"
+                            controls
+                          ></audio>
+                        {% else %}
+                          <video
+                            src="/public/videos/cctv-placeholder.mp4#t={{ item.timestampSeconds }}"
+                            class="app-review-annotation-card__video"
+                            controls
+                          ></video>
+                        {% endif %}
                         <p class="app-review-annotation-card__label">Timestamp</p>
                         <p>{{ item.selectedText }}</p>
                       {% else %}

@@ -101,14 +101,15 @@ module.exports = router => {
       where: where
     })
 
-    // Search by document name
+    // Search by material name or description
     let keywords = _.get(req.session.data.documentSearch, 'keywords')
 
     if(keywords) {
       keywords = keywords.toLowerCase()
       documents = documents.filter(document => {
-        let documentName = document.name.toLowerCase()
-        return documentName.indexOf(keywords) > -1
+        let name = document.name.toLowerCase()
+        let description = (document.description || '').toLowerCase()
+        return name.indexOf(keywords) > -1 || description.indexOf(keywords) > -1
       })
     }
 
@@ -233,8 +234,9 @@ module.exports = router => {
     }
 
     const isVideo = document.type === 'MP4'
+    const isAudio = document.type === 'MP3'
     const isPhoto = document.type === 'JPG' || document.type === 'PNG'
-    const sections = (isVideo || isPhoto) ? [] : applyHighlights(generateDocumentContent(document), annotations)
+    const sections = (isVideo || isAudio || isPhoto) ? [] : applyHighlights(generateDocumentContent(document), annotations)
 
     res.render('cases/documents/document', {
       _case,
@@ -244,8 +246,10 @@ module.exports = router => {
       caseId,
       documentId,
       isVideo,
+      isAudio,
       isPhoto,
       videoUrl: isVideo ? '/public/videos/cctv-placeholder.mp4' : null,
+      audioUrl: isAudio ? '/public/audio/999-call-placeholder.mp3' : null,
       photoUrl: isPhoto ? '/public/images/evidence-photo-placeholder.jpg' : null,
       user: req.session.data.user
     })

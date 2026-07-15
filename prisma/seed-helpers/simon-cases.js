@@ -856,5 +856,7 @@ async function seedSimonCases(prisma, dependencies, config) {
 }
 
 module.exports = {
-  seedSimonCases
+  seedSimonCases,
+  createVictimWitness,
+  SIMON_UNITS
 };

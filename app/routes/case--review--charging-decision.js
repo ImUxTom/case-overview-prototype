@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const { getEligibleCharges, findOrCreateReview } = require('../helpers/caseReview')
+const { getEligibleCharges, findOrCreateReview, hydrateSeededReviewSession } = require('../helpers/caseReview')
 
 module.exports = (router) => {
   // Entry point — send the reviewer to the first charge that still needs a decision
@@ -29,6 +29,7 @@ module.exports = (router) => {
     const userId = req.session.data.user.id
     const { _case, eligibleDefendants, charges } = await getEligibleCharges(prisma, caseId)
     const review = await findOrCreateReview(prisma, caseId, userId)
+    hydrateSeededReviewSession(req, review, charges)
 
     const decisions = req.session.data.chargingDecision?.decisions || {}
     const chargeRows = charges.map(charge => ({

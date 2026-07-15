@@ -34,11 +34,19 @@
             />
           {% else %}
             {% if annotation.timestampSeconds != null %}
-              <video
-                src="/public/videos/cctv-placeholder.mp4#t={{ annotation.timestampSeconds }}"
-                class="app-review-annotation-card__video"
-                controls
-              ></video>
+              {% if annotation.caseReviewDocument.document.type == 'MP3' %}
+                <audio
+                  src="/public/audio/999-call-placeholder.mp3#t={{ annotation.timestampSeconds }}"
+                  class="app-review-annotation-card__audio"
+                  controls
+                ></audio>
+              {% else %}
+                <video
+                  src="/public/videos/cctv-placeholder.mp4#t={{ annotation.timestampSeconds }}"
+                  class="app-review-annotation-card__video"
+                  controls
+                ></video>
+              {% endif %}
               <p class="app-review-annotation-card__label">Timestamp</p>
               <p>{{ annotation.selectedText }}</p>
             {% else %}
