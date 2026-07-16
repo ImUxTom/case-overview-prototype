@@ -24,6 +24,9 @@ const SIMON_UNITS_ARRAY = Object.values(SIMON_UNITS);
 
 const statuses = require('../../app/data/case-statuses');
 
+// All of Simon's own cases use the same offence: ABH (A02)
+const SIMON_CHARGE = require('../../app/data/charges').find(charge => charge.code === 'A02');
+
 const SIMON_STATUSES = [
   statuses.NOT_CHARGED,
   statuses.CHARGES_PENDING,
@@ -191,8 +194,8 @@ async function createSTLCase(prisma, user, taskConfig, config) {
       defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
       charges: {
         create: {
-          chargeCode: faker.helpers.arrayElement(charges).code,
-          description: faker.helpers.arrayElement(charges).description,
+          chargeCode: SIMON_CHARGE.code,
+          description: SIMON_CHARGE.description,
           status: 'Pre-charge',
           offenceDate: faker.date.past(),
           plea: null,
@@ -293,8 +296,8 @@ async function createCTLCase(prisma, user, taskConfig, config) {
       defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
       charges: {
         create: {
-          chargeCode: faker.helpers.arrayElement(charges).code,
-          description: faker.helpers.arrayElement(charges).description,
+          chargeCode: SIMON_CHARGE.code,
+          description: SIMON_CHARGE.description,
           status: 'Charged',
           offenceDate: faker.date.past(),
           plea: faker.helpers.arrayElement(pleas),
@@ -326,8 +329,8 @@ async function createCTLCase(prisma, user, taskConfig, config) {
         defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
         charges: {
           create: {
-            chargeCode: faker.helpers.arrayElement(charges).code,
-            description: faker.helpers.arrayElement(charges).description,
+            chargeCode: SIMON_CHARGE.code,
+            description: SIMON_CHARGE.description,
             status: 'Charged',
             offenceDate: faker.date.past(),
             plea: faker.helpers.arrayElement(pleas),
@@ -434,8 +437,8 @@ async function createManyStatementsCase(prisma, user, config) {
       defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
       charges: {
         create: {
-          chargeCode: faker.helpers.arrayElement(charges).code,
-          description: faker.helpers.arrayElement(charges).description,
+          chargeCode: SIMON_CHARGE.code,
+          description: SIMON_CHARGE.description,
           status: "Charged",
           offenceDate: faker.date.past(),
           plea: faker.helpers.arrayElement(pleas),
@@ -717,8 +720,8 @@ async function createReviewCase(prisma, user, taskName, config, hasCharge = true
       ...(hasCharge ? {
         charges: {
           create: {
-            chargeCode: faker.helpers.arrayElement(charges).code,
-            description: faker.helpers.arrayElement(charges).description,
+            chargeCode: SIMON_CHARGE.code,
+            description: SIMON_CHARGE.description,
             status: 'Pre-charge',
             offenceDate: faker.date.past(),
             plea: null,
@@ -843,9 +846,9 @@ async function seedSimonCases(prisma, dependencies, config) {
     await createColleagueCase(prisma, colleagues.prosecutors[i], colleagues.paralegalOfficers[i], fullConfig);
   }
 
-  const divergedCase1 = await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), SIMON_STATUSES, fullConfig);
+  const divergedCase1 = await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), SIMON_STATUSES, { ...fullConfig, charges: [SIMON_CHARGE] });
   await createVictimWitness(prisma, divergedCase1.id, fullConfig);
-  const divergedCase2 = await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], fullConfig);
+  const divergedCase2 = await createDivergedCase(prisma, simonWhatley, faker.helpers.arrayElement(SIMON_UNITS_ARRAY), [statuses.NOT_CHARGED, statuses.CHARGES_PENDING, statuses.CHARGED], { ...fullConfig, charges: [SIMON_CHARGE] });
   await createVictimWitness(prisma, divergedCase2.id, fullConfig);
 
   // Cases awaiting a charging decision (not charged, needs review)

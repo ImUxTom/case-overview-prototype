@@ -6,18 +6,19 @@ const { createDirectionsForCase } = require('./directions');
 const { createVictimWitness, SIMON_UNITS } = require('./simon-cases');
 const { buildCandidates, findParagraphOccurrence } = require('./case-review-annotations');
 
-// A single burglary charge so the elements, annotations and document content
-// (fibres and DNA at the point of entry) all tell the same story.
-const CHARGE_CODE = 'B11';
+// A single ABH charge so the elements, annotations and document content
+// (the push against the shop window and the resulting injuries) all tell
+// the same story.
+const CHARGE_CODE = 'A02';
 const CASE_REFERENCE = '52SW200001';
 
 const REVIEW_SUMMARY = 'Reviewed all material on the case file. The witness accounts are consistent and corroborated by CCTV footage, forensic findings and the medical report. Each element of the offence is made out and there is a realistic prospect of conviction. Prosecution is required in the public interest given the seriousness of the offence and its impact on the victim.';
 
-// One reasoning per B11 element, in element order.
+// One reasoning per A02 element, in element order.
 const ELEMENT_REASONINGS = [
-  'DNA and clothing fibres recovered from the rear window frame place the defendant at the point of entry.',
-  'Entry was through a rear window at night and there is no suggestion the defendant had permission to enter.',
-  'Property was taken from the premises and recovered nearby, supporting an intent to steal.'
+  'The witness account and CCTV footage both show the defendant pushing the victim against the shop window.',
+  'The medical report records injuries consistent with the victim falling against the shop window.',
+  'The CCTV footage shows a deliberate push, and injury was a foreseeable result of the force used.'
 ];
 
 // Simon has a review that is all but ready to submit: every document
@@ -40,7 +41,7 @@ async function seedSimonInProgressReview(prisma, dependencies, config) {
     return 0;
   }
 
-  const burglaryCharge = charges.find(charge => charge.code === CHARGE_CODE);
+  const abhCharge = charges.find(charge => charge.code === CHARGE_CODE);
 
   const defendant = await prisma.defendant.create({
     data: {
@@ -54,8 +55,8 @@ async function seedSimonInProgressReview(prisma, dependencies, config) {
       defenceLawyer: { connect: { id: faker.helpers.arrayElement(defenceLawyers).id } },
       charges: {
         create: {
-          chargeCode: burglaryCharge.code,
-          description: burglaryCharge.description,
+          chargeCode: abhCharge.code,
+          description: abhCharge.description,
           status: 'Pre-charge',
           offenceDate: faker.date.past(),
           plea: null,
@@ -122,7 +123,7 @@ async function seedSimonInProgressReview(prisma, dependencies, config) {
   await createVictimWitness(prisma, _case.id, config);
 
   const elements = [];
-  const elementDescriptions = elementsByChargeCode[burglaryCharge.code];
+  const elementDescriptions = elementsByChargeCode[abhCharge.code];
   for (const [index, description] of elementDescriptions.entries()) {
     const element = await prisma.element.create({
       data: {
