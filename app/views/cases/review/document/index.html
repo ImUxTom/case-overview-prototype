@@ -60,12 +60,12 @@
       </button>
     </div>
     <div class="app-annotation-popup__actions js-redaction-actions" hidden>
-      <button type="button" class="app-annotation-popup__btn js-remove-redaction-btn">
+      <button type="button" class="app-annotation-popup__btn js-delete-redaction-btn">
         Unredact
       </button>
     </div>
     <div class="app-annotation-popup__actions js-inadmissible-actions" hidden>
-      <button type="button" class="app-annotation-popup__btn js-remove-inadmissible-btn">
+      <button type="button" class="app-annotation-popup__btn js-delete-inadmissible-btn">
         Restore
       </button>
     </div>
@@ -84,7 +84,7 @@
     <input type="hidden" name="occurrenceIndex" id="redaction-occurrence-index" />
   </form>
 
-  <form method="post" id="redaction-remove-form" hidden></form>
+  <form method="post" id="redaction-delete-form" hidden></form>
 
   <form
     method="post"
@@ -97,7 +97,7 @@
     <input type="hidden" name="occurrenceIndex" id="inadmissible-occurrence-index" />
   </form>
 
-  <form method="post" id="inadmissible-remove-form" hidden></form>
+  <form method="post" id="inadmissible-delete-form" hidden></form>
 {% endblock %}
 
 {% block pageScripts %}

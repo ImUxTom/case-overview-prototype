@@ -60,10 +60,10 @@
                     </a>
                     {% if item.kind == 'annotation' %}
                       <a
-                        href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ item.id }}/remove?from=check"
+                        href="/cases/{{ _case.id }}/review/documents/{{ document.id }}/annotations/{{ item.id }}/delete?from=check"
                         class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-3"
                       >
-                        Remove
+                        Delete
                         <span class="govuk-visually-hidden">{{ typeLabel | lower }} annotation</span>
                       </a>
                     {% endif %}

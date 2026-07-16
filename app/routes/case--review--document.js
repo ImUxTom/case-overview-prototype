@@ -642,8 +642,8 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
   })
 
-  // Remove annotation — confirm GET
-  router.get('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/remove', async (req, res) => {
+  // Delete annotation — confirm GET
+  router.get('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/delete', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const documentId = parseInt(req.params.documentId)
     const annotationId = parseInt(req.params.annotationId)
@@ -659,11 +659,11 @@ module.exports = (router) => {
 
     const from = req.query.from || 'list'
 
-    res.render('cases/review/annotations/remove', { _case, document, annotation, caseId, documentId, from })
+    res.render('cases/review/annotations/delete', { _case, document, annotation, caseId, documentId, from })
   })
 
-  // Remove annotation — POST
-  router.post('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/remove', async (req, res) => {
+  // Delete annotation — POST
+  router.post('/cases/:caseId/review/documents/:documentId/annotations/:annotationId/delete', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const documentId = parseInt(req.params.documentId)
     const annotationId = parseInt(req.params.annotationId)
@@ -705,8 +705,8 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
   })
 
-  // Remove redaction
-  router.post('/cases/:caseId/review/documents/:documentId/redactions/:redactionId/remove', async (req, res) => {
+  // Delete redaction
+  router.post('/cases/:caseId/review/documents/:documentId/redactions/:redactionId/delete', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const documentId = parseInt(req.params.documentId)
     const redactionId = parseInt(req.params.redactionId)
@@ -740,8 +740,8 @@ module.exports = (router) => {
     res.redirect(`/cases/${caseId}/review/documents/${documentId}`)
   })
 
-  // Remove inadmissible
-  router.post('/cases/:caseId/review/documents/:documentId/inadmissibles/:inadmissibleId/remove', async (req, res) => {
+  // Delete inadmissible
+  router.post('/cases/:caseId/review/documents/:documentId/inadmissibles/:inadmissibleId/delete', async (req, res) => {
     const caseId = parseInt(req.params.caseId)
     const documentId = parseInt(req.params.documentId)
     const inadmissibleId = parseInt(req.params.inadmissibleId)

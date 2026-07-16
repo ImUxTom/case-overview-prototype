@@ -20,19 +20,19 @@ App.AnnotationPanel = function(params) {
   this.redactionSelectedTextInput     = $('#redaction-selected-text')
   this.redactionParagraphIndexInput   = $('#redaction-paragraph-index')
   this.redactionOccurrenceIndexInput  = $('#redaction-occurrence-index')
-  this.redactionRemoveForm           = $('#redaction-remove-form')
+  this.redactionDeleteForm           = $('#redaction-delete-form')
   this.toggleRedactionsBtn           = $('.js-toggle-redactions')
   this.selectionActions              = $('.js-selection-actions')
   this.redactionActions              = $('.js-redaction-actions')
-  this.removeRedactionBtn            = $('.js-remove-redaction-btn')
+  this.deleteRedactionBtn            = $('.js-delete-redaction-btn')
   this.inadmissibleBtn               = $('.js-inadmissible-btn')
   this.inadmissibleActions           = $('.js-inadmissible-actions')
-  this.removeInadmissibleBtn         = $('.js-remove-inadmissible-btn')
+  this.deleteInadmissibleBtn         = $('.js-delete-inadmissible-btn')
   this.inadmissibleForm              = $('#inadmissible-form')
   this.inadmissibleSelectedTextInput = $('#inadmissible-selected-text')
   this.inadmissibleParagraphIndexInput  = $('#inadmissible-paragraph-index')
   this.inadmissibleOccurrenceIndexInput = $('#inadmissible-occurrence-index')
-  this.inadmissibleRemoveForm        = $('#inadmissible-remove-form')
+  this.inadmissibleDeleteForm        = $('#inadmissible-delete-form')
 
   this.caseId     = this.container.data('case-id')
   this.documentId = this.container.data('document-id')
@@ -41,8 +41,8 @@ App.AnnotationPanel = function(params) {
   this.selectionMark               = null
   this.redactionsHidden            = false
   this.pendingAnnotationType       = null
-  this.pendingRemoveRedactionId    = null
-  this.pendingRemoveInadmissibleId = null
+  this.pendingDeleteRedactionId    = null
+  this.pendingDeleteInadmissibleId = null
   this.formSelectionDocumentY      = null
 
   // Cards can grow after opening (e.g. GOV.UK conditional checkbox reveals
@@ -62,8 +62,8 @@ App.AnnotationPanel.prototype.setupEvents = function() {
   this.annotateBtns.on('click', $.proxy(this, 'onAnnotateBtnClick'))
   this.redactBtn.on('click', $.proxy(this, 'onRedactClick'))
   this.inadmissibleBtn.on('click', $.proxy(this, 'onInadmissibleClick'))
-  this.removeRedactionBtn.on('click', $.proxy(this, 'onRemoveRedactionClick'))
-  this.removeInadmissibleBtn.on('click', $.proxy(this, 'onRemoveInadmissibleClick'))
+  this.deleteRedactionBtn.on('click', $.proxy(this, 'onDeleteRedactionClick'))
+  this.deleteInadmissibleBtn.on('click', $.proxy(this, 'onDeleteInadmissibleClick'))
   this.toggleRedactionsBtn.on('click', $.proxy(this, 'onToggleRedactionsClick'))
   this.saveBtn.on('click', $.proxy(this, 'onSaveClick'))
   this.cancelBtn.on('click', $.proxy(this, 'onCancelClick'))
@@ -80,8 +80,8 @@ App.AnnotationPanel.prototype.setupEvents = function() {
 
 App.AnnotationPanel.prototype.hidePopup = function() {
   this.popup.prop('hidden', true).attr('aria-hidden', 'true')
-  this.pendingRemoveRedactionId = null
-  this.pendingRemoveInadmissibleId = null
+  this.pendingDeleteRedactionId = null
+  this.pendingDeleteInadmissibleId = null
   window.getSelection().removeAllRanges()
 }
 
@@ -108,7 +108,7 @@ App.AnnotationPanel.prototype.showSelectionPopup = function(rect) {
 }
 
 App.AnnotationPanel.prototype.showRedactionPopup = function(rect, redactionId) {
-  this.pendingRemoveRedactionId = redactionId
+  this.pendingDeleteRedactionId = redactionId
   this.selectionActions.prop('hidden', true)
   this.redactionActions.prop('hidden', false)
   this.inadmissibleActions.prop('hidden', true)
@@ -116,7 +116,7 @@ App.AnnotationPanel.prototype.showRedactionPopup = function(rect, redactionId) {
 }
 
 App.AnnotationPanel.prototype.showInadmissiblePopup = function(rect, inadmissibleId) {
-  this.pendingRemoveInadmissibleId = inadmissibleId
+  this.pendingDeleteInadmissibleId = inadmissibleId
   this.selectionActions.prop('hidden', true)
   this.redactionActions.prop('hidden', true)
   this.inadmissibleActions.prop('hidden', false)
@@ -359,10 +359,10 @@ App.AnnotationPanel.prototype.onDocumentClick = function(e) {
   this.showRedactionPopup(redaction[0].getBoundingClientRect(), redactionId)
 }
 
-App.AnnotationPanel.prototype.onRemoveRedactionClick = function() {
-  if (!this.pendingRemoveRedactionId) return
-  this.redactionRemoveForm.attr('action', '/cases/' + this.caseId + '/review/documents/' + this.documentId + '/redactions/' + this.pendingRemoveRedactionId + '/remove')
-  this.redactionRemoveForm[0].submit()
+App.AnnotationPanel.prototype.onDeleteRedactionClick = function() {
+  if (!this.pendingDeleteRedactionId) return
+  this.redactionDeleteForm.attr('action', '/cases/' + this.caseId + '/review/documents/' + this.documentId + '/redactions/' + this.pendingDeleteRedactionId + '/delete')
+  this.redactionDeleteForm[0].submit()
 }
 
 App.AnnotationPanel.prototype.onInadmissibleClick = function() {
@@ -380,10 +380,10 @@ App.AnnotationPanel.prototype.onInadmissibleClick = function() {
   this.inadmissibleForm[0].submit()
 }
 
-App.AnnotationPanel.prototype.onRemoveInadmissibleClick = function() {
-  if (!this.pendingRemoveInadmissibleId) return
-  this.inadmissibleRemoveForm.attr('action', '/cases/' + this.caseId + '/review/documents/' + this.documentId + '/inadmissibles/' + this.pendingRemoveInadmissibleId + '/remove')
-  this.inadmissibleRemoveForm[0].submit()
+App.AnnotationPanel.prototype.onDeleteInadmissibleClick = function() {
+  if (!this.pendingDeleteInadmissibleId) return
+  this.inadmissibleDeleteForm.attr('action', '/cases/' + this.caseId + '/review/documents/' + this.documentId + '/inadmissibles/' + this.pendingDeleteInadmissibleId + '/delete')
+  this.inadmissibleDeleteForm[0].submit()
 }
 
 App.AnnotationPanel.prototype.onToggleRedactionsClick = function() {

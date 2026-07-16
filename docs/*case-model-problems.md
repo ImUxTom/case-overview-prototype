@@ -26,10 +26,11 @@ This is longwinded, error prone, wasteful and has a significant operational cost
 If lawyers can read, highlight, and annotate case materials within the system — and those annotations connect directly to structured data like charges and evidence — then:
 
 - Analysis is captured once and reused across the case journey, rather than repeated from scratch
-- The next lawyer or advocate can understand the case quickly from structured annotations, rather than hunting for a buried summary document or re-reading everything
+- The lawyer or advocate can understand the case quickly from structured annotations, rather than hunting for a buried summary document or re-reading everything
 - Lawyers can write private notes, keeping working thoughts in the system without them appearing in official documentation
 - When evidence changes, the impact is immediately visible — showing which charges are affected without re-reading the case
 - Structured data stays in sync with the written review, removing the need to update things separately
 - Lawyers no longer need to leave the system to do their actual work
+- We can share the case with the defence lawyer and the defendant
 
 [Ian used dragon to have standard inserts for various legal requirements for certain charges/cases.]

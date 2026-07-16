@@ -1,6 +1,6 @@
 {% extends "_layouts/main.html" %}
 
-{% set pageName = "Confirm that you want to remove this annotation" %}
+{% set pageName = "Confirm that you want to delete this annotation" %}
 
 {% block beforeContent %}
   {{ govukBackLink({ text: 'Back', href: 'javascript:history.back()' }) }}
@@ -81,7 +81,7 @@
 
       <form method="post">
         <input type="hidden" name="from" value="{{ from }}">
-        {{ govukButton({ text: "Remove annotation" }) }}
+        {{ govukButton({ text: "Delete annotation" }) }}
       </form>
       <p class="govuk-body">
         <a
