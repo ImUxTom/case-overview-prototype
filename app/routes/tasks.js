@@ -4,6 +4,7 @@ const prisma = new PrismaClient()
 const Pagination = require('../helpers/pagination')
 const { groupTasks, getDateGroup, getPaceClockGroup } = require('../helpers/taskGrouping')
 const { addTimeLimitDates } = require('../helpers/timeLimit')
+const { addCaseStatus } = require('../helpers/caseStatus')
 const taskNames = require('../data/task-names')
 
 function resetFilters(req) {
@@ -20,175 +21,222 @@ function resetFilters(req) {
   _.set(req, 'session.data.taskListFilters.hearingDateRange', null)
 }
 
-module.exports = router => {
-
+module.exports = (router) => {
   router.get('/tasks/shortcut/critically-overdue', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Critically overdue`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Critically overdue`,
+    )
   })
 
   router.get('/tasks/shortcut/overdue', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Overdue`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Overdue`,
+    )
   })
 
   router.get('/tasks/shortcut/due-soon', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Due soon`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Due soon`,
+    )
   })
 
   router.get('/tasks/shortcut/not-due-yet', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Not due yet`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[severities][]=Not due yet`,
+    )
   })
 
   router.get('/tasks/shortcut/urgent', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[urgent][]=Urgent`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[urgent][]=Urgent`,
+    )
   })
 
   router.get('/tasks/shortcut/priority-charging', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[taskNames][]=Priority PCD review&taskListFilters[taskNames][]=Priority resubmitted PCD case`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[taskNames][]=Priority PCD review&taskListFilters[taskNames][]=Priority resubmitted PCD case`,
+    )
   })
 
   router.get('/tasks/shortcut/admin-pool', async (req, res) => {
     const currentUser = req.session.data.user
-    const userUnitIds = currentUser?.units?.map(uu => uu.unitId) || []
+    const userUnitIds = currentUser?.units?.map((uu) => uu.unitId) || []
     resetFilters(req)
 
     const adminPoolTeams = await prisma.team.findMany({
       where: {
         name: 'Admin pool',
-        unitId: { in: userUnitIds }
-      }
+        unitId: { in: userUnitIds },
+      },
     })
 
-    const ownerParams = adminPoolTeams.map(t => `taskListFilters[owner][]=team-${t.id}`).join('&')
+    const ownerParams = adminPoolTeams.map((t) => `taskListFilters[owner][]=team-${t.id}`).join('&')
     res.redirect(`/tasks?${ownerParams}`)
   })
 
   router.get('/tasks/shortcut/unit-priority-charging', (req, res) => {
     resetFilters(req)
-    res.redirect('/tasks?taskListFilters[taskNames][]=Priority PCD review&taskListFilters[taskNames][]=Priority resubmitted PCD case')
+    res.redirect(
+      '/tasks?taskListFilters[taskNames][]=Priority PCD review&taskListFilters[taskNames][]=Priority resubmitted PCD case',
+    )
   })
 
   // Custody Time Limit shortcuts
   router.get('/tasks/shortcut/ctl-overdue', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=overdue`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=overdue`,
+    )
   })
 
   router.get('/tasks/shortcut/ctl-today', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=today`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=today`,
+    )
   })
 
   router.get('/tasks/shortcut/ctl-tomorrow', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=tomorrow`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=tomorrow`,
+    )
   })
 
   router.get('/tasks/shortcut/ctl-this-week', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=thisWeek`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=thisWeek`,
+    )
   })
 
   router.get('/tasks/shortcut/ctl-next-week', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=nextWeek`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=nextWeek`,
+    )
   })
 
   router.get('/tasks/shortcut/ctl-later', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=later`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[custodyTimeLimitRange][]=later`,
+    )
   })
 
   // Statutory Time Limit shortcuts
   router.get('/tasks/shortcut/stl-overdue', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=overdue`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=overdue`,
+    )
   })
 
   router.get('/tasks/shortcut/stl-today', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=today`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=today`,
+    )
   })
 
   router.get('/tasks/shortcut/stl-tomorrow', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=tomorrow`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=tomorrow`,
+    )
   })
 
   router.get('/tasks/shortcut/stl-this-week', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=thisWeek`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=thisWeek`,
+    )
   })
 
   router.get('/tasks/shortcut/stl-next-week', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=nextWeek`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=nextWeek`,
+    )
   })
 
   router.get('/tasks/shortcut/stl-later', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=later`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[statutoryTimeLimitRange][]=later`,
+    )
   })
 
   // PACE Clock shortcuts
   router.get('/tasks/shortcut/pace-expired', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=expired`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=expired`,
+    )
   })
 
   router.get('/tasks/shortcut/pace-less-than-1-hour', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan1Hour`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan1Hour`,
+    )
   })
 
   router.get('/tasks/shortcut/pace-less-than-2-hours', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan2Hours`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan2Hours`,
+    )
   })
 
   router.get('/tasks/shortcut/pace-less-than-3-hours', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan3Hours`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=lessThan3Hours`,
+    )
   })
 
   router.get('/tasks/shortcut/pace-more-than-3-hours', (req, res) => {
     const currentUser = req.session.data.user
     resetFilters(req)
-    res.redirect(`/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=moreThan3Hours`)
+    res.redirect(
+      `/tasks?taskListFilters[owner][]=user-${currentUser.id}&taskListFilters[paceClockRange][]=moreThan3Hours`,
+    )
   })
 
-  router.get("/tasks", async (req, res) => {
+  router.get('/tasks', async (req, res) => {
     const currentUser = req.session.data.user
 
     // Get user's unit IDs for filtering
-    const userUnitIds = currentUser?.units?.map(uu => uu.unitId) || []
+    const userUnitIds = currentUser?.units?.map((uu) => uu.unitId) || []
 
     // Track if this is the first visit (filters object doesn't exist)
     const isFirstVisit = !req.session.data.taskListFilters
@@ -211,10 +259,26 @@ module.exports = router => {
     let selectedUrgentFilters = _.get(req.session.data.taskListFilters, 'urgent', [])
     let selectedReminderFilters = _.get(req.session.data.taskListFilters, 'reminder', [])
     let selectedTimeLimitTypeFilters = _.get(req.session.data.taskListFilters, 'timeLimitType', [])
-    let selectedCustodyTimeLimitRangeFilters = _.get(req.session.data.taskListFilters, 'custodyTimeLimitRange', [])
-    let selectedStatutoryTimeLimitRangeFilters = _.get(req.session.data.taskListFilters, 'statutoryTimeLimitRange', [])
-    let selectedPaceClockRangeFilters = _.get(req.session.data.taskListFilters, 'paceClockRange', [])
-    let selectedHearingDateRangeFilters = _.get(req.session.data.taskListFilters, 'hearingDateRange', [])
+    let selectedCustodyTimeLimitRangeFilters = _.get(
+      req.session.data.taskListFilters,
+      'custodyTimeLimitRange',
+      [],
+    )
+    let selectedStatutoryTimeLimitRangeFilters = _.get(
+      req.session.data.taskListFilters,
+      'statutoryTimeLimitRange',
+      [],
+    )
+    let selectedPaceClockRangeFilters = _.get(
+      req.session.data.taskListFilters,
+      'paceClockRange',
+      [],
+    )
+    let selectedHearingDateRangeFilters = _.get(
+      req.session.data.taskListFilters,
+      'hearingDateRange',
+      [],
+    )
 
     let selectedFilters = { categories: [] }
 
@@ -236,7 +300,7 @@ module.exports = router => {
       const userIds = []
       const teamIds = []
 
-      selectedOwnerFilters.forEach(filter => {
+      selectedOwnerFilters.forEach((filter) => {
         if (filter.startsWith('user-')) {
           userIds.push(Number(filter.replace('user-', '')))
         } else if (filter.startsWith('team-')) {
@@ -251,32 +315,32 @@ module.exports = router => {
       if (userIds.length) {
         fetchedUsers = await prisma.user.findMany({
           where: { id: { in: userIds } },
-          select: { id: true, firstName: true, lastName: true }
+          select: { id: true, firstName: true, lastName: true },
         })
       }
 
       if (teamIds.length) {
         fetchedTeams = await prisma.team.findMany({
           where: { id: { in: teamIds } },
-          include: { unit: true }
+          include: { unit: true },
         })
       }
 
       // Build display items
-      selectedOwnerItems = selectedOwnerFilters.map(function(filter) {
+      selectedOwnerItems = selectedOwnerFilters.map(function (filter) {
         if (filter.startsWith('user-')) {
           const userId = Number(filter.replace('user-', ''))
-          const user = fetchedUsers.find(u => u.id === userId)
+          const user = fetchedUsers.find((u) => u.id === userId)
           let displayText = user ? `${user.firstName} ${user.lastName}` : filter
 
           if (currentUser && user && user.id === currentUser.id) {
-            displayText += " (you)"
+            displayText += ' (you)'
           }
 
           return { text: displayText, href: '/tasks/remove-owner/' + filter }
         } else if (filter.startsWith('team-')) {
           const teamId = Number(filter.replace('team-', ''))
-          const team = fetchedTeams.find(t => t.id === teamId)
+          const team = fetchedTeams.find((t) => t.id === teamId)
           const displayText = team ? `${team.name} (${team.unit.name})` : filter
 
           return { text: displayText, href: '/tasks/remove-owner/' + filter }
@@ -291,11 +355,13 @@ module.exports = router => {
       const unitIds = selectedUnitFilters.map(Number)
 
       let fetchedUnits = await prisma.unit.findMany({
-        where: { id: { in: unitIds } }
+        where: { id: { in: unitIds } },
       })
 
-      selectedUnitItems = selectedUnitFilters.map(function(selectedUnit) {
-        let unit = fetchedUnits.find(function(u) { return u.id === Number(selectedUnit) })
+      selectedUnitItems = selectedUnitFilters.map(function (selectedUnit) {
+        let unit = fetchedUnits.find(function (u) {
+          return u.id === Number(selectedUnit)
+        })
         return { text: unit ? unit.name : selectedUnit, href: '/tasks/remove-unit/' + selectedUnit }
       })
 
@@ -304,84 +370,87 @@ module.exports = router => {
 
     // Task name filter display
     if (selectedTaskNameFilters?.length) {
-      selectedTaskNameItems = selectedTaskNameFilters.map(function(taskName) {
+      selectedTaskNameItems = selectedTaskNameFilters.map(function (taskName) {
         return { text: taskName, href: '/tasks/remove-task-name/' + encodeURIComponent(taskName) }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Task' },
-        items: selectedTaskNameItems
+        items: selectedTaskNameItems,
       })
     }
 
     // Severity filter display
     if (selectedSeverityFilters?.length) {
-      selectedSeverityItems = selectedSeverityFilters.map(function(severity) {
+      selectedSeverityItems = selectedSeverityFilters.map(function (severity) {
         return { text: severity, href: '/tasks/remove-severity/' + encodeURIComponent(severity) }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Due' },
-        items: selectedSeverityItems
+        items: selectedSeverityItems,
       })
     }
 
     // Urgent filter display
     if (selectedUrgentFilters?.length) {
-      selectedUrgentItems = selectedUrgentFilters.map(function(urgent) {
+      selectedUrgentItems = selectedUrgentFilters.map(function (urgent) {
         return { text: urgent, href: '/tasks/remove-urgent/' + encodeURIComponent(urgent) }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Urgent' },
-        items: selectedUrgentItems
+        items: selectedUrgentItems,
       })
     }
 
     // Reminder filter display
     if (selectedReminderFilters?.length) {
-      selectedReminderItems = selectedReminderFilters.map(function(reminder) {
+      selectedReminderItems = selectedReminderFilters.map(function (reminder) {
         return { text: reminder, href: '/tasks/remove-reminder/' + encodeURIComponent(reminder) }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Reminder' },
-        items: selectedReminderItems
+        items: selectedReminderItems,
       })
     }
 
     // Time limit type filter display
     if (selectedTimeLimitTypeFilters?.length) {
-      selectedTimeLimitTypeItems = selectedTimeLimitTypeFilters.map(function(timeLimitType) {
-        return { text: timeLimitType, href: '/tasks/remove-time-limit-type/' + encodeURIComponent(timeLimitType) }
+      selectedTimeLimitTypeItems = selectedTimeLimitTypeFilters.map(function (timeLimitType) {
+        return {
+          text: timeLimitType,
+          href: '/tasks/remove-time-limit-type/' + encodeURIComponent(timeLimitType),
+        }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Time limit' },
-        items: selectedTimeLimitTypeItems
+        items: selectedTimeLimitTypeItems,
       })
     }
 
     // PACE clock range filter display
     if (selectedPaceClockRangeFilters?.length) {
       const paceClockRangeDisplayText = {
-        'expired': 'Expired',
-        'lessThan1Hour': 'Ends in less than 1 hour',
-        'lessThan2Hours': 'Ends in less than 2 hours',
-        'lessThan3Hours': 'Ends in less than 3 hours',
-        'moreThan3Hours': 'Ends in more than 3 hours'
+        expired: 'Expired',
+        lessThan1Hour: 'Ends in less than 1 hour',
+        lessThan2Hours: 'Ends in less than 2 hours',
+        lessThan3Hours: 'Ends in less than 3 hours',
+        moreThan3Hours: 'Ends in more than 3 hours',
       }
 
-      selectedPaceClockRangeItems = selectedPaceClockRangeFilters.map(function(range) {
+      selectedPaceClockRangeItems = selectedPaceClockRangeFilters.map(function (range) {
         return {
           text: paceClockRangeDisplayText[range] || range,
-          href: '/tasks/remove-pace-clock-range/' + encodeURIComponent(range)
+          href: '/tasks/remove-pace-clock-range/' + encodeURIComponent(range),
         }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'PACE clock' },
-        items: selectedPaceClockRangeItems
+        items: selectedPaceClockRangeItems,
       })
     }
 
@@ -389,72 +458,76 @@ module.exports = router => {
     if (selectedCustodyTimeLimitRangeFilters?.length) {
       // Map groupKey values to display text
       const ctlRangeDisplayText = {
-        'overdue': 'Expired',
-        'today': 'Ends today',
-        'tomorrow': 'Ends tomorrow',
-        'thisWeek': 'Ends this week',
-        'nextWeek': 'Ends next week',
-        'later': 'Ends later'
+        overdue: 'Expired',
+        today: 'Ends today',
+        tomorrow: 'Ends tomorrow',
+        thisWeek: 'Ends this week',
+        nextWeek: 'Ends next week',
+        later: 'Ends later',
       }
 
-      selectedCustodyTimeLimitRangeItems = selectedCustodyTimeLimitRangeFilters.map(function(range) {
-        return {
-          text: ctlRangeDisplayText[range] || range,
-          href: '/tasks/remove-custody-time-limit-range/' + encodeURIComponent(range)
-        }
-      })
+      selectedCustodyTimeLimitRangeItems = selectedCustodyTimeLimitRangeFilters.map(
+        function (range) {
+          return {
+            text: ctlRangeDisplayText[range] || range,
+            href: '/tasks/remove-custody-time-limit-range/' + encodeURIComponent(range),
+          }
+        },
+      )
 
       selectedFilters.categories.push({
         heading: { text: 'Custody time limit' },
-        items: selectedCustodyTimeLimitRangeItems
+        items: selectedCustodyTimeLimitRangeItems,
       })
     }
 
     // Statutory time limit range filter display
     if (selectedStatutoryTimeLimitRangeFilters?.length) {
       const stlRangeDisplayText = {
-        'overdue': 'Expired',
-        'today': 'Ends today',
-        'tomorrow': 'Ends tomorrow',
-        'thisWeek': 'Ends this week',
-        'nextWeek': 'Ends next week',
-        'later': 'Ends later'
+        overdue: 'Expired',
+        today: 'Ends today',
+        tomorrow: 'Ends tomorrow',
+        thisWeek: 'Ends this week',
+        nextWeek: 'Ends next week',
+        later: 'Ends later',
       }
 
-      selectedStatutoryTimeLimitRangeItems = selectedStatutoryTimeLimitRangeFilters.map(function(range) {
-        return {
-          text: stlRangeDisplayText[range] || range,
-          href: '/tasks/remove-statutory-time-limit-range/' + encodeURIComponent(range)
-        }
-      })
+      selectedStatutoryTimeLimitRangeItems = selectedStatutoryTimeLimitRangeFilters.map(
+        function (range) {
+          return {
+            text: stlRangeDisplayText[range] || range,
+            href: '/tasks/remove-statutory-time-limit-range/' + encodeURIComponent(range),
+          }
+        },
+      )
 
       selectedFilters.categories.push({
         heading: { text: 'Statutory time limit' },
-        items: selectedStatutoryTimeLimitRangeItems
+        items: selectedStatutoryTimeLimitRangeItems,
       })
     }
 
     // Hearing date range filter display
     if (selectedHearingDateRangeFilters?.length) {
       const hearingDateRangeDisplayText = {
-        'overdue': 'Passed',
-        'today': 'Today',
-        'tomorrow': 'Tomorrow',
-        'thisWeek': 'This week',
-        'nextWeek': 'Next week',
-        'later': 'Later'
+        overdue: 'Passed',
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        thisWeek: 'This week',
+        nextWeek: 'Next week',
+        later: 'Later',
       }
 
-      selectedHearingDateRangeItems = selectedHearingDateRangeFilters.map(function(range) {
+      selectedHearingDateRangeItems = selectedHearingDateRangeFilters.map(function (range) {
         return {
           text: hearingDateRangeDisplayText[range] || range,
-          href: '/tasks/remove-hearing-date-range/' + encodeURIComponent(range)
+          href: '/tasks/remove-hearing-date-range/' + encodeURIComponent(range),
         }
       })
 
       selectedFilters.categories.push({
         heading: { text: 'Hearing date' },
-        items: selectedHearingDateRangeItems
+        items: selectedHearingDateRangeItems,
       })
     }
 
@@ -474,7 +547,7 @@ module.exports = router => {
       const userIds = []
       const teamIds = []
 
-      selectedOwnerFilters.forEach(filter => {
+      selectedOwnerFilters.forEach((filter) => {
         if (filter.startsWith('user-')) {
           userIds.push(Number(filter.replace('user-', '')))
         } else if (filter.startsWith('team-')) {
@@ -538,45 +611,42 @@ module.exports = router => {
 
     let tasks = await prisma.task.findMany({
       where: where,
-      orderBy: [
-        { reminderDate: 'asc' },
-        { dueDate: 'asc' }
-      ],
+      orderBy: [{ reminderDate: 'asc' }, { dueDate: 'asc' }],
       include: {
         case: {
           include: {
             defendants: {
               include: {
                 charges: true,
-                defenceLawyer: true
-              }
+                defenceLawyer: true,
+              },
             },
             unit: true,
             hearings: {
               orderBy: {
-                startDate: 'asc'
+                startDate: 'asc',
               },
-              take: 1
-            }
-          }
+              take: 1,
+            },
+          },
         },
         assignedToUser: true,
         assignedToTeam: {
           include: {
-            unit: true
-          }
+            unit: true,
+          },
         },
         notes: {
           orderBy: {
-            createdAt: 'desc'
+            createdAt: 'desc',
           },
-          take: 1
-        }
-      }
+          take: 1,
+        },
+      },
     })
 
     // Add time limit dates to each task's case
-    tasks = tasks.map(task => {
+    tasks = tasks.map((task) => {
       addTimeLimitDates(task.case)
       addCaseStatus(task.case)
       return task
@@ -584,8 +654,8 @@ module.exports = router => {
 
     // Filter by time limit type (must be done after calculating time limit dates)
     if (selectedTimeLimitTypeFilters?.length) {
-      tasks = tasks.filter(task => {
-        return selectedTimeLimitTypeFilters.some(filter => {
+      tasks = tasks.filter((task) => {
+        return selectedTimeLimitTypeFilters.some((filter) => {
           if (filter === 'Custody time limit' && task.case.custodyTimeLimit) return true
           if (filter === 'Statutory time limit' && task.case.statutoryTimeLimit) return true
           if (filter === 'PACE clock' && task.case.paceClock) return true
@@ -596,13 +666,21 @@ module.exports = router => {
 
     let keywords = _.get(req.session.data.taskSearch, 'keywords')
 
-    if(keywords) {
+    if (keywords) {
       keywords = keywords.toLowerCase()
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         let taskName = task.name.toLowerCase()
         let caseReference = task.case.reference.toLowerCase()
-        let defendantName = (task.case.defendants[0].firstName + ' ' + task.case.defendants[0].lastName).toLowerCase()
-        return taskName.indexOf(keywords) > -1 || caseReference.indexOf(keywords) > -1 || defendantName.indexOf(keywords) > -1
+        let defendantName = (
+          task.case.defendants[0].firstName +
+          ' ' +
+          task.case.defendants[0].lastName
+        ).toLowerCase()
+        return (
+          taskName.indexOf(keywords) > -1 ||
+          caseReference.indexOf(keywords) > -1 ||
+          defendantName.indexOf(keywords) > -1
+        )
       })
     }
 
@@ -611,40 +689,40 @@ module.exports = router => {
       where: {
         units: {
           some: {
-            unitId: { in: userUnitIds }
-          }
-        }
-      }
+            unitId: { in: userUnitIds },
+          },
+        },
+      },
     })
 
     let teams = await prisma.team.findMany({
       where: { unitId: { in: userUnitIds } },
-      include: { unit: true }
+      include: { unit: true },
     })
 
     // Build owner items with prefixed values
     let ownerItems = []
 
     // Add users with "user-{id}" prefix
-    users.forEach(user => {
+    users.forEach((user) => {
       if (currentUser && user.id === currentUser.id) {
         ownerItems.push({
           text: `${user.firstName} ${user.lastName} (you)`,
-          value: `user-${user.id}`
+          value: `user-${user.id}`,
         })
       } else {
         ownerItems.push({
           text: `${user.firstName} ${user.lastName}`,
-          value: `user-${user.id}`
+          value: `user-${user.id}`,
         })
       }
     })
 
     // Add teams with "team-{id}" prefix and unit label
-    teams.forEach(team => {
+    teams.forEach((team) => {
       ownerItems.push({
         text: `${team.name} (${team.unit.name})`,
-        value: `team-${team.id}`
+        value: `team-${team.id}`,
       })
     })
 
@@ -657,17 +735,17 @@ module.exports = router => {
 
     // Fetch only user's units for the filter
     let units = await prisma.unit.findMany({
-      where: { id: { in: userUnitIds } }
+      where: { id: { in: userUnitIds } },
     })
 
-    let unitItems = units.map(unit => ({
+    let unitItems = units.map((unit) => ({
       text: unit.name,
-      value: `${unit.id}`
+      value: `${unit.id}`,
     }))
 
-    let taskNameItems = taskNames.map(taskName => ({
+    let taskNameItems = taskNames.map((taskName) => ({
       text: taskName,
-      value: taskName
+      value: taskName,
     }))
 
     // Severity items
@@ -675,26 +753,26 @@ module.exports = router => {
       { text: 'Not due yet', value: 'Not due yet' },
       { text: 'Due soon', value: 'Due soon' },
       { text: 'Overdue', value: 'Overdue' },
-      { text: 'Critically overdue', value: 'Critically overdue' }
+      { text: 'Critically overdue', value: 'Critically overdue' },
     ]
 
     // Urgent items
     let urgentItems = [
       { text: 'Urgent', value: 'Urgent' },
-      { text: 'Not urgent', value: 'Not urgent' }
+      { text: 'Not urgent', value: 'Not urgent' },
     ]
 
     // Reminder items
     let reminderItems = [
       { text: 'Is reminder', value: 'Is reminder' },
-      { text: 'Is not reminder', value: 'Is not reminder' }
+      { text: 'Is not reminder', value: 'Is not reminder' },
     ]
 
     // Time limit type items
     let timeLimitTypeItems = [
       { text: 'Custody time limit', value: 'Custody time limit' },
       { text: 'Statutory time limit', value: 'Statutory time limit' },
-      { text: 'PACE clock', value: 'PACE clock' }
+      { text: 'PACE clock', value: 'PACE clock' },
     ]
 
     // Custody time limit range items
@@ -704,7 +782,7 @@ module.exports = router => {
       { text: 'Ends tomorrow', value: 'tomorrow' },
       { text: 'Ends this week', value: 'thisWeek' },
       { text: 'Ends next week', value: 'nextWeek' },
-      { text: 'Ends later', value: 'later' }
+      { text: 'Ends later', value: 'later' },
     ]
 
     // Statutory time limit range items (SAME as CTL - date-based)
@@ -714,7 +792,7 @@ module.exports = router => {
       { text: 'Ends tomorrow', value: 'tomorrow' },
       { text: 'Ends this week', value: 'thisWeek' },
       { text: 'Ends next week', value: 'nextWeek' },
-      { text: 'Ends later', value: 'later' }
+      { text: 'Ends later', value: 'later' },
     ]
 
     // PACE clock range items (TIME-BASED - 5 options, not 6)
@@ -723,7 +801,7 @@ module.exports = router => {
       { text: 'Ends in less than 1 hour', value: 'lessThan1Hour' },
       { text: 'Ends in less than 2 hours', value: 'lessThan2Hours' },
       { text: 'Ends in less than 3 hours', value: 'lessThan3Hours' },
-      { text: 'Ends in more than 3 hours', value: 'moreThan3Hours' }
+      { text: 'Ends in more than 3 hours', value: 'moreThan3Hours' },
     ]
 
     // Hearing date range items
@@ -733,7 +811,7 @@ module.exports = router => {
       { text: 'Tomorrow', value: 'tomorrow' },
       { text: 'This week', value: 'thisWeek' },
       { text: 'Next week', value: 'nextWeek' },
-      { text: 'Later', value: 'later' }
+      { text: 'Later', value: 'later' },
     ]
 
     // Handle sorting
@@ -748,14 +826,14 @@ module.exports = router => {
 
     // Filter by severity (after grouping, since severity is calculated in groupTasks)
     if (selectedSeverityFilters?.length) {
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         return selectedSeverityFilters.includes(task.severity)
       })
     }
 
     // Filter by custody time limit range (works regardless of sort order)
     if (selectedCustodyTimeLimitRangeFilters?.length) {
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         // Calculate CTL date group for this task
         const ctlDate = task.case?.custodyTimeLimit || null
         const ctlGroupKey = getDateGroup(ctlDate, today)
@@ -772,7 +850,7 @@ module.exports = router => {
 
     // Filter by statutory time limit range (works regardless of sort order)
     if (selectedStatutoryTimeLimitRangeFilters?.length) {
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         const stlDate = task.case?.statutoryTimeLimit || null
         const stlGroupKey = getDateGroup(stlDate, today)
 
@@ -787,7 +865,7 @@ module.exports = router => {
 
     // Filter by PACE clock range (works regardless of sort order)
     if (selectedPaceClockRangeFilters?.length) {
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         const paceClockDateTime = task.case?.paceClock || null
         const paceClockGroupKey = getPaceClockGroup(paceClockDateTime)
 
@@ -802,7 +880,7 @@ module.exports = router => {
 
     // Filter by hearing date range (works regardless of sort order)
     if (selectedHearingDateRangeFilters?.length) {
-      tasks = tasks.filter(task => {
+      tasks = tasks.filter((task) => {
         // Get the first hearing's start date
         const hearingDate = task.case?.hearings?.[0]?.startDate || null
         const hearingDateGroupKey = getDateGroup(hearingDate, today)
@@ -817,7 +895,12 @@ module.exports = router => {
       })
     }
 
-    if (sortBy === 'Time limit' || sortBy === 'Custody time limit' || sortBy === 'Statutory time limit' || sortBy === 'PACE clock') {
+    if (
+      sortBy === 'Time limit' ||
+      sortBy === 'Custody time limit' ||
+      sortBy === 'Statutory time limit' ||
+      sortBy === 'PACE clock'
+    ) {
       // Sort by specific time limit date
       // Tasks with the matching time limit type come first, then others
       tasks.sort((a, b) => {
@@ -835,10 +918,18 @@ module.exports = router => {
           bDate = b.case.paceClock
         } else {
           // For 'Time limit', find earliest of all three types
-          const aDates = [a.case.custodyTimeLimit, a.case.statutoryTimeLimit, a.case.paceClock].filter(d => d)
-          const bDates = [b.case.custodyTimeLimit, b.case.statutoryTimeLimit, b.case.paceClock].filter(d => d)
-          aDate = aDates.length > 0 ? new Date(Math.min(...aDates.map(d => new Date(d)))) : null
-          bDate = bDates.length > 0 ? new Date(Math.min(...bDates.map(d => new Date(d)))) : null
+          const aDates = [
+            a.case.custodyTimeLimit,
+            a.case.statutoryTimeLimit,
+            a.case.paceClock,
+          ].filter((d) => d)
+          const bDates = [
+            b.case.custodyTimeLimit,
+            b.case.statutoryTimeLimit,
+            b.case.paceClock,
+          ].filter((d) => d)
+          aDate = aDates.length > 0 ? new Date(Math.min(...aDates.map((d) => new Date(d)))) : null
+          bDate = bDates.length > 0 ? new Date(Math.min(...bDates.map((d) => new Date(d)))) : null
         }
 
         // Tasks with dates come before tasks without
@@ -920,7 +1011,7 @@ module.exports = router => {
       taskNameItems,
       selectedTaskNameFilters,
       selectedTaskNameItems,
-      selectedFilters
+      selectedFilters,
     })
   })
 
@@ -991,7 +1082,11 @@ module.exports = router => {
   router.get('/tasks/remove-statutory-time-limit-range/:range', (req, res) => {
     const currentFilters = _.get(req, 'session.data.taskListFilters.statutoryTimeLimitRange', [])
     const range = decodeURIComponent(req.params.range)
-    _.set(req, 'session.data.taskListFilters.statutoryTimeLimitRange', _.pull(currentFilters, range))
+    _.set(
+      req,
+      'session.data.taskListFilters.statutoryTimeLimitRange',
+      _.pull(currentFilters, range),
+    )
     res.redirect('/tasks')
   })
 
@@ -1018,5 +1113,4 @@ module.exports = router => {
     _.set(req, 'session.data.taskSearch.keywords', '')
     res.redirect('/tasks')
   })
-
 }
