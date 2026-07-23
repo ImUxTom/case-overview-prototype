@@ -31,7 +31,7 @@
         href: "/dga-reporting",
         text: "DGA reporting",
         active: navId == 'dga'
-      } if false,
+      } if data.user.role == "Manager" or data.user.role == "DGA",
       {
         href: "/prosecutors",
         text: "Prosecutors",
