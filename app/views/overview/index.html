@@ -14,10 +14,9 @@
       <h1 class="govuk-heading-l">{{ pageName }}</h1>
 
       {# {% include "_includes/overview/nav-links.njk" %} #}
-
       {% include "_includes/overview/cases.njk" %}
 
-      {% if data.user.role == "Manager" %}
+      {% if data.user.role == "Manager" or data.user.role == "DGA" %}
         {% include "_includes/overview/dga-reporting.njk" %}
       {% endif %}
 
@@ -26,15 +25,11 @@
       {% endif %}
       {% include "_includes/overview/tasks.njk" %} #}
 
-      {% if data.user.role == "Manager" %}
+      {% if data.user.role == "Manager" or data.user.role == "DGA" %}
         {% include "_includes/overview/prosecutors.njk" %}
       {% endif %}
-
       {% include "_includes/overview/unit-breakdown.njk" %}
-
       {% include "_includes/overview/priority-cases.njk" %}
-
-
       {% include "_includes/overview/recent-cases.njk" %}
     </div>
   </div>

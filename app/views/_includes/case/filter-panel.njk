@@ -1,5 +1,7 @@
 {% set filterOptionsHtml %}
 
+  {% if data.user.role != "DGA" %}
+
   {{ govukCheckboxes({
     idPrefix: "caseListFilters[statuses]",
     name: "caseListFilters[statuses]",
@@ -98,6 +100,8 @@
     values: data.caseListFilters.informationRequests
   }) }}
 
+  {% endif %}
+
   {{ appCheckboxFilter({
     idPrefix: "caseListFilters[prosecutors]",
     name: "caseListFilters[prosecutors]",
@@ -164,6 +168,8 @@
     values: data.caseListFilters.complexities
   }) }} #}
 
+  {% if data.user.role != "DGA" %}
+
   {{ govukCheckboxes({
     idPrefix: "caseListFilters[custodyTimeLimitRange]",
     name: "caseListFilters[custodyTimeLimitRange]",
@@ -220,7 +226,9 @@
     values: selectedHearingPrepDateRangeFilters
   }) }}
 
-  {% if data.user.role == "Manager" %}
+  {% endif %}
+
+  {% if data.user.role == "Manager" or data.user.role == "DGA" %}
     {{ govukCheckboxes({
       idPrefix: "caseListFilters[dga]",
       name: "caseListFilters[dga]",

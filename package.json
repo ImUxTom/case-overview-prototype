@@ -11,7 +11,6 @@
     "@faker-js/faker": "^9.9.0",
     "@govuk-prototype-kit/common-templates": "2.0.1",
     "@govuk-prototype-kit/step-by-step": "2.2.4",
-    "@prisma/client": "^6.16.2",
     "@x-govuk/govuk-prototype-components": "6.0.0",
     "@x-govuk/govuk-prototype-filters": "^2.0.0",
     "bcrypt": "^6.0.0",
@@ -24,9 +23,10 @@
     "postcss": "^8.5.6"
   },
   "devDependencies": {
+    "@prisma/client": "^6.19.3",
     "prettier": "^3.8.1",
     "prettier-plugin-jinja-template": "^2.1.0",
-    "prisma": "^6.16.2"
+    "prisma": "^6.19.3"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

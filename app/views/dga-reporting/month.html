@@ -74,7 +74,8 @@
           {% elif policeUnit.casesNeedingOutcomes > 0 %}
             <p class="govuk-body">
               Outcomes for {{ policeUnit.casesNeedingOutcomes }}
-              {{ policeUnit.casesNeedingOutcomes | pluralize("case") }} need to be recorded.
+              {{ policeUnit.casesNeedingOutcomes | pluralize("case") }}
+              need to be recorded.
             </p>
             {{ govukButton({ text: "Record dispute outcomes", href: "/cases/shortcut/dga-police-unit/" + monthKey + "/" + policeUnit.id }) }}
           {% else %}

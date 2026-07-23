@@ -1,29 +1,37 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-function getWeeksForMonth (year, month) {
+function getWeeksForMonth(year, month) {
+  // month is 1-indexed. Weeks end on Sunday.
   const lastDay = new Date(year, month, 0).getDate()
+  const firstDayOfWeek = new Date(year, month - 1, 1).getDay() // 0=Sun
+  const daysUntilFirstSunday = firstDayOfWeek === 0 ? 0 : 7 - firstDayOfWeek
+  const firstSundayDay = 1 + daysUntilFirstSunday
+
   const weeks = []
   let weekNum = 1
   let startDay = 1
+  let endSunday = firstSundayDay
 
   while (startDay <= lastDay) {
-    const endDay = Math.min(startDay + 6, lastDay)
+    const endDay = Math.min(endSunday, lastDay)
     const endDate = new Date(year, month - 1, endDay)
     weeks.push({
       value: weekNum.toString(),
       startDay,
       endDay,
       endDate,
-      label: `Week ${weekNum} - ending ${endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
+      label: `Week ${weekNum} - ending ${endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`,
     })
     weekNum++
     startDay = endDay + 1
+    endSunday = endDay + 7
   }
+
   return weeks
 }
 
-module.exports = router => {
+module.exports = (router) => {
   // Show week selection page for export
   router.get('/dga-reporting/:month/:policeUnitId/export', async (req, res) => {
     const monthKey = req.params.month
@@ -32,11 +40,14 @@ module.exports = router => {
 
     const weeks = getWeeksForMonth(year, month)
     const policeUnit = await prisma.policeUnit.findUnique({ where: { id: policeUnitId } })
-    const monthName = new Date(year, month - 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+    const monthName = new Date(year, month - 1).toLocaleDateString('en-GB', {
+      month: 'long',
+      year: 'numeric',
+    })
 
-    const weekItems = weeks.map(week => ({
+    const weekItems = weeks.map((week) => ({
       value: week.value,
-      text: week.label
+      text: week.label,
     }))
 
     res.render('dga-reporting/export/index', {
@@ -45,7 +56,7 @@ module.exports = router => {
       policeUnitId,
       policeUnit,
       weeks,
-      weekItems
+      weekItems,
     })
   })
 
@@ -57,7 +68,7 @@ module.exports = router => {
     const currentUser = req.session.data.user
 
     // Get user's unit IDs for filtering
-    const userUnitIds = currentUser?.units?.map(uu => uu.unitId) || []
+    const userUnitIds = currentUser?.units?.map((uu) => uu.unitId) || []
 
     // Parse the month key
     const [year, month] = monthKey.split('-').map(Number)
@@ -69,16 +80,16 @@ module.exports = router => {
 
     // Build date ranges from selected weeks
     const weeks = getWeeksForMonth(year, month)
-    const selectedWeekData = weeks.filter(w => selectedWeeks.includes(w.value))
+    const selectedWeekData = weeks.filter((w) => selectedWeeks.includes(w.value))
 
     // Build date filter conditions for selected weeks
-    const dateConditions = selectedWeekData.map(week => ({
+    const dateConditions = selectedWeekData.map((week) => ({
       dga: {
         reviewDate: {
           gte: new Date(year, month - 1, week.startDay),
-          lte: new Date(year, month - 1, week.endDay, 23, 59, 59, 999)
-        }
-      }
+          lte: new Date(year, month - 1, week.endDay, 23, 59, 59, 999),
+        },
+      },
     }))
 
     // Get all cases with DGA for this month and police unit, filtered by selected weeks
@@ -88,21 +99,21 @@ module.exports = router => {
           { dga: { isNot: null } },
           { OR: dateConditions },
           { unitId: { in: userUnitIds } },
-          { policeUnitId: policeUnitId }
-        ]
+          { policeUnitId: policeUnitId },
+        ],
       },
       include: {
         unit: true,
         policeUnit: true,
         dga: {
           include: {
-            failureReasons: true
-          }
-        }
+            failureReasons: true,
+          },
+        },
       },
       orderBy: {
-        reference: 'asc'
-      }
+        reference: 'asc',
+      },
     })
 
     // Get police unit name for filename
@@ -122,7 +133,7 @@ module.exports = router => {
       { header: 'Reviewing group', key: 'reviewingGroup', width: 20 },
       { header: 'Review Type All', key: 'reviewTypeAll', width: 20 },
       { header: 'Review', key: 'review', width: 15 },
-      { header: 'Prosecutor\'s Declaration', key: 'prosecutorDeclaration', width: 25 },
+      { header: "Prosecutor's Declaration", key: 'prosecutorDeclaration', width: 25 },
       { header: 'Rape', key: 'rape', width: 10 },
       { header: 'Domestic violence', key: 'domesticViolence', width: 20 },
       { header: 'Hate Crime Flag', key: 'hateCrimeFlag', width: 20 },
@@ -130,7 +141,7 @@ module.exports = router => {
       { header: 'Did the police dispute this failure?', key: 'disputed', width: 35 },
       { header: 'Did CPS accept the dispute?', key: 'cpsAccepted', width: 30 },
       { header: 'Contact methods', key: 'discussionMethods', width: 20 },
-      ...(!shareOutsideCps ? [{ header: 'Comments', key: 'comments', width: 30 }] : [])
+      ...(!shareOutsideCps ? [{ header: 'Comments', key: 'comments', width: 30 }] : []),
     ]
 
     // Style the header row
@@ -138,13 +149,13 @@ module.exports = router => {
     worksheet.getRow(1).fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FFD3D3D3' }
+      fgColor: { argb: 'FFD3D3D3' },
     }
 
     // Add data rows - one row per failure reason
-    cases.forEach(_case => {
+    cases.forEach((_case) => {
       if (_case.dga && _case.dga.failureReasons && _case.dga.failureReasons.length > 0) {
-        _case.dga.failureReasons.forEach(failureReason => {
+        _case.dga.failureReasons.forEach((failureReason) => {
           worksheet.addRow({
             urn: _case.reference,
             caseworkType: _case.type || '',
@@ -162,14 +173,17 @@ module.exports = router => {
             disputed: failureReason.didPoliceDisputeFailure || '',
             cpsAccepted: failureReason.didCpsAcceptDispute || '',
             discussionMethods: failureReason.discussionMethods || '',
-            ...(!shareOutsideCps && { comments: failureReason.details || '' })
+            ...(!shareOutsideCps && { comments: failureReason.details || '' }),
           })
         })
       }
     })
 
     // Generate filename with month and police unit name
-    const readableMonthName = new Date(year, month - 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+    const readableMonthName = new Date(year, month - 1).toLocaleDateString('en-GB', {
+      month: 'long',
+      year: 'numeric',
+    })
     const monthName = readableMonthName.toLowerCase().replace(' ', '-')
     const safePoliceUnitName = policeUnitName
       .toLowerCase()
@@ -179,7 +193,10 @@ module.exports = router => {
     const filename = `dga-outcomes-${monthName}-${safePoliceUnitName}.xlsx`
 
     // Set response headers for download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
 
     // Write to response
@@ -199,9 +216,9 @@ module.exports = router => {
           monthName: readableMonthName,
           monthKey,
           shareOutsideCps: shareOutsideCps ? 'Yes' : 'No',
-          weeks: selectedWeekData.map(w => w.label)
-        }
-      }
+          weeks: selectedWeekData.map((w) => w.label),
+        },
+      },
     })
   })
 }
