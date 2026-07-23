@@ -1,102 +1,108 @@
+{# New conditional filters #}
+
 {% set filterOptionsHtml %}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[statuses]",
-    name: "caseListFilters[statuses]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Status",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: statusItems,
-    values: selectedStatusFilters
-  }) if statusItems.length }}
+  {% if data.user.role != "DGA" %}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[review]",
-    name: "caseListFilters[review]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Review status",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: reviewItems,
-    values: selectedReviewFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[statuses]",
+      name: "caseListFilters[statuses]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Status",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: statusItems,
+      values: selectedStatusFilters
+    }) if statusItems.length }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[firstHearing]",
-    name: "caseListFilters[firstHearing]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "First hearing",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: firstHearingItems,
-    values: selectedFirstHearingFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[review]",
+      name: "caseListFilters[review]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Review status",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: reviewItems,
+      values: selectedReviewFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[hearingStatuses]",
-    name: "caseListFilters[hearingStatuses]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Hearing status",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: hearingStatusItems,
-    values: selectedHearingStatusFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[firstHearing]",
+      name: "caseListFilters[firstHearing]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "First hearing",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: firstHearingItems,
+      values: selectedFirstHearingFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[defendants]",
-    name: "caseListFilters[defendants]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Defendants",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: defendantItems,
-    values: selectedDefendantFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[hearingStatuses]",
+      name: "caseListFilters[hearingStatuses]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Hearing status",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: hearingStatusItems,
+      values: selectedHearingStatusFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[statusMix]",
-    name: "caseListFilters[statusMix]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Status mix",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: statusMixItems,
-    values: selectedStatusMixFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[defendants]",
+      name: "caseListFilters[defendants]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Defendants",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: defendantItems,
+      values: selectedDefendantFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[informationRequests]",
-    name: "caseListFilters[informationRequests]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Information requests",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: informationRequestsItems,
-    values: data.caseListFilters.informationRequests
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[statusMix]",
+      name: "caseListFilters[statusMix]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Status mix",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: statusMixItems,
+      values: selectedStatusMixFilters
+    }) }}
+
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[informationRequests]",
+      name: "caseListFilters[informationRequests]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Information requests",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: informationRequestsItems,
+      values: data.caseListFilters.informationRequests
+    }) }}
+
+  {% endif %}
 
   {{ appCheckboxFilter({
     idPrefix: "caseListFilters[prosecutors]",
@@ -164,63 +170,67 @@
     values: data.caseListFilters.complexities
   }) }} #}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[custodyTimeLimitRange]",
-    name: "caseListFilters[custodyTimeLimitRange]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Custody time limit",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: custodyTimeLimitRangeItems,
-    values: selectedCustodyTimeLimitRangeFilters
-  }) }}
+  {% if data.user.role != "DGA" %}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[statutoryTimeLimitRange]",
-    name: "caseListFilters[statutoryTimeLimitRange]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Statutory time limit",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: statutoryTimeLimitRangeItems,
-    values: selectedStatutoryTimeLimitRangeFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[custodyTimeLimitRange]",
+      name: "caseListFilters[custodyTimeLimitRange]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Custody time limit",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: custodyTimeLimitRangeItems,
+      values: selectedCustodyTimeLimitRangeFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[paceClockRange]",
-    name: "caseListFilters[paceClockRange]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "PACE clock",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: paceClockRangeItems,
-    values: selectedPaceClockRangeFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[statutoryTimeLimitRange]",
+      name: "caseListFilters[statutoryTimeLimitRange]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Statutory time limit",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: statutoryTimeLimitRangeItems,
+      values: selectedStatutoryTimeLimitRangeFilters
+    }) }}
 
-  {{ govukCheckboxes({
-    idPrefix: "caseListFilters[hearingPrepDateRange]",
-    name: "caseListFilters[hearingPrepDateRange]",
-    classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Hearing date",
-        classes: "govuk-fieldset__legend--s"
-      }
-    },
-    items: hearingPrepDateRangeItems,
-    values: selectedHearingPrepDateRangeFilters
-  }) }}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[paceClockRange]",
+      name: "caseListFilters[paceClockRange]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "PACE clock",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: paceClockRangeItems,
+      values: selectedPaceClockRangeFilters
+    }) }}
 
-  {% if data.user.role == "Manager" %}
+    {{ govukCheckboxes({
+      idPrefix: "caseListFilters[hearingPrepDateRange]",
+      name: "caseListFilters[hearingPrepDateRange]",
+      classes: "govuk-checkboxes--small",
+      fieldset: {
+        legend: {
+          text: "Hearing date",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: hearingPrepDateRangeItems,
+      values: selectedHearingPrepDateRangeFilters
+    }) }}
+
+  {% endif %}
+
+  {% if data.user.role == "Manager" or data.user.role == "DGA" %}
     {{ govukCheckboxes({
       idPrefix: "caseListFilters[dga]",
       name: "caseListFilters[dga]",

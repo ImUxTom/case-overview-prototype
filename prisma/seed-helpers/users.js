@@ -62,6 +62,8 @@ async function seedUsers(prisma) {
       selectedUnits = [3, 4]; // Wessex Crown Court, Wessex RASSO (same as Rachael for time limit testing)
     } else if (user.firstName === 'Natasha' && user.lastName === 'Rogers') {
       selectedUnits = [1, 2, 3, 4, 5, 6, 7]; // All Wessex units
+    } else if (user.firstName === 'Dana' && user.lastName === 'Grant') {
+      selectedUnits = [1, 2, 3, 4, 5, 6, 7]; // All Wessex units (DGA-seeded cases live in Wessex Crown Court)
     } else {
       const numUnits = faker.number.int({ min: 1, max: 3 });
       selectedUnits = faker.helpers.arrayElements(

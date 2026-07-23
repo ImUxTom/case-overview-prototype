@@ -18,7 +18,9 @@
             {% set casesNeedingOutcomes = month.nonCompliantCases - month.completedCases %}
             <div class="app-list__item">
               {% set hasStatusLine = month.nonCompliantCases > 0 and month.status !== 'Completed' and month.status !== 'Deadline passed' %}
-              <h2 class="govuk-heading-s {{ 'govuk-!-margin-bottom-2' if hasStatusLine else 'govuk-!-margin-bottom-0' }}">
+              <h2
+                class="govuk-heading-s {{ 'govuk-!-margin-bottom-2' if hasStatusLine else 'govuk-!-margin-bottom-0' }}"
+              >
                 <a href="/dga-reporting/{{ month.key }}">{{ month.name }}</a>
               </h2>
 
